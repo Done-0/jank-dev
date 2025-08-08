@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package plugin;
+
+option go_package = "github.com/Done-0/jank/pkg/plugin/impl";
+
+service PluginService {
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message ExecuteRequest {
+  string method = 1;
+  map<string, string> args = 2;
+}
+
+message ExecuteResponse {
+  map<string, string> data = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+}
