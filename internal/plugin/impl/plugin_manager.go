@@ -82,11 +82,18 @@ func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
 		return fmt.Errorf("plugin %s already registered", info.ID)
 	}
 
-	// 创建插件客户端并启动
+	// 设置插件工作目录和执行路径
+	pluginDir := filepath.Dir(filepath.Dir(info.Binary))
+	binaryPath := filepath.Join(consts.PluginBinDir, filepath.Base(info.Binary))
+
+	cmd := exec.Command(binaryPath)
+	cmd.Dir = pluginDir
+
+	// 创建插件客户端配置
 	config := &plugin.ClientConfig{
 		HandshakeConfig:  jank.HandshakeConfig,
 		Plugins:          jank.PluginMap,
-		Cmd:              exec.Command(info.Binary),
+		Cmd:              cmd,
 		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
 		AutoMTLS:         info.AutoMTLS,
 		Managed:          info.Managed,

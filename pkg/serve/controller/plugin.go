@@ -53,7 +53,7 @@ func (pc *PluginController) RegisterPlugin(ctx context.Context, c *app.RequestCo
 
 	response, err := pc.pluginService.RegisterPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginRegisterFailed)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginRegisterFailed, errorx.KV("id", req.ID))))
 		return
 	}
 
@@ -77,7 +77,7 @@ func (pc *PluginController) UnregisterPlugin(ctx context.Context, c *app.Request
 
 	response, err := pc.pluginService.UnregisterPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginUnregisterFailed)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginUnregisterFailed, errorx.KV("id", req.ID))))
 		return
 	}
 
@@ -125,7 +125,7 @@ func (pc *PluginController) GetPlugin(ctx context.Context, c *app.RequestContext
 
 	response, err := pc.pluginService.GetPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginNotFound)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginNotFound, errorx.KV("id", req.ID))))
 		return
 	}
 

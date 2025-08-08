@@ -8,10 +8,11 @@ require (
 	google.golang.org/grpc v1.74.2 // indirect
 )
 
+require github.com/hashicorp/go-hclog v0.14.1
+
 require (
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect

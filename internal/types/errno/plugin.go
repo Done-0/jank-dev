@@ -46,7 +46,7 @@ func init() {
 	code.Register(ErrPluginGRPCConnFailed, "gRPC connection failed")
 	code.Register(ErrPluginInstallFailed, "failed to install plugin: {name}")
 	code.Register(ErrPluginUninstallFailed, "failed to uninstall plugin: {name}")
-	code.Register(ErrPluginRegisterFailed, "failed to register plugin: {name}")
+	code.Register(ErrPluginRegisterFailed, "failed to register plugin: {id}")
 	code.Register(ErrPluginUnregisterFailed, "failed to unregister plugin: {id}")
 	code.Register(ErrPluginInvalidName, "invalid plugin name: {name}")
 	code.Register(ErrPluginInvalidVersion, "invalid plugin version: {version}")

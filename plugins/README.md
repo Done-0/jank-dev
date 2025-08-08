@@ -163,17 +163,28 @@ func (p *MyPlugin) Execute(ctx context.Context, method string, args map[string]s
 curl http://localhost:8080/api/plugin/list
 
 # 获取插件信息
-curl "http://localhost:8080/api/plugin/get?id=com.example.my-plugin"
+curl "http://localhost:8080/api/plugin/get?id=dev.jank.plugins.hello-world"
 
 # 执行插件方法
-curl -X POST http://localhost:8080/api/plugin/execute \
+curl -X POST "http://127.0.0.1:8080/api/plugin/execute" \
   -H "Content-Type: application/json" \
-  -d '{"id": "com.example.my-plugin", "method": "greet", "payload": "Test"}'
+  -d '{
+    "id": "dev.jank.plugins.hello-world",
+    "method": "greet", 
+    "payload": "{\"name\": \"World\", \"age\": 25, \"city\": \"Beijing\"}"
+  }'
+
+curl -X POST "http://127.0.0.1:8080/api/plugin/execute" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "dev.jank.plugins.hello-world",
+    "method": "info", 
+  }'
 
 # 注销插件
 curl -X POST http://localhost:8080/api/plugin/unregister \
   -H "Content-Type: application/json" \
-  -d '{"id": "com.example.my-plugin"}'
+  -d '{"id": "dev.jank.plugins.hello-world"}'
 ```
 
 ## ⚡ 自动编译

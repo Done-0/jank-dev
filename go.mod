@@ -9,11 +9,13 @@ require (
 	github.com/cloudwego/hertz v0.10.1
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/go-playground/validator/v10 v10.27.0
+	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-plugin v1.6.3
 	github.com/hertz-contrib/casbin v0.1.0
 	github.com/hertz-contrib/cors v0.1.0
 	github.com/hertz-contrib/logger/accesslog v0.0.0-20241107070745-e4ce8c54dd97
+	github.com/hertz-contrib/requestid v1.1.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
@@ -54,7 +56,6 @@ require (
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
