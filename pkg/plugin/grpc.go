@@ -5,10 +5,12 @@ package plugin
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
+	"github.com/Done-0/jank/internal/utils/converter"
 	pb "github.com/Done-0/jank/pkg/plugin/proto"
 )
 
@@ -42,11 +44,22 @@ type grpcServer struct {
 
 // Execute 执行插件方法
 func (s *grpcServer) Execute(ctx context.Context, req *pb.ExecuteRequest) (*pb.ExecuteResponse, error) {
-	data, err := s.Impl.Execute(ctx, req.Method, req.Args)
+	args, err := converter.FromAnyMap(req.Args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert args: %w", err)
+	}
+
+	data, err := s.Impl.Execute(ctx, req.Method, args)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.ExecuteResponse{Data: data}, nil
+
+	resultData, err := converter.ToAnyMap(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert result: %w", err)
+	}
+
+	return &pb.ExecuteResponse{Data: resultData}, nil
 }
 
 // HealthCheck 检查插件健康状态
@@ -64,15 +77,26 @@ type grpcClient struct {
 }
 
 // Execute 执行插件方法
-func (c *grpcClient) Execute(ctx context.Context, method string, args map[string]string) (map[string]string, error) {
+func (c *grpcClient) Execute(ctx context.Context, method string, args map[string]any) (map[string]any, error) {
+	pbArgs, err := converter.ToAnyMap(args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert args: %w", err)
+	}
+
 	resp, err := c.client.Execute(ctx, &pb.ExecuteRequest{
 		Method: method,
-		Args:   args,
+		Args:   pbArgs,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return resp.Data, nil
+
+	result, err := converter.FromAnyMap(resp.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert result: %w", err)
+	}
+
+	return result, nil
 }
 
 // HealthCheck 检查插件健康状态

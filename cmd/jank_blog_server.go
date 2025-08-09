@@ -27,25 +27,25 @@ func Start() {
 		log.Fatalf("failed to initialize config: %v", err)
 	}
 
-	config, err := configs.GetConfig()
+	configs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
 	// 初始化日志
-	logger.New(config)
+	logger.New(configs)
 
 	// 初始化数据库
-	db.New(config)
+	db.New(configs)
 
 	// 初始化 Redis
-	redis.New(config)
+	redis.New(configs)
 
 	// 初始化插件系统
-	plugin.New(config)
+	plugin.New(configs)
 
 	// 创建 Hertz 服务器实例
-	addr := fmt.Sprintf("%s:%s", config.AppConfig.AppHost, config.AppConfig.AppPort)
+	addr := fmt.Sprintf("%s:%s", configs.AppConfig.AppHost, configs.AppConfig.AppPort)
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithExitWaitTime(10*time.Second),

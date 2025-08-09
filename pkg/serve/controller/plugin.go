@@ -101,7 +101,7 @@ func (pc *PluginController) ExecutePlugin(ctx context.Context, c *app.RequestCon
 
 	response, err := pc.pluginService.ExecutePlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginTimeout)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginSystemError, errorx.KV("error", err.Error()))))
 		return
 	}
 
@@ -149,7 +149,7 @@ func (pc *PluginController) ListPlugins(ctx context.Context, c *app.RequestConte
 
 	response, err := pc.pluginService.ListPlugins(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginTimeout)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginSystemError, errorx.KV("error", err.Error()))))
 		return
 	}
 

@@ -56,6 +56,6 @@ func init() {
 	code.Register(ErrPluginUnloadFailed, "failed to unload plugin: {id}")
 	code.Register(ErrPluginStatusInvalid, "invalid plugin status: {status}")
 	code.Register(ErrPluginParamInvalid, "invalid plugin parameter")
-	code.Register(ErrPluginCompileFailed, "failed to compile plugin: {reason}")
-	code.Register(ErrPluginSystemError, "plugin system error: {reason}")
+	code.Register(ErrPluginCompileFailed, "failed to compile plugin: {error}")
+	code.Register(ErrPluginSystemError, "plugin system error: {error}")
 }

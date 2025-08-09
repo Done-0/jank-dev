@@ -15,7 +15,7 @@ type PluginManager interface {
 	// UnregisterPlugin 注销插件
 	UnregisterPlugin(id string) error
 	// ExecutePlugin 执行插件
-	ExecutePlugin(ctx context.Context, id, method string, args map[string]string) (map[string]string, error)
+	ExecutePlugin(ctx context.Context, id, method string, args map[string]any) (map[string]any, error)
 	// GetPlugin 获取插件信息
 	GetPlugin(id string) (*impl.PluginInfo, error)
 	// ListPlugins 列举所有插件（包括未注册的）

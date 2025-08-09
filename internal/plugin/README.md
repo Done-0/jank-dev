@@ -28,7 +28,7 @@ CGO_ENABLED=0 go build -o bin/plugin-name main.go
 ```
 
 ### 类型安全通信
-基于 Protocol Buffers 的 gRPC 接口确保类型安全。
+基于 Protocol Buffers 的 gRPC 接口，支持 `google.protobuf.Any` 类型的灵活数据传输。
 
 ### 生命周期管理
 支持插件的加载、执行、停止、卸载全流程管理。
@@ -39,18 +39,17 @@ CGO_ENABLED=0 go build -o bin/plugin-name main.go
 internal/plugin/
 ├── impl/
 │   └── plugin_manager.go      # 核心管理器实现
-├── proto/
-│   ├── plugin.proto          # gRPC接口定义
-│   ├── plugin.pb.go          # 生成的protobuf代码
-│   └── plugin_grpc.pb.go     # 生成的gRPC代码
-└── README.md                 # 本文档
+└── README.md                  # 本文档
 
 pkg/plugin/
 ├── consts/
 │   └── plugin.go             # 常量定义
+├── proto/
+│   ├── plugin.proto          # gRPC接口定义
+│   ├── plugin.pb.go          # 生成的protobuf代码
+│   └── plugin_grpc.pb.go     # 生成的gRPC代码
 ├── grpc.go                   # gRPC客户端/服务端
-├── interface.go              # 插件接口定义
-└── plugin.go                 # 插件实现
+└── plugin.go                 # 插件接口定义
 
 plugins/                      # 插件存放目录
 └── hello-world/
@@ -98,9 +97,9 @@ import (
 
 type MyPlugin struct{}
 
-func (p *MyPlugin) Execute(ctx context.Context, method string, args map[string]string) (map[string]string, error) {
+func (p *MyPlugin) Execute(ctx context.Context, method string, args map[string]any) (map[string]any, error) {
     // 插件业务逻辑
-    return map[string]string{"result": "success"}, nil
+    return map[string]any{"result": "success"}, nil
 }
 
 func (p *MyPlugin) HealthCheck(ctx context.Context) error {
@@ -137,7 +136,14 @@ func main() {
 {
   "id": "dev.jank.plugins.hello-world",
   "method": "greet",
-  "payload": "World"
+  "args": {
+    "name": "World",
+    "age": 25,
+    "settings": {
+      "verbose": true,
+      "format": "json"
+    }
+  }
 }
 ```
 

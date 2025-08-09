@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
+	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/global"
 	"github.com/Done-0/jank/internal/plugin"
 	"github.com/Done-0/jank/internal/plugin/impl"
-	"github.com/Done-0/jank/pkg/plugin/consts"
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
 	"github.com/Done-0/jank/pkg/serve/service"
 	"github.com/Done-0/jank/pkg/vo"
@@ -20,15 +21,22 @@ import (
 	pluginUtils "github.com/Done-0/jank/internal/utils/plugin"
 )
 
+// PluginServiceImpl 插件服务实现
 type PluginServiceImpl struct{}
 
+// NewPluginService 创建插件服务实例
 func NewPluginService() service.PluginService {
 	return &PluginServiceImpl{}
 }
 
 // RegisterPlugin 注册插件
 func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.RegisterPluginRequest) (*vo.RegisterPluginResponse, error) {
-	entries, err := os.ReadDir(consts.PluginDir)
+	configs, err := configs.GetConfig()
+	if err != nil {
+		log.Fatalf("failed to get config: %v", err)
+	}
+
+	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
 	if err != nil {
 		return &vo.RegisterPluginResponse{Message: err.Error()}, fmt.Errorf("failed to read plugin directory: %w", err)
 	}
@@ -39,8 +47,8 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			continue
 		}
 
-		pluginPath := filepath.Join(consts.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, consts.PluginConfigFile)
+		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
 
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
@@ -59,8 +67,8 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			// 检查二进制文件是否存在，不存在则尝试编译
 			if !pluginUtils.CheckBinaryExists(binaryPath) {
 				if !pluginUtils.CheckMainFileExists(pluginPath) {
-					return &vo.RegisterPluginResponse{Message: fmt.Sprintf("binary and %s not found", consts.PluginMainFile)},
-						fmt.Errorf("binary and %s not found for plugin %s", consts.PluginMainFile, req.ID)
+					return &vo.RegisterPluginResponse{Message: fmt.Sprintf("binary and %s not found", configs.PluginConfig.PluginMainFile)},
+						fmt.Errorf("binary and %s not found for plugin %s", configs.PluginConfig.PluginMainFile, req.ID)
 				}
 
 				if err := pluginUtils.EnsureBinDirectory(pluginPath); err != nil {
@@ -110,9 +118,7 @@ func (s *PluginServiceImpl) UnregisterPlugin(c *app.RequestContext, req *dto.Unr
 
 // ExecutePlugin 执行插件方法
 func (s *PluginServiceImpl) ExecutePlugin(c *app.RequestContext, req *dto.ExecutePluginRequest) (*vo.ExecutePluginResponse, error) {
-	payloadMap := map[string]string{consts.PluginPayloadKey: req.Payload}
-
-	result, err := plugin.GlobalPluginManager.ExecutePlugin(context.Background(), req.ID, req.Method, payloadMap)
+	result, err := plugin.GlobalPluginManager.ExecutePlugin(context.Background(), req.ID, req.Method, req.Args)
 	if err != nil {
 		return &vo.ExecutePluginResponse{}, fmt.Errorf("failed to execute plugin %s method %s: %v", req.ID, req.Method, err)
 	}

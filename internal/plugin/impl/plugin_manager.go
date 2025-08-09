@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/hashicorp/go-plugin"
 
+	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/global"
 	"github.com/Done-0/jank/pkg/plugin/consts"
 
@@ -84,7 +86,13 @@ func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
 
 	// 设置插件工作目录和执行路径
 	pluginDir := filepath.Dir(filepath.Dir(info.Binary))
-	binaryPath := filepath.Join(consts.PluginBinDir, filepath.Base(info.Binary))
+
+	configs, err := configs.GetConfig()
+	if err != nil {
+		log.Fatalf("failed to get config: %v", err)
+	}
+
+	binaryPath := filepath.Join(configs.PluginConfig.PluginBinDir, filepath.Base(info.Binary))
 
 	cmd := exec.Command(binaryPath)
 	cmd.Dir = pluginDir
@@ -117,8 +125,8 @@ func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
 	m.infos[info.ID] = info
 	m.plugins[info.ID] = client
 
-	global.SysLog.Infof("Plugin registered: %s (%s v%s) from %s, PID: %d",
-		info.ID, info.Name, info.Version, info.Repository, info.ProcessPID)
+	global.SysLog.Infof("Plugin registered: %s (%s v%s) from %s, PID: %d, Binary: %s, Type: %s, Status: %s",
+		info.ID, info.Name, info.Version, info.Repository, info.ProcessPID, info.Binary, info.Type, info.Status)
 
 	return nil
 }
@@ -148,7 +156,7 @@ func (m *PluginManagerImpl) UnregisterPlugin(id string) error {
 }
 
 // ExecutePlugin 执行插件方法
-func (m *PluginManagerImpl) ExecutePlugin(ctx context.Context, id, method string, args map[string]string) (map[string]string, error) {
+func (m *PluginManagerImpl) ExecutePlugin(ctx context.Context, id, method string, args map[string]any) (map[string]any, error) {
 	m.mu.RLock()
 	client, exists := m.plugins[id]
 	info, infoExists := m.infos[id]
@@ -218,9 +226,14 @@ func (m *PluginManagerImpl) GetPlugin(id string) (*PluginInfo, error) {
 	return m.createPluginCopy(info), nil
 }
 
-// ListPlugins 列出所有插件（包括未注册的）
+// ListPlugins 列出所有插件（包括已注册和未注册的）
 func (m *PluginManagerImpl) ListPlugins() ([]*PluginDiscoveryInfo, error) {
-	entries, err := os.ReadDir(consts.PluginDir)
+	configs, err := configs.GetConfig()
+	if err != nil {
+		log.Fatalf("failed to get config: %v", err)
+	}
+
+	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read plugin directory: %w", err)
 	}
@@ -247,18 +260,18 @@ func (m *PluginManagerImpl) ListPlugins() ([]*PluginDiscoveryInfo, error) {
 			continue
 		}
 
-		pluginPath := filepath.Join(consts.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, consts.PluginConfigFile)
+		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
 
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
-			global.SysLog.Warnf("Skipping %s: cannot read %s", entry.Name(), consts.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: cannot read %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
 		var config PluginInfo
 		if err := json.Unmarshal(configData, &config); err != nil {
-			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), consts.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
@@ -317,7 +330,12 @@ func (m *PluginManagerImpl) Shutdown() {
 
 // StartAutoPlugins 扫描并启动配置为自动启动的插件
 func (m *PluginManagerImpl) StartAutoPlugins() error {
-	entries, err := os.ReadDir(consts.PluginDir)
+	configs, err := configs.GetConfig()
+	if err != nil {
+		log.Fatalf("failed to get config: %v", err)
+	}
+
+	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			global.SysLog.Info("Plugin directory not found")
@@ -332,19 +350,19 @@ func (m *PluginManagerImpl) StartAutoPlugins() error {
 		}
 
 		// 构建插件路径
-		pluginPath := filepath.Join(consts.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, consts.PluginConfigFile)
+		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
 
 		// 读取配置文件
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
-			global.SysLog.Warnf("Skipping %s: no %s found", entry.Name(), consts.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: no %s found", entry.Name(), configs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
 		var config PluginInfo
 		if err := json.Unmarshal(configData, &config); err != nil {
-			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), consts.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
 			continue
 		}
 

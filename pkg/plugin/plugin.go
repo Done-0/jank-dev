@@ -13,7 +13,7 @@ import (
 
 // Plugin 插件接口定义
 type Plugin interface {
-	Execute(ctx context.Context, method string, args map[string]string) (map[string]string, error)
+	Execute(ctx context.Context, method string, args map[string]any) (map[string]any, error)
 	HealthCheck(ctx context.Context) error
 }
 

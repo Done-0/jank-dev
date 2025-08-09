@@ -86,6 +86,21 @@ type CORSConfig struct {
 	MaxAge           int64    `mapstructure:"MAX_AGE"`           // 预检请求缓存时间（小时）
 }
 
+// PluginConfig 插件配置
+type PluginConfig struct {
+	// 插件目录和文件
+	PluginDir        string `mapstructure:"PLUGIN_DIR"`         // 插件目录
+	PluginConfigFile string `mapstructure:"PLUGIN_CONFIG_FILE"` // 插件配置文件
+	PluginBinDir     string `mapstructure:"PLUGIN_BIN_DIR"`     // 插件二进制文件目录
+	PluginMainFile   string `mapstructure:"PLUGIN_MAIN_FILE"`   // 插件主文件名
+
+	// 编译相关
+	GoCommand      string `mapstructure:"GO_COMMAND"`       // Go命令
+	GoBuildCommand string `mapstructure:"GO_BUILD_COMMAND"` // Go build 子命令
+	CGOEnabled     bool   `mapstructure:"CGO_ENABLED"`      // 是否启用 CGO
+	CGOEnvVar      string `mapstructure:"CGO_ENV_VAR"`      // CGO环境变量设置
+}
+
 // Config 总配置结构
 type Config struct {
 	AppConfig    AppConfig      `mapstructure:"APP"`      // 应用配置
@@ -93,6 +108,7 @@ type Config struct {
 	LogConfig    LogConfig      `mapstructure:"LOG"`      // 日志配置
 	RedisConfig  RedisConfig    `mapstructure:"REDIS"`    // Redis 配置
 	CasbinConfig CasbinConfig   `mapstructure:"CASBIN"`   // Casbin 权限配置
+	PluginConfig PluginConfig   `mapstructure:"PLUGIN"`   // 插件配置
 }
 
 // DefaultConfigPath 默认配置文件路径

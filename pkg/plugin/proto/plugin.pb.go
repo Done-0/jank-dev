@@ -2,13 +2,14 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: pkg/plugin/plugin.proto
+// source: plugin.proto
 
-package plugin
+package __
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -24,14 +25,14 @@ const (
 type ExecuteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Method        string                 `protobuf:"bytes,1,opt,name=method,proto3" json:"method,omitempty"`
-	Args          map[string]string      `protobuf:"bytes,2,rep,name=args,proto3" json:"args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Args          map[string]*anypb.Any  `protobuf:"bytes,2,rep,name=args,proto3" json:"args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExecuteRequest) Reset() {
 	*x = ExecuteRequest{}
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[0]
+	mi := &file_plugin_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +44,7 @@ func (x *ExecuteRequest) String() string {
 func (*ExecuteRequest) ProtoMessage() {}
 
 func (x *ExecuteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[0]
+	mi := &file_plugin_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +57,7 @@ func (x *ExecuteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_plugin_proto_rawDescGZIP(), []int{0}
+	return file_plugin_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ExecuteRequest) GetMethod() string {
@@ -66,24 +67,23 @@ func (x *ExecuteRequest) GetMethod() string {
 	return ""
 }
 
-func (x *ExecuteRequest) GetArgs() map[string]string {
+func (x *ExecuteRequest) GetArgs() map[string]*anypb.Any {
 	if x != nil {
 		return x.Args
 	}
 	return nil
 }
 
-// 纯粹的业务数据响应，不包含状态信息
 type ExecuteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          map[string]string      `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Data          map[string]*anypb.Any  `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExecuteResponse) Reset() {
 	*x = ExecuteResponse{}
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[1]
+	mi := &file_plugin_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *ExecuteResponse) String() string {
 func (*ExecuteResponse) ProtoMessage() {}
 
 func (x *ExecuteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[1]
+	mi := &file_plugin_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,10 +108,10 @@ func (x *ExecuteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteResponse.ProtoReflect.Descriptor instead.
 func (*ExecuteResponse) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_plugin_proto_rawDescGZIP(), []int{1}
+	return file_plugin_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ExecuteResponse) GetData() map[string]string {
+func (x *ExecuteResponse) GetData() map[string]*anypb.Any {
 	if x != nil {
 		return x.Data
 	}
@@ -126,7 +126,7 @@ type HealthCheckRequest struct {
 
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[2]
+	mi := &file_plugin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -138,7 +138,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[2]
+	mi := &file_plugin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -151,7 +151,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_plugin_proto_rawDescGZIP(), []int{2}
+	return file_plugin_proto_rawDescGZIP(), []int{2}
 }
 
 type HealthCheckResponse struct {
@@ -163,7 +163,7 @@ type HealthCheckResponse struct {
 
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[3]
+	mi := &file_plugin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -175,7 +175,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_plugin_proto_msgTypes[3]
+	mi := &file_plugin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -188,7 +188,7 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_plugin_proto_rawDescGZIP(), []int{3}
+	return file_plugin_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *HealthCheckResponse) GetStatus() string {
@@ -198,84 +198,87 @@ func (x *HealthCheckResponse) GetStatus() string {
 	return ""
 }
 
-var File_pkg_plugin_plugin_proto protoreflect.FileDescriptor
+var File_plugin_proto protoreflect.FileDescriptor
 
-const file_pkg_plugin_plugin_proto_rawDesc = "" +
+const file_plugin_proto_rawDesc = "" +
 	"\n" +
-	"\x17pkg/plugin/plugin.proto\x12\x06plugin\"\x97\x01\n" +
+	"\fplugin.proto\x12\x06plugin\x1a\x19google/protobuf/any.proto\"\xad\x01\n" +
 	"\x0eExecuteRequest\x12\x16\n" +
 	"\x06method\x18\x01 \x01(\tR\x06method\x124\n" +
-	"\x04args\x18\x02 \x03(\v2 .plugin.ExecuteRequest.ArgsEntryR\x04args\x1a7\n" +
+	"\x04args\x18\x02 \x03(\v2 .plugin.ExecuteRequest.ArgsEntryR\x04args\x1aM\n" +
 	"\tArgsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x81\x01\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01\"\x97\x01\n" +
 	"\x0fExecuteResponse\x125\n" +
-	"\x04data\x18\x01 \x03(\v2!.plugin.ExecuteResponse.DataEntryR\x04data\x1a7\n" +
+	"\x04data\x18\x01 \x03(\v2!.plugin.ExecuteResponse.DataEntryR\x04data\x1aM\n" +
 	"\tDataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01\"\x14\n" +
 	"\x12HealthCheckRequest\"-\n" +
 	"\x13HealthCheckResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status2\x93\x01\n" +
 	"\rPluginService\x12:\n" +
 	"\aExecute\x12\x16.plugin.ExecuteRequest\x1a\x17.plugin.ExecuteResponse\x12F\n" +
-	"\vHealthCheck\x12\x1a.plugin.HealthCheckRequest\x1a\x1b.plugin.HealthCheckResponseB(Z&github.com/Done-0/jank/pkg/plugin/implb\x06proto3"
+	"\vHealthCheck\x12\x1a.plugin.HealthCheckRequest\x1a\x1b.plugin.HealthCheckResponseB\x03Z\x01.b\x06proto3"
 
 var (
-	file_pkg_plugin_plugin_proto_rawDescOnce sync.Once
-	file_pkg_plugin_plugin_proto_rawDescData []byte
+	file_plugin_proto_rawDescOnce sync.Once
+	file_plugin_proto_rawDescData []byte
 )
 
-func file_pkg_plugin_plugin_proto_rawDescGZIP() []byte {
-	file_pkg_plugin_plugin_proto_rawDescOnce.Do(func() {
-		file_pkg_plugin_plugin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_pkg_plugin_plugin_proto_rawDesc), len(file_pkg_plugin_plugin_proto_rawDesc)))
+func file_plugin_proto_rawDescGZIP() []byte {
+	file_plugin_proto_rawDescOnce.Do(func() {
+		file_plugin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_plugin_proto_rawDesc), len(file_plugin_proto_rawDesc)))
 	})
-	return file_pkg_plugin_plugin_proto_rawDescData
+	return file_plugin_proto_rawDescData
 }
 
-var file_pkg_plugin_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_pkg_plugin_plugin_proto_goTypes = []any{
+var file_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_plugin_proto_goTypes = []any{
 	(*ExecuteRequest)(nil),      // 0: plugin.ExecuteRequest
 	(*ExecuteResponse)(nil),     // 1: plugin.ExecuteResponse
 	(*HealthCheckRequest)(nil),  // 2: plugin.HealthCheckRequest
 	(*HealthCheckResponse)(nil), // 3: plugin.HealthCheckResponse
 	nil,                         // 4: plugin.ExecuteRequest.ArgsEntry
 	nil,                         // 5: plugin.ExecuteResponse.DataEntry
+	(*anypb.Any)(nil),           // 6: google.protobuf.Any
 }
-var file_pkg_plugin_plugin_proto_depIdxs = []int32{
+var file_plugin_proto_depIdxs = []int32{
 	4, // 0: plugin.ExecuteRequest.args:type_name -> plugin.ExecuteRequest.ArgsEntry
 	5, // 1: plugin.ExecuteResponse.data:type_name -> plugin.ExecuteResponse.DataEntry
-	0, // 2: plugin.PluginService.Execute:input_type -> plugin.ExecuteRequest
-	2, // 3: plugin.PluginService.HealthCheck:input_type -> plugin.HealthCheckRequest
-	1, // 4: plugin.PluginService.Execute:output_type -> plugin.ExecuteResponse
-	3, // 5: plugin.PluginService.HealthCheck:output_type -> plugin.HealthCheckResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 2: plugin.ExecuteRequest.ArgsEntry.value:type_name -> google.protobuf.Any
+	6, // 3: plugin.ExecuteResponse.DataEntry.value:type_name -> google.protobuf.Any
+	0, // 4: plugin.PluginService.Execute:input_type -> plugin.ExecuteRequest
+	2, // 5: plugin.PluginService.HealthCheck:input_type -> plugin.HealthCheckRequest
+	1, // 6: plugin.PluginService.Execute:output_type -> plugin.ExecuteResponse
+	3, // 7: plugin.PluginService.HealthCheck:output_type -> plugin.HealthCheckResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_pkg_plugin_plugin_proto_init() }
-func file_pkg_plugin_plugin_proto_init() {
-	if File_pkg_plugin_plugin_proto != nil {
+func init() { file_plugin_proto_init() }
+func file_plugin_proto_init() {
+	if File_plugin_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pkg_plugin_plugin_proto_rawDesc), len(file_pkg_plugin_plugin_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plugin_proto_rawDesc), len(file_plugin_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_pkg_plugin_plugin_proto_goTypes,
-		DependencyIndexes: file_pkg_plugin_plugin_proto_depIdxs,
-		MessageInfos:      file_pkg_plugin_plugin_proto_msgTypes,
+		GoTypes:           file_plugin_proto_goTypes,
+		DependencyIndexes: file_plugin_proto_depIdxs,
+		MessageInfos:      file_plugin_proto_msgTypes,
 	}.Build()
-	File_pkg_plugin_plugin_proto = out.File
-	file_pkg_plugin_plugin_proto_goTypes = nil
-	file_pkg_plugin_plugin_proto_depIdxs = nil
+	File_plugin_proto = out.File
+	file_plugin_proto_goTypes = nil
+	file_plugin_proto_depIdxs = nil
 }

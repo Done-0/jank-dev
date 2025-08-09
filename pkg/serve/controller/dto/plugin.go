@@ -25,9 +25,9 @@ type ListPluginsRequest struct {
 
 // ExecutePluginRequest 执行插件方法请求
 type ExecutePluginRequest struct {
-	ID      string `json:"id" validate:"required"`       // 插件ID
-	Method  string `json:"method" validate:"required"`   // 方法名
-	Payload string `json:"payload" validate:"omitempty"` // 负载数据
+	ID     string         `json:"id" validate:"required"`     // 插件ID
+	Method string         `json:"method" validate:"required"` // 方法名
+	Args   map[string]any `json:"args" validate:"omitempty"`  // 方法参数
 }
 
 // StartPluginRequest 启动插件请求

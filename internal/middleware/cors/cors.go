@@ -17,17 +17,17 @@ import (
 // 返回值：
 // app.HandlerFunc: CORS中间件
 func New() app.HandlerFunc {
-	config, err := configs.GetConfig()
+	configs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
 	return cors.New(cors.Config{
-		AllowOrigins:     config.AppConfig.CORSConfig.AllowOrigins,
-		AllowMethods:     config.AppConfig.CORSConfig.AllowMethods,
-		AllowHeaders:     config.AppConfig.CORSConfig.AllowHeaders,
-		ExposeHeaders:    config.AppConfig.CORSConfig.ExposeHeaders,
-		AllowCredentials: config.AppConfig.CORSConfig.AllowCredentials,
-		MaxAge:           time.Duration(config.AppConfig.CORSConfig.MaxAge) * time.Hour,
+		AllowOrigins:     configs.AppConfig.CORSConfig.AllowOrigins,
+		AllowMethods:     configs.AppConfig.CORSConfig.AllowMethods,
+		AllowHeaders:     configs.AppConfig.CORSConfig.AllowHeaders,
+		ExposeHeaders:    configs.AppConfig.CORSConfig.ExposeHeaders,
+		AllowCredentials: configs.AppConfig.CORSConfig.AllowCredentials,
+		MaxAge:           time.Duration(configs.AppConfig.CORSConfig.MaxAge) * time.Hour,
 	})
 }

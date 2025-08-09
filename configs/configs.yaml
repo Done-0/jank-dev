@@ -56,3 +56,17 @@ CASBIN:
   MODEL_PATH: "configs/rbac_model.conf" # 模型文件路径
   POLICY_PATH: "configs/rbac_policy.csv" # 策略文件路径（仅在不使用数据库适配器时有效）
   DB_ADAPTER: true # 是否使用数据库适配器存储策略
+
+# 插件相关
+PLUGIN:
+  # 插件目录和文件
+  PLUGIN_DIR: "plugins" # 插件目录
+  PLUGIN_CONFIG_FILE: "plugin.json" # 插件配置文件
+  PLUGIN_BIN_DIR: "bin" # 插件二进制文件目录
+  PLUGIN_MAIN_FILE: "main.go" # 插件主文件名
+  
+  # 编译相关
+  GO_COMMAND: "go" # Go命令
+  GO_BUILD_COMMAND: "build" # Go build 子命令
+  CGO_ENABLED: false # 是否启用 CGO
+  CGO_ENV_VAR: "CGO_ENABLED=0" # CGO环境变量设置
