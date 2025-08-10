@@ -31,12 +31,12 @@ func NewPluginService() service.PluginService {
 
 // RegisterPlugin 注册插件
 func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.RegisterPluginRequest) (*vo.RegisterPluginResponse, error) {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
+	entries, err := os.ReadDir(cfgs.PluginConfig.PluginDir)
 	if err != nil {
 		return &vo.RegisterPluginResponse{Message: err.Error()}, fmt.Errorf("failed to read plugin directory: %w", err)
 	}
@@ -47,8 +47,8 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			continue
 		}
 
-		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
+		pluginPath := filepath.Join(cfgs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginConfigFile)
 
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
@@ -67,8 +67,8 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			// 检查二进制文件是否存在，不存在则尝试编译
 			if !pluginUtils.CheckBinaryExists(binaryPath) {
 				if !pluginUtils.CheckMainFileExists(pluginPath) {
-					return &vo.RegisterPluginResponse{Message: fmt.Sprintf("binary and %s not found", configs.PluginConfig.PluginMainFile)},
-						fmt.Errorf("binary and %s not found for plugin %s", configs.PluginConfig.PluginMainFile, req.ID)
+					return &vo.RegisterPluginResponse{Message: fmt.Sprintf("binary and %s not found", cfgs.PluginConfig.PluginMainFile)},
+						fmt.Errorf("binary and %s not found for plugin %s", cfgs.PluginConfig.PluginMainFile, req.ID)
 				}
 
 				if err := pluginUtils.EnsureBinDirectory(pluginPath); err != nil {
@@ -181,8 +181,12 @@ func (s *PluginServiceImpl) ListPlugins(c *app.RequestContext, req *dto.ListPlug
 		return &vo.ListPluginsResponse{}, fmt.Errorf("failed to list plugins: %w", err)
 	}
 
-	var allPlugins []vo.GetPluginResponse
+	var filteredPlugins []vo.GetPluginResponse
 	for _, discovered := range discoveredPlugins {
+		if req.Status != "" && discovered.Status != req.Status {
+			continue
+		}
+
 		pluginVO := vo.GetPluginResponse{
 			// 基本信息
 			ID:          discovered.ID,
@@ -213,11 +217,28 @@ func (s *PluginServiceImpl) ListPlugins(c *app.RequestContext, req *dto.ListPlug
 			ProtocolVersion:   discovered.ProtocolVersion,
 			NetworkAddr:       discovered.NetworkAddr,
 		}
-		allPlugins = append(allPlugins, pluginVO)
+		filteredPlugins = append(filteredPlugins, pluginVO)
+	}
+
+	total := int64(len(filteredPlugins))
+
+	pageNo := req.PageNo
+	pageSize := req.PageSize
+	start := (pageNo - 1) * pageSize
+	end := start + pageSize
+	if start >= total {
+		filteredPlugins = []vo.GetPluginResponse{}
+	} else {
+		if end > total {
+			end = total
+		}
+		filteredPlugins = filteredPlugins[start:end]
 	}
 
 	return &vo.ListPluginsResponse{
-		Plugins: allPlugins,
-		Total:   int64(len(allPlugins)),
+		Total:    total,
+		PageNo:   pageNo,
+		PageSize: pageSize,
+		List:     filteredPlugins,
 	}, nil
 }

@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/Done-0/jank/internal/middleware"
 	"github.com/Done-0/jank/internal/plugin"
 	"github.com/Done-0/jank/internal/redis"
+	"github.com/Done-0/jank/internal/theme"
 	"github.com/Done-0/jank/pkg/router"
 )
 
@@ -27,25 +29,28 @@ func Start() {
 		log.Fatalf("failed to initialize config: %v", err)
 	}
 
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
 	// 初始化日志
-	logger.New(configs)
+	logger.New(cfgs)
 
 	// 初始化数据库
-	db.New(configs)
+	db.New(cfgs)
 
 	// 初始化 Redis
-	redis.New(configs)
+	redis.New(cfgs)
 
 	// 初始化插件系统
-	plugin.New(configs)
+	plugin.New(cfgs)
+
+	// 初始化主题系统
+	theme.New(cfgs)
 
 	// 创建 Hertz 服务器实例
-	addr := fmt.Sprintf("%s:%s", configs.AppConfig.AppHost, configs.AppConfig.AppPort)
+	addr := fmt.Sprintf("%s:%s", cfgs.AppConfig.AppHost, cfgs.AppConfig.AppPort)
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithExitWaitTime(10*time.Second),
@@ -57,14 +62,15 @@ func Start() {
 	// 注册路由
 	router.New(h)
 
+	// 注册优雅关闭钩子
+	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
+		plugin.GlobalPluginManager.Shutdown()
+		theme.GlobalThemeManager.Shutdown()
+	})
+
 	// 启动信息
 	global.SysLog.Infof("⇨ Hertz server starting on %s", addr)
 
-	// 启动服务器
+	// 优雅关闭
 	h.Spin()
-
-	// 服务器关闭后清理插件
-	global.SysLog.Info("Shutting down plugin system...")
-	plugin.GlobalPluginManager.Shutdown()
-	global.SysLog.Info("Plugin system shutdown completed")
 }

@@ -28,3 +28,10 @@ func NewRBACController() (*controller.RBACController, error) {
 	rbacController := controller.NewRBACController(rbacService)
 	return rbacController, nil
 }
+
+// NewThemeController 使用 Wire 初始化主题控制器
+func NewThemeController() (*controller.ThemeController, error) {
+	themeService := impl.NewThemeService()
+	themeController := controller.NewThemeController(themeService)
+	return themeController, nil
+}

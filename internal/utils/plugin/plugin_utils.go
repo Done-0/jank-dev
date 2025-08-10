@@ -15,12 +15,12 @@ import (
 // GenerateBinaryPath 生成插件二进制文件路径
 func GenerateBinaryPath(pluginPath, pluginID, configBinary string) string {
 	if configBinary == "" {
-		configs, err := configs.GetConfig()
+		cfgs, err := configs.GetConfig()
 		if err != nil {
 			log.Fatalf("failed to get config: %v", err)
 		}
 
-		return filepath.Join(pluginPath, configs.PluginConfig.PluginBinDir, pluginID)
+		return filepath.Join(pluginPath, cfgs.PluginConfig.PluginBinDir, pluginID)
 	}
 	return filepath.Join(pluginPath, configBinary)
 }
@@ -33,36 +33,36 @@ func CheckBinaryExists(binaryPath string) bool {
 
 // CheckMainFileExists 检查 main.go 文件是否存在
 func CheckMainFileExists(pluginPath string) bool {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Printf("failed to get config: %v", err)
 		return false
 	}
 
-	mainFile := filepath.Join(pluginPath, configs.PluginConfig.PluginMainFile)
+	mainFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginMainFile)
 	_, err = os.Stat(mainFile)
 	return err == nil
 }
 
 // EnsureBinDirectory 确保 bin 目录存在
 func EnsureBinDirectory(pluginPath string) error {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	binDir := filepath.Join(pluginPath, configs.PluginConfig.PluginBinDir)
+	binDir := filepath.Join(pluginPath, cfgs.PluginConfig.PluginBinDir)
 	return os.MkdirAll(binDir, 0755)
 }
 
 // RunGoModTidy 在指定目录执行 go mod tidy
 func RunGoModTidy(pluginPath string) error {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	cmd := exec.Command(configs.PluginConfig.GoCommand, "mod", "tidy")
+	cmd := exec.Command(cfgs.PluginConfig.GoCommand, "mod", "tidy")
 	cmd.Dir = pluginPath
 	_, err = cmd.CombinedOutput()
 	return err
@@ -70,19 +70,19 @@ func RunGoModTidy(pluginPath string) error {
 
 // CompileGoPlugin 编译 Go 插件（跨平台兼容）
 func CompileGoPlugin(pluginPath, outputPath string) error {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	buildArgs := append([]string{configs.PluginConfig.GoBuildCommand, "-o", outputPath}, configs.PluginConfig.PluginMainFile)
-	cmd := exec.Command(configs.PluginConfig.GoCommand, buildArgs...)
+	buildArgs := append([]string{cfgs.PluginConfig.GoBuildCommand, "-o", outputPath}, cfgs.PluginConfig.PluginMainFile)
+	cmd := exec.Command(cfgs.PluginConfig.GoCommand, buildArgs...)
 	cmd.Dir = pluginPath
 
 	// 设置跨平台编译环境变量
 	env := os.Environ()
-	if !configs.PluginConfig.CGOEnabled {
-		env = append(env, configs.PluginConfig.CGOEnvVar)
+	if !cfgs.PluginConfig.CGOEnabled {
+		env = append(env, cfgs.PluginConfig.CGOEnvVar)
 	}
 	cmd.Env = env
 
@@ -93,12 +93,12 @@ func CompileGoPlugin(pluginPath, outputPath string) error {
 // GenerateOutputPath 生成编译输出路径
 func GenerateOutputPath(configBinary, pluginID string) string {
 	if configBinary == "" {
-		configs, err := configs.GetConfig()
+		cfgs, err := configs.GetConfig()
 		if err != nil {
 			log.Fatalf("failed to get config: %v", err)
 		}
 
-		return filepath.Join(configs.PluginConfig.PluginBinDir, pluginID)
+		return filepath.Join(cfgs.PluginConfig.PluginBinDir, pluginID)
 	}
 	return configBinary
 }

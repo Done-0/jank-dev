@@ -6,7 +6,9 @@ package configs
 import (
 	"fmt"
 	"log"
+	"os"
 	"reflect"
+	"strings"
 	"sync"
 
 	"github.com/fsnotify/fsnotify"
@@ -101,6 +103,15 @@ type PluginConfig struct {
 	CGOEnvVar      string `mapstructure:"CGO_ENV_VAR"`      // CGO环境变量设置
 }
 
+// ThemeConfig 主题配置
+type ThemeConfig struct {
+	// 主题目录和文件
+	ThemeDir        string `mapstructure:"THEME_DIR"`         // 主题目录
+	ThemeConfigFile string `mapstructure:"THEME_CONFIG_FILE"` // 主题配置文件名
+	DefaultTheme    string `mapstructure:"DEFAULT_THEME"`     // 默认主题 ID
+	LastActiveTheme string `mapstructure:"LAST_ACTIVE_THEME"` // 上次激活的主题 ID
+}
+
 // Config 总配置结构
 type Config struct {
 	AppConfig    AppConfig      `mapstructure:"APP"`      // 应用配置
@@ -109,6 +120,7 @@ type Config struct {
 	RedisConfig  RedisConfig    `mapstructure:"REDIS"`    // Redis 配置
 	CasbinConfig CasbinConfig   `mapstructure:"CASBIN"`   // Casbin 权限配置
 	PluginConfig PluginConfig   `mapstructure:"PLUGIN"`   // 插件配置
+	ThemeConfig  ThemeConfig    `mapstructure:"THEME"`    // 主题配置
 }
 
 // DefaultConfigPath 默认配置文件路径
@@ -238,4 +250,91 @@ func compareStructs(oldObj, newObj any, prefix string, changes map[string][2]any
 	}
 
 	return true
+}
+
+// UpdateField 更新配置字段
+// 参数：
+//
+//	updateFunc: 更新函数
+//
+// 返回值：
+//
+//	error: 更新过程中的错误
+func UpdateField(updateFunc func(*Config)) error {
+	configMutex.Lock()
+	defer configMutex.Unlock()
+
+	oldConfig := *configInstance
+	updateFunc(configInstance)
+
+	configFile := viperController.ConfigFileUsed()
+	content, err := os.ReadFile(configFile)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	newContent := string(content)
+
+	var updateContent func(reflect.Value, reflect.Value, reflect.Type)
+	updateContent = func(oldVal, newVal reflect.Value, t reflect.Type) {
+		for i := 0; i < oldVal.NumField(); i++ {
+			oldField, newField := oldVal.Field(i), newVal.Field(i)
+			if tag := t.Field(i).Tag.Get("mapstructure"); tag != "" {
+				if oldField.Kind() == reflect.Struct {
+					updateContent(oldField, newField, oldField.Type())
+				} else if !reflect.DeepEqual(oldField.Interface(), newField.Interface()) {
+					var old, new string
+					if oldField.Kind() == reflect.Slice || oldField.Kind() == reflect.Array {
+						// 数组类型
+						var oldElems, newElems []string
+						for i := 0; i < oldField.Len(); i++ {
+							elem := oldField.Index(i)
+							if elem.Kind() == reflect.String {
+								oldElems = append(oldElems, fmt.Sprintf(`"%s"`, elem.String()))
+							} else {
+								oldElems = append(oldElems, fmt.Sprintf("%v", elem.Interface()))
+							}
+						}
+						for i := 0; i < newField.Len(); i++ {
+							elem := newField.Index(i)
+							if elem.Kind() == reflect.String {
+								newElems = append(newElems, fmt.Sprintf(`"%s"`, elem.String()))
+							} else {
+								newElems = append(newElems, fmt.Sprintf("%v", elem.Interface()))
+							}
+						}
+						old, new = fmt.Sprintf("[%s]", strings.Join(oldElems, ", ")), fmt.Sprintf("[%s]", strings.Join(newElems, ", "))
+
+						for _, pattern := range []string{fmt.Sprintf(`%s: %s`, tag, old), fmt.Sprintf(`%s: []`, tag)} {
+							if strings.Contains(newContent, pattern) {
+								newContent = strings.ReplaceAll(newContent, pattern, fmt.Sprintf(`%s: %s`, tag, new))
+								break
+							}
+						}
+					} else {
+						// 非数组类型
+						old, new = fmt.Sprintf("%v", oldField.Interface()), fmt.Sprintf("%v", newField.Interface())
+						for _, pattern := range []string{
+							fmt.Sprintf(`%s: "%s"`, tag, old),
+							fmt.Sprintf(`%s: %s`, tag, old),
+							fmt.Sprintf(`%s: ""`, tag),
+						} {
+							if strings.Contains(newContent, pattern) {
+								newContent = strings.ReplaceAll(newContent, pattern, fmt.Sprintf(`%s: "%s"`, tag, new))
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	updateContent(reflect.ValueOf(oldConfig), reflect.ValueOf(*configInstance), reflect.TypeOf(oldConfig))
+
+	if newContent != string(content) {
+		return os.WriteFile(configFile, []byte(newContent), 0644)
+	}
+
+	return nil
 }

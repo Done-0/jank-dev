@@ -45,8 +45,10 @@ type GetPluginResponse struct {
 
 // ListPluginsResponse 列举插件响应
 type ListPluginsResponse struct {
-	Plugins []GetPluginResponse `json:"plugins"` // 插件列表
-	Total   int64               `json:"total"`   // 总插件数量
+	Total    int64               `json:"total"`     // 总数
+	PageNo   int64               `json:"page_no"`   // 当前页码
+	PageSize int64               `json:"page_size"` // 每页大小
+	List     []GetPluginResponse `json:"list"`      // 插件列表
 }
 
 // ExecutePluginResponse 执行插件响应

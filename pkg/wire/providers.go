@@ -16,6 +16,7 @@ var MapperProviderSet = wire.NewSet(
 var ServiceProviderSet = wire.NewSet(
 	serviceImpl.NewPluginService,
 	serviceImpl.NewRBACService,
+	serviceImpl.NewThemeService,
 )
 
 // AllProviderSet 所有 Provider 的集合

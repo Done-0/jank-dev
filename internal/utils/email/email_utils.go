@@ -42,19 +42,19 @@ var emailServers = map[string]struct {
 //	bool: 发送成功返回 true，失败返回 false
 //	error: 执行过程中的错误
 func SendEmail(content string, toEmails []string) (bool, error) {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		global.SysLog.Errorf("failed to load email config: %v", err)
 		return false, fmt.Errorf("failed to load email config: %v", err)
 	}
 
 	// 获取SMTP配置
-	emailType := configs.AppConfig.Email.EmailType
+	emailType := cfgs.AppConfig.Email.EmailType
 	serverConfig := emailServers[emailType]
 
 	// 创建邮件
 	m := gomail.NewMessage()
-	m.SetHeader("From", configs.AppConfig.Email.FromEmail)
+	m.SetHeader("From", cfgs.AppConfig.Email.FromEmail)
 	m.SetHeader("To", toEmails...)
 	m.SetHeader("Subject", EMAIL_SUBJECT)
 	m.SetBody("text/plain", content)
@@ -63,8 +63,8 @@ func SendEmail(content string, toEmails []string) (bool, error) {
 	d := gomail.NewDialer(
 		serverConfig.Server,
 		serverConfig.Port,
-		configs.AppConfig.Email.FromEmail,
-		configs.AppConfig.Email.EmailSmtp,
+		cfgs.AppConfig.Email.FromEmail,
+		cfgs.AppConfig.Email.EmailSmtp,
 	)
 
 	// 根据端口配置安全选项

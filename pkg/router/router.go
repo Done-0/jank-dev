@@ -14,8 +14,10 @@ import (
 //
 //	app: Hertz 路由引擎
 func New(app *server.Hertz) {
-	// 创建多版本 API 路由组
 	api := app.Group("/api")
+
+	// 注册主题前端路由（根路径和静态文件）
+	routes.RegisterThemeFrontendRoutes(app)
 
 	// 注册用户相关的路由
 	routes.RegisterUserRoutes(api)
@@ -31,4 +33,7 @@ func New(app *server.Hertz) {
 
 	// 注册插件相关的路由
 	routes.RegisterPluginRoutes(api)
+
+	// 注册主题相关的路由
+	routes.RegisterThemeRoutes(api)
 }

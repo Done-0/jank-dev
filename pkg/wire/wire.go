@@ -24,3 +24,11 @@ func NewRBACController() (*controller.RBACController, error) {
 		controller.NewRBACController,
 	))
 }
+
+// NewThemeController 使用 Wire 初始化主题控制器
+func NewThemeController() (*controller.ThemeController, error) {
+	panic(wire.Build(
+		AllProviderSet,
+		controller.NewThemeController,
+	))
+}

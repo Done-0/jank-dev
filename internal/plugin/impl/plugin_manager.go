@@ -21,38 +21,6 @@ import (
 	jank "github.com/Done-0/jank/pkg/plugin"
 )
 
-// PluginInfo 插件元数据和运行时信息
-type PluginInfo struct {
-	// 基本信息
-	ID          string `json:"id"`                    // 插件唯一标识
-	Name        string `json:"name"`                  // 插件显示名称
-	Version     string `json:"version"`               // 插件版本号
-	Author      string `json:"author"`                // 插件作者
-	Description string `json:"description,omitempty"` // 插件描述
-	Repository  string `json:"repository"`            // 插件仓库地址
-	Binary      string `json:"binary"`                // 二进制文件路径
-	Type        string `json:"type"`                  // 插件类型（provider/filter/handler/notifier）
-
-	// 配置信息
-	AutoStart    bool  `json:"auto_start"`              // 是否自动启动
-	StartTimeout int64 `json:"start_timeout,omitempty"` // 启动超时(毫秒)
-	MinPort      uint  `json:"min_port,omitempty"`      // 最小端口
-	MaxPort      uint  `json:"max_port,omitempty"`      // 最大端口
-	AutoMTLS     bool  `json:"auto_mtls,omitempty"`     // 是否启用自动 MTLS
-	Managed      bool  `json:"managed,omitempty"`       // 是否为托管模式
-
-	// 运行时信息
-	Status            string `json:"status"`                       // 当前状态
-	StartedAt         int64  `json:"started_at,omitempty"`         // 启动时间戳
-	ProcessID         string `json:"process_id,omitempty"`         // 进程标识
-	Protocol          string `json:"protocol,omitempty"`           // 通信协议
-	IsExited          bool   `json:"is_exited,omitempty"`          // 是否已退出
-	NegotiatedVersion int    `json:"negotiated_version,omitempty"` // 协商的协议版本
-	ProcessPID        int    `json:"process_pid,omitempty"`        // 系统进程 PID
-	ProtocolVersion   int    `json:"protocol_version,omitempty"`   // 协议版本
-	NetworkAddr       string `json:"network_addr,omitempty"`       // 网络地址
-}
-
 // PluginDiscoveryInfo 插件发现信息
 type PluginDiscoveryInfo struct {
 	*PluginInfo         // 嵌入插件基本信息
@@ -87,12 +55,12 @@ func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
 	// 设置插件工作目录和执行路径
 	pluginDir := filepath.Dir(filepath.Dir(info.Binary))
 
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	binaryPath := filepath.Join(configs.PluginConfig.PluginBinDir, filepath.Base(info.Binary))
+	binaryPath := filepath.Join(cfgs.PluginConfig.PluginBinDir, filepath.Base(info.Binary))
 
 	cmd := exec.Command(binaryPath)
 	cmd.Dir = pluginDir
@@ -228,12 +196,12 @@ func (m *PluginManagerImpl) GetPlugin(id string) (*PluginInfo, error) {
 
 // ListPlugins 列出所有插件（包括已注册和未注册的）
 func (m *PluginManagerImpl) ListPlugins() ([]*PluginDiscoveryInfo, error) {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
+	entries, err := os.ReadDir(cfgs.PluginConfig.PluginDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read plugin directory: %w", err)
 	}
@@ -260,18 +228,18 @@ func (m *PluginManagerImpl) ListPlugins() ([]*PluginDiscoveryInfo, error) {
 			continue
 		}
 
-		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
+		pluginPath := filepath.Join(cfgs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginConfigFile)
 
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
-			global.SysLog.Warnf("Skipping %s: cannot read %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: cannot read %s", entry.Name(), cfgs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
 		var config PluginInfo
 		if err := json.Unmarshal(configData, &config); err != nil {
-			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), cfgs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
@@ -330,12 +298,12 @@ func (m *PluginManagerImpl) Shutdown() {
 
 // StartAutoPlugins 扫描并启动配置为自动启动的插件
 func (m *PluginManagerImpl) StartAutoPlugins() error {
-	configs, err := configs.GetConfig()
+	cfgs, err := configs.GetConfig()
 	if err != nil {
 		log.Fatalf("failed to get config: %v", err)
 	}
 
-	entries, err := os.ReadDir(configs.PluginConfig.PluginDir)
+	entries, err := os.ReadDir(cfgs.PluginConfig.PluginDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			global.SysLog.Info("Plugin directory not found")
@@ -350,19 +318,19 @@ func (m *PluginManagerImpl) StartAutoPlugins() error {
 		}
 
 		// 构建插件路径
-		pluginPath := filepath.Join(configs.PluginConfig.PluginDir, entry.Name())
-		configFile := filepath.Join(pluginPath, configs.PluginConfig.PluginConfigFile)
+		pluginPath := filepath.Join(cfgs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginConfigFile)
 
 		// 读取配置文件
 		configData, err := os.ReadFile(configFile)
 		if err != nil {
-			global.SysLog.Warnf("Skipping %s: no %s found", entry.Name(), configs.PluginConfig.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: no %s found", entry.Name(), cfgs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
 		var config PluginInfo
 		if err := json.Unmarshal(configData, &config); err != nil {
-			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), configs.PluginConfig.PluginConfigFile)
+			global.SysLog.Warnf("Skipping %s: invalid %s", entry.Name(), cfgs.PluginConfig.PluginConfigFile)
 			continue
 		}
 
