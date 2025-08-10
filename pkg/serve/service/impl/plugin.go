@@ -11,7 +11,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/Done-0/jank/configs"
-	"github.com/Done-0/jank/internal/global"
 	"github.com/Done-0/jank/internal/plugin"
 	"github.com/Done-0/jank/internal/plugin/impl"
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
@@ -61,33 +60,15 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 		}
 
 		if config.ID == req.ID {
-			// 生成二进制路径
 			binaryPath := pluginUtils.GenerateBinaryPath(pluginPath, config.ID, config.Binary)
 
-			// 检查二进制文件是否存在，不存在则尝试编译
-			if !pluginUtils.CheckBinaryExists(binaryPath) {
-				if !pluginUtils.CheckMainFileExists(pluginPath) {
-					return &vo.RegisterPluginResponse{Message: fmt.Sprintf("binary and %s not found", cfgs.PluginConfig.PluginMainFile)},
-						fmt.Errorf("binary and %s not found for plugin %s", cfgs.PluginConfig.PluginMainFile, req.ID)
-				}
-
-				if err := pluginUtils.EnsureBinDirectory(pluginPath); err != nil {
+			// 检查是否需要构建：强制重建 或 二进制文件不存在
+			isRebuild := req.Rebuild || !pluginUtils.CheckBinaryExists(binaryPath)
+			if isRebuild {
+				if err := pluginUtils.ExecuteBuildScript(pluginPath); err != nil {
 					return &vo.RegisterPluginResponse{Message: err.Error()},
-						fmt.Errorf("failed to create bin directory: %w", err)
+						fmt.Errorf("build failed: %w", err)
 				}
-
-				if err := pluginUtils.RunGoModTidy(pluginPath); err != nil {
-					return &vo.RegisterPluginResponse{Message: err.Error()},
-						fmt.Errorf("go mod tidy failed: %w", err)
-				}
-
-				outputPath := pluginUtils.GenerateOutputPath(config.Binary, config.ID)
-				if err := pluginUtils.CompileGoPlugin(pluginPath, outputPath); err != nil {
-					return &vo.RegisterPluginResponse{Message: err.Error()},
-						fmt.Errorf("compilation failed: %w", err)
-				}
-
-				global.SysLog.Infof("Plugin compiled successfully: %s -> %s", config.ID, outputPath)
 			}
 
 			config.Binary = binaryPath
@@ -101,7 +82,7 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			fmt.Errorf("plugin with ID %s not found", req.ID)
 	}
 
-	if err := plugin.GlobalPluginManager.RegisterPlugin(pluginInfo); err != nil {
+	if err := plugin.GlobalPluginManager.RegisterPlugin(req.ID); err != nil {
 		return &vo.RegisterPluginResponse{Message: err.Error()}, fmt.Errorf("failed to register plugin %s: %v", req.ID, err)
 	}
 

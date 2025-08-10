@@ -5,7 +5,8 @@ package dto
 
 // SwitchThemeRequest 切换主题请求
 type SwitchThemeRequest struct {
-	ID string `json:"id" validate:"required"`
+	ID      string `json:"id" validate:"required"` // 主题ID
+	Rebuild bool   `json:"rebuild,omitempty"`      // 强制重新构建
 }
 
 // ListThemesRequest 列举主题请求

@@ -96,11 +96,10 @@ type PluginConfig struct {
 	PluginBinDir     string `mapstructure:"PLUGIN_BIN_DIR"`     // 插件二进制文件目录
 	PluginMainFile   string `mapstructure:"PLUGIN_MAIN_FILE"`   // 插件主文件名
 
-	// 编译相关
-	GoCommand      string `mapstructure:"GO_COMMAND"`       // Go命令
-	GoBuildCommand string `mapstructure:"GO_BUILD_COMMAND"` // Go build 子命令
-	CGOEnabled     bool   `mapstructure:"CGO_ENABLED"`      // 是否启用 CGO
-	CGOEnvVar      string `mapstructure:"CGO_ENV_VAR"`      // CGO环境变量设置
+	// 构建相关
+	BuildScriptDir      string `mapstructure:"BUILD_SCRIPT_DIR"`      // 构建脚本目录
+	BuildScriptFile     string `mapstructure:"BUILD_SCRIPT_FILE"`     // 构建脚本文件名
+	BuildTimeoutMinutes int    `mapstructure:"BUILD_TIMEOUT_MINUTES"` // 构建超时时间（分钟）
 }
 
 // ThemeConfig 主题配置
@@ -110,6 +109,11 @@ type ThemeConfig struct {
 	ThemeConfigFile string `mapstructure:"THEME_CONFIG_FILE"` // 主题配置文件名
 	DefaultTheme    string `mapstructure:"DEFAULT_THEME"`     // 默认主题 ID
 	LastActiveTheme string `mapstructure:"LAST_ACTIVE_THEME"` // 上次激活的主题 ID
+
+	// 构建相关
+	BuildScriptDir      string `mapstructure:"BUILD_SCRIPT_DIR"`      // 构建脚本目录
+	BuildScriptFile     string `mapstructure:"BUILD_SCRIPT_FILE"`     // 构建脚本文件名
+	BuildTimeoutMinutes int    `mapstructure:"BUILD_TIMEOUT_MINUTES"` // 构建超时时间（分钟）
 }
 
 // Config 总配置结构

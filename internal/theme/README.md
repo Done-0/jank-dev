@@ -1,22 +1,37 @@
 # Jank 主题系统
 
-基于文件系统的主题管理架构，支持动态切换、现代前端构建工具和统一资源路由。
+基于文件系统的主题管理架构，采用主流分层设计，支持脚本化构建、动态切换和统一资源路由。
 
 ## 🎯 系统架构
 
 ```bash
 HTTP API → ThemeServiceImpl → ThemeManagerImpl → File System
-                                      ↓
-Theme Files (dist/) ←→ Unified Static Route Handler
+                     ↓                    ↓
+            Business Logic        Core Management
+            (Build & Rebuild)     (Switch & Route)
 ```
 
-**核心组件：**
-- `ThemeManagerImpl`: 主题生命周期管理
-- `ThemeServiceImpl`: HTTP API服务层
+**分层设计：**
+- `ThemeServiceImpl`: 业务服务层，处理构建逻辑和参数校验
+- `ThemeManagerImpl`: 核心管理层，负责主题切换和状态管理
+- `ExecuteBuildScript`: 统一构建工具，支持脚本化构建流程
 - `ThemeInfo`: 主题元数据和运行时状态
 - `Unified Route Handler`: 配置驱动的静态资源路由
 
 ## 🚀 核心特性
+
+### 分层架构设计
+- **Service 层**：处理业务逻辑，包括构建参数校验和 rebuild 逻辑
+- **Manager 层**：纯粹的资源管理，接口统一为 `SwitchTheme(id string)`
+- **Utils 层**：通用构建工具，支持脚本化构建流程
+
+### 脚本化构建
+支持 `scripts/build.sh` 约定的构建方式：
+```bash
+# 主题根目录下执行
+./scripts/build.sh
+```
+构建脚本完全从 `theme.json` 读取配置，无硬编码路径。
 
 ### 动态切换
 支持运行时无重启切换主题，自动更新路由和静态资源映射。
@@ -30,9 +45,6 @@ themes/theme-name/src/ → npm run build → dist/ → 自动路由
 ### 统一资源路由
 极简化的配置驱动路由，所有静态资源自动映射到主题构建目录。
 
-### 配置持久化
-主题切换状态自动持久化到配置文件，重启后恢复上次状态。
-
 ## 📁 目录结构
 
 ```bash
@@ -40,8 +52,14 @@ internal/theme/
 ├── impl/
 │   ├── theme_manager.go       # 核心管理器实现
 │   └── theme_info.go          # 主题信息结构
-├── theme.go                   # 接口定义
+├── theme.go                   # 管理器接口定义
 └── README.md                  # 本文档
+
+internal/utils/theme/
+└── theme_build_utils.go       # 构建工具函数
+
+pkg/serve/service/impl/
+└── theme.go                   # 主题业务服务实现
 
 pkg/router/routes/
 └── theme.go                   # 统一路由处理器
@@ -56,6 +74,8 @@ themes/                        # 主题存放目录
     ├── theme.json            # 主题配置
     ├── package.json          # NPM依赖
     ├── index.html            # 源模板
+    ├── scripts/
+    │   └── build.sh          # 构建脚本
     ├── src/                  # React源代码
     │   ├── main.tsx
     │   └── App.tsx
@@ -75,15 +95,26 @@ themes/                        # 主题存放目录
   "version": "1.0.0",
   "author": "Done-0",
   "description": "基于 React + Vite 的现代化主题",
+  "repository": "https://github.com/Done-0/jank-themes",
+  "preview": "/assets/preview.png",
   "index_file_path": "/dist/index.html",
   "static_dir_path": "/dist/assets"
 }
 ```
 
 **配置说明：**
+- `id`: 主题唯一标识（**必须与目录名一致**）
+- `name`: 主题显示名称
+- `version`: 版本号
+- `author`: 作者
+- `description`: 主题描述
+- `repository`: 主题仓库地址（可选）
+- `preview`: 主题预览图路径（可选）
 - `index_file_path`: 主题入口文件，必须指向 `dist/` 目录
 - `static_dir_path`: 静态资源目录，通常为 `dist/assets`
-- **重要**: 所有路径都应指向构建输出目录，不是源文件目录
+- **重要**: 
+  - 主题目录名必须与主题 ID 完全一致，系统通过 ID 查找对应目录
+  - 所有路径都应指向构建输出目录，不是源文件目录
 
 ### 主题类型和结构
 
@@ -114,14 +145,15 @@ themes/moon/
 
 ## 🔧 核心接口
 
-### ThemeManager 接口
+### 统一接口设计
+Manager 层接口保持简洁一致：
 ```go
 type ThemeManager interface {
-    LoadTheme(themeID string) error
-    SwitchTheme(themeID string) error
-    GetActiveTheme() *ThemeInfo
-    ListThemes() []*ThemeInfo
-    Shutdown() error
+    SwitchTheme(id string) error
+    GetActiveTheme() (*ThemeInfo, error)
+    ListThemes() ([]*ThemeInfo, error)
+    InitializeTheme() error
+    Shutdown()
 }
 ```
 

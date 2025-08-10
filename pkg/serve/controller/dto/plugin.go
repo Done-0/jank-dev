@@ -5,17 +5,18 @@ package dto
 
 // RegisterPluginRequest 注册插件请求
 type RegisterPluginRequest struct {
-	ID string `json:"id" validate:"required,min=1,max=100"` // 插件ID
+	ID      string `json:"id" validate:"required,min=1,max=100"` // 插件 ID
+	Rebuild bool   `json:"rebuild,omitempty"`                    // 强制重新编译
 }
 
 // UnregisterPluginRequest 注销插件请求
 type UnregisterPluginRequest struct {
-	ID string `json:"id" validate:"required"` // 插件ID
+	ID string `json:"id" validate:"required"` // 插件 ID
 }
 
 // GetPluginRequest 获取插件信息请求
 type GetPluginRequest struct {
-	ID string `query:"id" validate:"required"` // 插件ID
+	ID string `query:"id" validate:"required"` // 插件 ID
 }
 
 // ListPluginsRequest 列举插件请求

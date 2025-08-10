@@ -65,11 +65,10 @@ PLUGIN:
   PLUGIN_BIN_DIR: "bin" # 插件二进制文件目录
   PLUGIN_MAIN_FILE: "main.go" # 插件主文件名
   
-  # 编译相关
-  GO_COMMAND: "go" # Go命令
-  GO_BUILD_COMMAND: "build" # Go build 子命令
-  CGO_ENABLED: "false" # 是否启用 CGO
-  CGO_ENV_VAR: "CGO_ENABLED=0" # CGO环境变量设置
+  # 构建相关
+  BUILD_SCRIPT_DIR: "scripts" # 构建脚本目录
+  BUILD_SCRIPT_FILE: "build.sh" # 构建脚本文件名
+  BUILD_TIMEOUT_MINUTES: 15 # 构建超时时间（分钟）
 
 # 主题相关
 THEME:
@@ -77,4 +76,9 @@ THEME:
   THEME_DIR: "./themes" # 主题目录
   THEME_CONFIG_FILE: "theme.json" # 主题配置文件
   DEFAULT_THEME: "default" # 默认主题 ID
-  LAST_ACTIVE_THEME: "default" # 上次激活的主题 ID
+  LAST_ACTIVE_THEME: "moon" # 上次激活的主题 ID
+  
+  # 构建相关
+  BUILD_SCRIPT_DIR: "scripts" # 构建脚本目录
+  BUILD_SCRIPT_FILE: "build.sh" # 构建脚本文件名
+  BUILD_TIMEOUT_MINUTES: 60 # 构建超时时间（分钟）

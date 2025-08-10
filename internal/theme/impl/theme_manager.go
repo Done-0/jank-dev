@@ -10,6 +10,7 @@ import (
 
 	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/global"
+	"github.com/Done-0/jank/internal/utils/theme"
 	"github.com/Done-0/jank/pkg/theme/consts"
 )
 
@@ -56,6 +57,11 @@ func (m *ThemeManagerImpl) SwitchTheme(id string) error {
 		themeConfig.Path = themePath
 		themeConfig.Status = consts.ThemeStatusReady
 		themeConfig.IsActive = false
+
+		// 编译主题
+		if err := theme.ExecuteBuildScript(themePath); err != nil {
+			return fmt.Errorf("failed to build theme %s: %w", id, err)
+		}
 
 		// 将新加载的主题添加到内存中
 		m.themes[themeConfig.ID] = &themeConfig
@@ -203,6 +209,11 @@ func (m *ThemeManagerImpl) InitializeTheme() error {
 	}
 
 	themeConfig.Path = themePath
+
+	// 编译主题
+	if err := theme.ExecuteBuildScript(themePath); err != nil {
+		return fmt.Errorf("failed to build theme %s: %w", targetThemeID, err)
+	}
 
 	themeConfig.Status = consts.ThemeStatusActive
 	themeConfig.LoadedAt = time.Now().Unix()

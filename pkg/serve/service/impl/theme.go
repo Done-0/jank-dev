@@ -6,6 +6,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/Done-0/jank/internal/theme"
+	"github.com/Done-0/jank/internal/theme/impl"
+	themeUtils "github.com/Done-0/jank/internal/utils/theme"
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
 	"github.com/Done-0/jank/pkg/serve/service"
 	"github.com/Done-0/jank/pkg/vo"
@@ -21,6 +23,30 @@ func NewThemeService() service.ThemeService {
 
 // SwitchTheme 切换主题
 func (s *ThemeServiceImpl) SwitchTheme(c *app.RequestContext, req *dto.SwitchThemeRequest) (*vo.SwitchThemeResponse, error) {
+	if req.Rebuild {
+		themes, err := theme.GlobalThemeManager.ListThemes()
+		if err != nil {
+			return nil, fmt.Errorf("failed to list themes: %w", err)
+		}
+
+		var targetTheme *impl.ThemeInfo
+		for _, t := range themes {
+			if t.ID == req.ID {
+				targetTheme = t
+				break
+			}
+		}
+
+		if targetTheme == nil {
+			return nil, fmt.Errorf("theme %s not found", req.ID)
+		}
+
+		// 执行构建
+		if err := themeUtils.ExecuteBuildScript(targetTheme.Path); err != nil {
+			return nil, fmt.Errorf("failed to rebuild theme %s: %w", req.ID, err)
+		}
+	}
+
 	if err := theme.GlobalThemeManager.SwitchTheme(req.ID); err != nil {
 		return nil, fmt.Errorf("failed to switch theme: %w", err)
 	}

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jank Blog Server - 管理控制台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2 47.4% 11.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)',
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(210 40% 96%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        popover: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <style>
+        /* Custom CSS for better dark mode support */
+        .dark {
+            --tw-border-opacity: 1;
+            --tw-bg-opacity: 1;
+            --tw-text-opacity: 1;
+        }
+        
+        /* Ensure proper contrast for cards in dark mode */
+        .dark .bg-white {
+            background-color: rgb(31 41 55 / var(--tw-bg-opacity)) !important;
+        }
+        
+        .dark .text-gray-900 {
+            color: rgb(243 244 246 / var(--tw-text-opacity)) !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: rgb(209 213 219 / var(--tw-text-opacity)) !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: rgb(156 163 175 / var(--tw-text-opacity)) !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: rgb(55 65 81 / var(--tw-border-opacity)) !important;
+        }
+        
+        /* Improve card visibility */
+        .dark .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.2) !important;
+        }
+        
+        .dark .hover\:shadow-md:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.2) !important;
+        }
+        
+        /* Fix text visibility in cards */
+        .dark .bg-white .text-gray-900,
+        .dark .bg-white .text-gray-700,
+        .dark .bg-white .text-gray-600 {
+            color: rgb(243 244 246 / var(--tw-text-opacity)) !important;
+        }
+        
+        /* Ensure buttons and interactive elements are visible */
+        .dark .bg-blue-600 {
+            background-color: rgb(37 99 235 / var(--tw-bg-opacity)) !important;
+        }
+        
+        .dark .hover\:bg-blue-700:hover {
+            background-color: rgb(29 78 216 / var(--tw-bg-opacity)) !important;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground">
+    <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold">J</span>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Jank</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">v1.0.0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="p-4 space-y-2 flex-1">
+                <button class="nav-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" data-section="dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>仪表盘</span>
+                </button>
+                <button class="nav-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300" data-section="plugins">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span>插件管理</span>
+                    <span class="ml-auto bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded-full" id="plugin-badge">0</span>
+                </button>
+                <button class="nav-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300" data-section="themes">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                    <span>主题管理</span>
+                    <span class="ml-auto bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded-full" id="theme-badge">0</span>
+                </button>
+            </nav>
+            
+            <div class="p-4 mt-auto">
+                <div class="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-green-700 dark:text-green-400">系统运行正常</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section">
+                <!-- Header -->
+                <div class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">仪表盘</h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">系统概览与实时状态监控</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-green-600 dark:text-green-400">实时更新</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">插件总数</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white" id="total-plugins">-</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">运行中插件</p>
+                                    <p class="text-2xl font-bold text-green-600 dark:text-green-400" id="running-plugins">-</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">主题总数</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white" id="total-themes">-</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">当前主题</p>
+                                    <p class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 truncate" id="active-theme-name">-</p>
+                                </div>
+                                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">快速操作</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <button class="flex items-center space-x-3 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left" onclick="switchToSection('plugins')">
+                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">管理插件</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">查看、启用或禁用插件</p>
+                                </div>
+                            </button>
+                            <button class="flex items-center space-x-3 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left" onclick="switchToSection('themes')">
+                                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">切换主题</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">更改系统外观主题</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Plugins Section -->
+            <section id="plugins" class="content-section hidden">
+                <!-- Header -->
+                <div class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">插件管理</h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">管理系统插件，扩展功能模块</p>
+                        </div>
+                        <button class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" onclick="refreshPlugins()">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            刷新插件
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div id="plugins-loading" class="flex flex-col items-center justify-center py-12">
+                        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                        <p class="mt-4 text-gray-600 dark:text-gray-400">正在加载插件数据...</p>
+                    </div>
+                    
+                    <div id="plugins-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                        <!-- Plugin cards will be inserted here -->
+                    </div>
+                    
+                    <div id="plugins-empty" class="flex flex-col items-center justify-center py-12 hidden">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">暂无插件</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-center">系统中还没有安装任何插件，请添加插件以扩展功能</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Themes Section -->
+            <section id="themes" class="content-section hidden">
+                <!-- Header -->
+                <div class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">主题管理</h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">个性化系统外观，选择您喜欢的主题</p>
+                        </div>
+                        <button class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" onclick="refreshThemes()">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            刷新主题
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div id="themes-loading" class="flex flex-col items-center justify-center py-12">
+                        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                        <p class="mt-4 text-gray-600 dark:text-gray-400">正在加载主题数据...</p>
+                    </div>
+                    
+                    <div id="themes-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                        <!-- Theme cards will be inserted here -->
+                    </div>
+                    
+                    <div id="themes-empty" class="flex flex-col items-center justify-center py-12 hidden">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">暂无主题</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-center">系统中还没有安装任何主题，请添加主题以个性化外观</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/assets/js/main.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "id": "dev.jank.plugins.hello-world",
+  "id": "hello-world",
   "name": "Hello World Plugin",
   "version": "1.0.0",
   "author": "Done-0",

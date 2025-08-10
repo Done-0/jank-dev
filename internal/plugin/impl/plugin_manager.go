@@ -44,26 +44,49 @@ func NewPluginManager() *PluginManagerImpl {
 }
 
 // RegisterPlugin 注册并启动插件
-func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
+func (m *PluginManagerImpl) RegisterPlugin(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if _, exists := m.infos[info.ID]; exists {
-		return fmt.Errorf("plugin %s already registered", info.ID)
+	if _, exists := m.infos[id]; exists {
+		return fmt.Errorf("plugin %s already registered", id)
+	}
+
+	// 从配置文件加载插件信息
+	cfgs, err := configs.GetConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get config: %w", err)
+	}
+
+	pluginPath := filepath.Join(cfgs.PluginConfig.PluginDir, id)
+	configFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginConfigFile)
+
+	configData, err := os.ReadFile(configFile)
+	if err != nil {
+		return fmt.Errorf("plugin %s not found: %w", id, err)
+	}
+
+	var info PluginInfo
+	if err := json.Unmarshal(configData, &info); err != nil {
+		return fmt.Errorf("invalid plugin config for %s: %w", id, err)
 	}
 
 	// 设置插件工作目录和执行路径
-	pluginDir := filepath.Dir(filepath.Dir(info.Binary))
-
-	cfgs, err := configs.GetConfig()
+	binaryPath := filepath.Join(pluginPath, info.Binary)
+	
+	// 转换为绝对路径，确保路径正确
+	absBinaryPath, err := filepath.Abs(binaryPath)
 	if err != nil {
-		log.Fatalf("failed to get config: %v", err)
+		return fmt.Errorf("failed to get absolute path for plugin binary: %w", err)
+	}
+	
+	absPluginPath, err := filepath.Abs(pluginPath)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path for plugin directory: %w", err)
 	}
 
-	binaryPath := filepath.Join(cfgs.PluginConfig.PluginBinDir, filepath.Base(info.Binary))
-
-	cmd := exec.Command(binaryPath)
-	cmd.Dir = pluginDir
+	cmd := exec.Command(absBinaryPath)
+	cmd.Dir = absPluginPath
 
 	// 创建插件客户端配置
 	config := &plugin.ClientConfig{
@@ -87,10 +110,10 @@ func (m *PluginManagerImpl) RegisterPlugin(info *PluginInfo) error {
 	// 更新运行时状态
 	info.Status = consts.PluginStatusLoaded
 	info.StartedAt = time.Now().Unix()
-	m.refreshPluginInfo(info, client)
+	m.refreshPluginInfo(&info, client)
 
 	// 保存到内存映射
-	m.infos[info.ID] = info
+	m.infos[info.ID] = &info
 	m.plugins[info.ID] = client
 
 	global.SysLog.Infof("Plugin registered: %s (%s v%s) from %s, PID: %d, Binary: %s, Type: %s, Status: %s",
@@ -256,10 +279,8 @@ func (m *PluginManagerImpl) ListPlugins() ([]*PluginDiscoveryInfo, error) {
 			var status string
 			if pluginUtils.CheckBinaryExists(binaryPath) {
 				status = consts.PluginStatusAvailable
-			} else if pluginUtils.CheckMainFileExists(pluginPath) {
-				status = consts.PluginStatusSourceOnly
 			} else {
-				status = consts.PluginStatusIncomplete
+				status = consts.PluginStatusSourceOnly
 			}
 			// 使用配置文件信息
 			finalInfo = &config
@@ -288,7 +309,8 @@ func (m *PluginManagerImpl) Shutdown() {
 		if info, ok := m.infos[id]; ok {
 			info.Status = consts.PluginStatusStopped
 			info.IsExited = true
-			global.SysLog.Infof("Plugin stopped: %s", id)
+			global.SysLog.Infof("Plugin shutdown: %s (%s v%s) from %s, Author: %s, Binary: %s, Type: %s, Status: %s",
+				info.ID, info.Name, info.Version, info.Repository, info.Author, info.Binary, info.Type, info.Status)
 		}
 	}
 
@@ -344,35 +366,19 @@ func (m *PluginManagerImpl) StartAutoPlugins() error {
 
 		// 检查二进制文件是否存在，不存在则尝试编译
 		if !pluginUtils.CheckBinaryExists(binaryPath) {
-			if !pluginUtils.CheckMainFileExists(pluginPath) {
-				global.SysLog.Warnf("Plugin %s: binary and main.go not found in %s", config.ID, pluginPath)
+			if err := pluginUtils.ExecuteBuildScript(pluginPath); err != nil {
+				global.SysLog.Warnf("Plugin %s: build failed: %v", config.ID, err)
 				continue
 			}
 
-			if err := pluginUtils.EnsureBinDirectory(pluginPath); err != nil {
-				global.SysLog.Warnf("Plugin %s: failed to create bin directory: %v", config.ID, err)
-				continue
-			}
-
-			if err := pluginUtils.RunGoModTidy(pluginPath); err != nil {
-				global.SysLog.Warnf("Plugin %s: go mod tidy failed: %v", config.ID, err)
-				continue
-			}
-
-			outputPath := pluginUtils.GenerateOutputPath(config.Binary, config.ID)
-			if err := pluginUtils.CompileGoPlugin(pluginPath, outputPath); err != nil {
-				global.SysLog.Warnf("Plugin %s: compilation failed: %v", config.ID, err)
-				continue
-			}
-
-			global.SysLog.Infof("Plugin compiled successfully: %s -> %s", config.ID, outputPath)
+			global.SysLog.Infof("Plugin built successfully: %s", config.ID)
 		}
 
 		// 更新配置中的二进制路径
 		config.Binary = binaryPath
 
 		// 注册并启动插件
-		if err := m.RegisterPlugin(&config); err != nil {
+		if err := m.RegisterPlugin(config.ID); err != nil {
 			global.SysLog.Errorf("Failed to auto-start plugin %s: %v", config.ID, err)
 		}
 	}

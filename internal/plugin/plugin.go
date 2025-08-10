@@ -10,8 +10,8 @@ import (
 
 // PluginManager 插件管理器接口
 type PluginManager interface {
-	// RegisterPlugin 注册插件（包含元数据）
-	RegisterPlugin(info *impl.PluginInfo) error
+	// RegisterPlugin 注册插件
+	RegisterPlugin(id string) error
 	// UnregisterPlugin 注销插件
 	UnregisterPlugin(id string) error
 	// ExecutePlugin 执行插件

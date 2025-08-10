@@ -1,37 +1,43 @@
 # Jank 插件系统
 
-基于 hashicorp/go-plugin 的进程隔离插件架构，支持自动编译和生命周期管理。
+基于 hashicorp/go-plugin 的进程隔离插件架构，采用主流分层设计，支持脚本化构建和生命周期管理。
 
 ## 🎯 系统架构
 
 ```bash
 HTTP API → PluginServiceImpl → PluginManagerImpl → hashicorp/go-plugin
-                                      ↓
-Plugin Process (gRPC) ←→ Main Process
+                     ↓                    ↓
+            Business Logic        Core Management
+            (Build & Rebuild)     (Register & Switch)
 ```
 
-**核心组件：**
-- `PluginManagerImpl`: 插件生命周期管理
-- `PluginServiceImpl`: HTTP API服务层
+**分层设计：**
+- `PluginServiceImpl`: 业务服务层，处理构建逻辑和参数校验
+- `PluginManagerImpl`: 核心管理层，负责插件注册、切换和状态管理
+- `ExecuteBuildScript`: 统一构建工具，支持脚本化构建流程
 - `PluginInfo`: 插件元数据和运行时状态
-- `CompileGoPlugin`: 自动编译工具
 
 ## 🚀 核心特性
+
+### 分层架构设计
+- **Service 层**：处理业务逻辑，包括构建参数校验和 rebuild 逻辑
+- **Manager 层**：纯粹的资源管理，接口统一为 `RegisterPlugin(id string)`
+- **Utils 层**：通用构建工具，支持脚本化构建流程
+
+### 脚本化构建
+支持 `scripts/build.sh` 约定的构建方式：
+```bash
+# 插件根目录下执行
+./scripts/build.sh
+```
+构建脚本完全从 `plugin.json` 读取配置，无硬编码路径。
 
 ### 进程隔离
 每个插件运行在独立进程中，通过 gRPC 通信，插件崩溃不影响主进程。
 
-### 自动编译
-检测源码变化自动编译为二进制文件：
-```bash
-CGO_ENABLED=0 go build -o bin/plugin-name main.go
-```
-
 ### 类型安全通信
 基于 Protocol Buffers 的 gRPC 接口，支持 `google.protobuf.Any` 类型的灵活数据传输。
-
-### 生命周期管理
-支持插件的加载、执行、停止、卸载全流程管理。
+```
 
 ## 📁 目录结构
 
@@ -39,7 +45,14 @@ CGO_ENABLED=0 go build -o bin/plugin-name main.go
 internal/plugin/
 ├── impl/
 │   └── plugin_manager.go      # 核心管理器实现
+├── plugin.go                  # 管理器接口定义
 └── README.md                  # 本文档
+
+internal/utils/plugin/
+└── plugin_utils.go            # 构建工具函数
+
+pkg/serve/service/impl/
+└── plugin.go                  # 插件业务服务实现
 
 pkg/plugin/
 ├── consts/
@@ -53,8 +66,10 @@ pkg/plugin/
 
 plugins/                      # 插件存放目录
 └── hello-world/
-    ├── main.go              # 插件代码
+    ├── main.go              # 插件源码
     ├── plugin.json          # 插件配置
+    ├── scripts/
+    │   └── build.sh         # 构建脚本
     └── bin/                 # 编译输出
 ```
 
@@ -74,7 +89,9 @@ plugins/                      # 插件存放目录
 ```
 
 ### 插件ID命名规范
-采用反向域名格式：`dev.jank.plugins.plugin-name`
+- **目录名与插件 ID 必须一致**：系统通过 ID 查找对应目录
+- 建议使用简洁命名：`plugin-name`（而非反向域名格式）
+- 示例：目录 `hello-world/` 对应 ID `"hello-world"`
 
 ### 插件类型标识符
 - `provider`: 数据提供者插件
@@ -166,6 +183,20 @@ func main() {
 - 插件注册/注销管理
 - 进程生命周期控制
 - 自动编译和发现
+
+### 统一接口设计
+Manager 层接口保持简洁一致：
+```go
+type PluginManager interface {
+    RegisterPlugin(id string) error
+    UnregisterPlugin(id string) error
+    ExecutePlugin(ctx context.Context, id, method string, args map[string]any) (map[string]any, error)
+    GetPlugin(id string) (*PluginInfo, error)
+    ListPlugins() ([]*PluginDiscoveryInfo, error)
+    StartAutoPlugins() error
+    Shutdown() error
+}
+```
 
 ### PluginInfo
 ```go
