@@ -41,11 +41,34 @@ func (m *ThemeManagerImpl) SwitchTheme(id string) error {
 			return fmt.Errorf("failed to get config: %w", err)
 		}
 
-		themePath := filepath.Join(cfgs.ThemeConfig.ThemeDir, id)
-		configPath := filepath.Join(themePath, cfgs.ThemeConfig.ThemeConfigFile)
+		// 扫描所有目录查找匹配的主题ID
+		var themePath string
+		var themeJson []byte
 
-		themeJson, err := os.ReadFile(configPath)
+		entries, err := os.ReadDir(cfgs.ThemeConfig.ThemeDir)
 		if err != nil {
+			return fmt.Errorf("failed to scan theme directory: %w", err)
+		}
+
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+
+			dirPath := filepath.Join(cfgs.ThemeConfig.ThemeDir, entry.Name())
+			configPath := filepath.Join(dirPath, cfgs.ThemeConfig.ThemeConfigFile)
+
+			if configData, err := os.ReadFile(configPath); err == nil {
+				var tempInfo ThemeInfo
+				if err := json.Unmarshal(configData, &tempInfo); err == nil && tempInfo.ID == id {
+					themePath = dirPath
+					themeJson = configData
+					break
+				}
+			}
+		}
+
+		if themePath == "" {
 			return fmt.Errorf("theme %s not found", id)
 		}
 
@@ -55,7 +78,7 @@ func (m *ThemeManagerImpl) SwitchTheme(id string) error {
 		}
 
 		themeConfig.Path = themePath
-		themeConfig.Status = consts.ThemeStatusReady
+		themeConfig.Status = ""
 		themeConfig.IsActive = false
 
 		// 编译主题
@@ -72,7 +95,7 @@ func (m *ThemeManagerImpl) SwitchTheme(id string) error {
 	if m.activeTheme != "" {
 		if currentTheme, ok := m.themes[m.activeTheme]; ok {
 			currentTheme.IsActive = false
-			currentTheme.Status = consts.ThemeStatusReady
+			currentTheme.Status = ""
 		}
 	}
 
@@ -133,40 +156,23 @@ func (m *ThemeManagerImpl) ListThemes() ([]*ThemeInfo, error) {
 		themeID := entry.Name()
 		themePath := filepath.Join(cfgs.ThemeConfig.ThemeDir, themeID)
 
-		// 如果主题已加载，使用已加载的信息，否则尝试加载配置文件
-		if loadedTheme, exists := m.themes[themeID]; exists {
-			themes = append(themes, loadedTheme)
-		} else {
-			// 尝试读取主题配置文件
-			configPath := filepath.Join(themePath, cfgs.ThemeConfig.ThemeConfigFile)
-			if themeJson, err := os.ReadFile(configPath); err == nil {
-				var themeInfo ThemeInfo
-				if err := json.Unmarshal(themeJson, &themeInfo); err == nil {
-					themeInfo.Path = themePath
-					themeInfo.Status = consts.ThemeStatusReady
-					themeInfo.IsActive = (themeID == m.activeTheme)
-					themes = append(themes, &themeInfo)
+		// 尝试读取主题配置文件获取真实ID
+		configPath := filepath.Join(themePath, cfgs.ThemeConfig.ThemeConfigFile)
+		if configData, err := os.ReadFile(configPath); err == nil {
+			var themeInfo ThemeInfo
+			if err := json.Unmarshal(configData, &themeInfo); err == nil {
+				// 使用配置文件中的真实ID
+				realID := themeInfo.ID
+
+				// 如果主题已加载，使用已加载的信息
+				if loadedTheme, exists := m.themes[realID]; exists {
+					themes = append(themes, loadedTheme)
 				} else {
-					// 配置文件解析失败，使用基本信息
-					themeInfo := &ThemeInfo{
-						ID:       themeID,
-						Name:     themeID,
-						Path:     themePath,
-						Status:   consts.ThemeStatusReady,
-						IsActive: false,
-					}
-					themes = append(themes, themeInfo)
+					themeInfo.Path = themePath
+					themeInfo.Status = ""
+					themeInfo.IsActive = (realID == m.activeTheme)
+					themes = append(themes, &themeInfo)
 				}
-			} else {
-				// 配置文件不存在，使用基本信息
-				themeInfo := &ThemeInfo{
-					ID:       themeID,
-					Name:     themeID,
-					Path:     themePath,
-					Status:   consts.ThemeStatusReady,
-					IsActive: false,
-				}
-				themes = append(themes, themeInfo)
 			}
 		}
 	}
@@ -186,21 +192,47 @@ func (m *ThemeManagerImpl) InitializeTheme() error {
 		targetThemeID = cfgs.ThemeConfig.DefaultTheme
 	}
 
-	// 尝试加载目标主题，如果失败则回退到默认主题
-	themePath := filepath.Join(cfgs.ThemeConfig.ThemeDir, targetThemeID)
-	themeJson, err := os.ReadFile(filepath.Join(themePath, cfgs.ThemeConfig.ThemeConfigFile))
+	// 扫描所有目录查找匹配的主题ID
+	var themePath string
+	var themeJson []byte
+
+	entries, err := os.ReadDir(cfgs.ThemeConfig.ThemeDir)
 	if err != nil {
-		if targetThemeID != cfgs.ThemeConfig.DefaultTheme {
-			global.SysLog.Warnf("Failed to load theme %s, falling back to default theme %s: %v", targetThemeID, cfgs.ThemeConfig.DefaultTheme, err)
-			targetThemeID = cfgs.ThemeConfig.DefaultTheme
-			themePath = filepath.Join(cfgs.ThemeConfig.ThemeDir, targetThemeID)
-			themeJson, err = os.ReadFile(filepath.Join(themePath, cfgs.ThemeConfig.ThemeConfigFile))
-			if err != nil {
-				return fmt.Errorf("failed to read default theme config for %s: %w", targetThemeID, err)
+		return fmt.Errorf("failed to scan theme directory: %w", err)
+	}
+
+	// 定义扫描函数，避免重复代码
+	findTheme := func(themeID string) (string, []byte) {
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
 			}
-		} else {
-			return fmt.Errorf("failed to read theme config for %s: %w", targetThemeID, err)
+
+			dirPath := filepath.Join(cfgs.ThemeConfig.ThemeDir, entry.Name())
+			configPath := filepath.Join(dirPath, cfgs.ThemeConfig.ThemeConfigFile)
+
+			if configData, err := os.ReadFile(configPath); err == nil {
+				var tempInfo ThemeInfo
+				if err := json.Unmarshal(configData, &tempInfo); err == nil && tempInfo.ID == themeID {
+					return dirPath, configData
+				}
+			}
 		}
+		return "", nil
+	}
+
+	// 查找目标主题
+	themePath, themeJson = findTheme(targetThemeID)
+
+	// 如果没找到目标主题，尝试回退到默认主题
+	if themePath == "" && targetThemeID != cfgs.ThemeConfig.DefaultTheme {
+		global.SysLog.Warnf("Failed to load theme %s, falling back to default theme %s", targetThemeID, cfgs.ThemeConfig.DefaultTheme)
+		targetThemeID = cfgs.ThemeConfig.DefaultTheme
+		themePath, themeJson = findTheme(targetThemeID)
+	}
+
+	if themePath == "" {
+		return fmt.Errorf("theme %s not found", targetThemeID)
 	}
 
 	var themeConfig ThemeInfo

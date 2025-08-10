@@ -5,8 +5,6 @@ package consts
 
 const (
 	// 主题状态
-	ThemeStatusReady    = "ready"    // 主题已就绪
-	ThemeStatusActive   = "active"   // 主题已激活
-	ThemeStatusInactive = "inactive" // 主题未激活
-	ThemeStatusError    = "error"    // 主题错误
+	ThemeStatusActive = "active" // 主题已激活
+	ThemeStatusError  = "error"  // 主题错误
 )

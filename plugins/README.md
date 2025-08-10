@@ -16,30 +16,42 @@ HTTP API → PluginServiceImpl → PluginManagerImpl → hashicorp/go-plugin
 - **Manager 层**：纯粹的资源管理，接口统一为 `RegisterPlugin(id string)`
 - **Utils 层**：通用构建工具，支持脚本化构建流程
 
-## 📁 目录结构
+## 📁 插件目录结构
+
+插件采用标准化目录结构，支持 **ID 与目录名解耦**：
 
 ```
-plugins/plugin-name/
-├── main.go           # 插件主代码
-├── plugin.json       # 插件配置
-├── go.mod           # Go模块文件
-├── scripts/
-│   └── build.sh     # 构建脚本
-└── bin/             # 编译生成的二进制文件目录
-    └── plugin-name
+plugins/
+├── hello-world-plugin/      # 目录名（可任意命名，如 Git 仓库名）
+│   ├── plugin.json          # 插件配置文件
+│   ├── main.go              # 插件主程序
+│   ├── go.mod               # Go 模块文件
+│   ├── go.sum               # 依赖校验文件
+│   ├── bin/                 # 编译产物目录
+│   │   └── hello-world      # 编译后的二进制文件
+│   └── scripts/             # 构建脚本目录
+│       └── build.sh         # 构建脚本
+└── awesome-filter/          # 其他插件（目录名与 ID 无关）
+    └── plugin.json          # { "id": "com.company.plugins.filter" }
 ```
 
-## ⚙️ plugin.json 配置
+**重要约定：**
+- **插件 ID 与目录名完全解耦**：系统通过扫描目录读取 `plugin.json` 获取真实 ID
+- **推荐使用域名反转格式 ID**：如 `com.company.plugins.plugin-name`
+- **目录名可任意命名**：支持 Git 仓库名、版本化目录等
+- **ID 必须全局唯一**：系统通过 ID 进行插件管理和调用
+
+## ⚙️ plugin.json 完整配置示例
 
 ```json
 {
-  "id": "com.example.plugin-name",
-  "name": "Plugin Name",
+  "id": "com.company.plugins.hello-world",
+  "name": "Hello World Plugin",
   "version": "1.0.0",
-  "author": "Author",
-  "description": "Plugin description",
-  "repository": "https://github.com/Done-0/example-plugin",
-  "binary": "./bin/plugin-name",
+  "author": "Your Name",
+  "description": "A simple hello world plugin",
+  "repository": "https://github.com/username/plugin-repo",
+  "binary": "./bin/hello-world",
   "type": "handler",
   "auto_start": true,
   "start_timeout": 30000,

@@ -89,9 +89,10 @@ plugins/                      # 插件存放目录
 ```
 
 ### 插件ID命名规范
-- **目录名与插件 ID 必须一致**：系统通过 ID 查找对应目录
-- 建议使用简洁命名：`plugin-name`（而非反向域名格式）
-- 示例：目录 `hello-world/` 对应 ID `"hello-world"`
+- **插件 ID 与目录名完全解耦**：系统通过扫描目录读取配置文件获取真实 ID
+- **推荐使用域名反转格式**：`com.company.plugins.plugin-name`
+- **目录名可任意命名**：支持 Git 仓库名、版本化目录等
+- 示例：目录 `hello-world-plugin/` 对应 ID `"com.jank.plugins.hello-world"`
 
 ### 插件类型标识符
 - `provider`: 数据提供者插件

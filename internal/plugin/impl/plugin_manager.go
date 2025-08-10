@@ -58,12 +58,35 @@ func (m *PluginManagerImpl) RegisterPlugin(id string) error {
 		return fmt.Errorf("failed to get config: %w", err)
 	}
 
-	pluginPath := filepath.Join(cfgs.PluginConfig.PluginDir, id)
-	configFile := filepath.Join(pluginPath, cfgs.PluginConfig.PluginConfigFile)
+	// 扫描所有目录查找匹配的插件ID
+	var pluginPath string
+	var configData []byte
 
-	configData, err := os.ReadFile(configFile)
+	entries, err := os.ReadDir(cfgs.PluginConfig.PluginDir)
 	if err != nil {
-		return fmt.Errorf("plugin %s not found: %w", id, err)
+		return fmt.Errorf("failed to scan plugin directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		dirPath := filepath.Join(cfgs.PluginConfig.PluginDir, entry.Name())
+		configFile := filepath.Join(dirPath, cfgs.PluginConfig.PluginConfigFile)
+
+		if data, err := os.ReadFile(configFile); err == nil {
+			var tempInfo PluginInfo
+			if err := json.Unmarshal(data, &tempInfo); err == nil && tempInfo.ID == id {
+				pluginPath = dirPath
+				configData = data
+				break
+			}
+		}
+	}
+
+	if pluginPath == "" {
+		return fmt.Errorf("plugin %s not found", id)
 	}
 
 	var info PluginInfo
@@ -73,13 +96,13 @@ func (m *PluginManagerImpl) RegisterPlugin(id string) error {
 
 	// 设置插件工作目录和执行路径
 	binaryPath := filepath.Join(pluginPath, info.Binary)
-	
+
 	// 转换为绝对路径，确保路径正确
 	absBinaryPath, err := filepath.Abs(binaryPath)
 	if err != nil {
 		return fmt.Errorf("failed to get absolute path for plugin binary: %w", err)
 	}
-	
+
 	absPluginPath, err := filepath.Abs(pluginPath)
 	if err != nil {
 		return fmt.Errorf("failed to get absolute path for plugin directory: %w", err)
@@ -108,7 +131,7 @@ func (m *PluginManagerImpl) RegisterPlugin(id string) error {
 	}
 
 	// 更新运行时状态
-	info.Status = consts.PluginStatusLoaded
+	info.Status = consts.PluginStatusRunning
 	info.StartedAt = time.Now().Unix()
 	m.refreshPluginInfo(&info, client)
 
@@ -157,17 +180,12 @@ func (m *PluginManagerImpl) ExecutePlugin(ctx context.Context, id, method string
 		return nil, fmt.Errorf("plugin %s not found", id)
 	}
 
-	// 更新状态为执行中
-	m.mu.Lock()
-	info.Status = consts.PluginStatusRunning
-	m.refreshPluginInfo(info, client)
-	m.mu.Unlock()
-
 	// 获取 RPC 客户端并执行
 	rpcClient, err := client.Client()
 	if err != nil {
 		m.mu.Lock()
 		info.Status = consts.PluginStatusError
+		m.refreshPluginInfo(info, client)
 		m.mu.Unlock()
 		return nil, err
 	}
@@ -176,6 +194,7 @@ func (m *PluginManagerImpl) ExecutePlugin(ctx context.Context, id, method string
 	if err != nil {
 		m.mu.Lock()
 		info.Status = consts.PluginStatusError
+		m.refreshPluginInfo(info, client)
 		m.mu.Unlock()
 		return nil, err
 	}
@@ -188,7 +207,8 @@ func (m *PluginManagerImpl) ExecutePlugin(ctx context.Context, id, method string
 	if err != nil {
 		info.Status = consts.PluginStatusError
 	} else {
-		info.Status = consts.PluginStatusReady
+		// 执行成功，插件保持运行状态
+		info.Status = consts.PluginStatusRunning
 	}
 	m.refreshPluginInfo(info, client)
 	m.mu.Unlock()

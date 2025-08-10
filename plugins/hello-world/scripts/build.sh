@@ -11,11 +11,6 @@ fi
 # 读取插件配置
 BINARY_PATH=$(jq -r '.binary' plugin.json)
 
-if [[ "$BINARY_PATH" == "null" || -z "$BINARY_PATH" ]]; then
-    echo "Error: 'binary' field not found in plugin.json" >&2
-    exit 1
-fi
-
 # 创建输出目录
 mkdir -p "$(dirname "$BINARY_PATH")"
 

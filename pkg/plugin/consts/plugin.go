@@ -5,14 +5,11 @@ package consts
 
 const (
 	// 插件状态
-	PluginStatusReady      = "ready"       // 插件就绪
-	PluginStatusLoaded     = "loaded"      // 插件已加载
 	PluginStatusRunning    = "running"     // 插件正在运行
 	PluginStatusStopped    = "stopped"     // 插件已停止
 	PluginStatusError      = "error"       // 插件错误
 	PluginStatusAvailable  = "available"   // 未注册但可用（有二进制文件）
 	PluginStatusSourceOnly = "source_only" // 未注册但有源码（无二进制文件）
-	PluginStatusIncomplete = "incomplete"  // 未注册且不完整（既无二进制也无源码）
 )
 
 const (

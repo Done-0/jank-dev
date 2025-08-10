@@ -16,11 +16,6 @@ fi
 # 读取主题配置
 INDEX_FILE_PATH=$(jq -r '.index_file_path' theme.json)
 
-if [[ "$INDEX_FILE_PATH" == "null" || -z "$INDEX_FILE_PATH" ]]; then
-    echo "Error: 'index_file_path' field not found in theme.json" >&2
-    exit 1
-fi
-
 # 提取构建输出目录
 BUILD_DIR=$(echo "$INDEX_FILE_PATH" | sed 's|^/||' | cut -d'/' -f1)
 
