@@ -100,7 +100,7 @@ func WrapByCode(err error, statusCode int32, options ...Option) error {
 // 返回值：
 //
 //	error: 包装后的错误
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	if err == nil {
 		return nil
 	}

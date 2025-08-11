@@ -9,14 +9,16 @@ import (
 
 // RBACService 权限管理服务接口
 type RBACService interface {
-	AddPolicy(ctx *app.RequestContext, req *dto.AddPolicyRequest) (*vo.PolicyResponse, error)                       // 添加策略
-	RemovePolicy(ctx *app.RequestContext, req *dto.RemovePolicyRequest) (bool, error)                               // 删除策略
-	AddRoleForUser(ctx *app.RequestContext, req *dto.AddRoleForUserRequest) (*vo.UserRoleResponse, error)           // 为用户添加角色
-	RemoveRoleForUser(ctx *app.RequestContext, req *dto.RemoveRoleForUserRequest) (bool, error)                     // 删除用户角色
-	AddRoleInheritance(ctx *app.RequestContext, req *dto.AddRoleInheritanceRequest) (*vo.RoleResponse, error)       // 添加角色继承关系
-	RemoveRoleInheritance(ctx *app.RequestContext, req *dto.RemoveRoleInheritanceRequest) (bool, error)             // 删除角色继承关系
-	GetRolesForUser(ctx *app.RequestContext, req *dto.GetRolesForUserRequest) (*vo.UserRoleResponse, error)         // 获取用户角色
-	GetPoliciesForRole(ctx *app.RequestContext, req *dto.GetPoliciesForRoleRequest) (*vo.RolePolicyResponse, error) // 获取角色策略
-	GetAllRoles(ctx *app.RequestContext, req *dto.GetAllRolesRequest) (*vo.RoleListResponse, error)                 // 获取所有角色
-	GetAllPolicies(ctx *app.RequestContext, req *dto.GetAllPoliciesRequest) (*vo.PolicyListResponse, error)         // 获取所有策略
+	// 策略管理
+	AddPolicy(c *app.RequestContext, req *dto.AddPolicyRequest) (*vo.PolicyResponse, error) // 添加权限策略
+	RemovePolicy(c *app.RequestContext, req *dto.RemovePolicyRequest) (bool, error)         // 删除权限策略
+	GetAllPolicies(c *app.RequestContext) (*vo.PolicyListResponse, error)                   // 获取所有策略
+
+	// 角色分配
+	AddRoleForUser(c *app.RequestContext, req *dto.AddRoleForUserRequest) (*vo.UserRolesResponse, error)   // 为用户分配角色
+	RemoveRoleForUser(c *app.RequestContext, req *dto.RemoveRoleForUserRequest) (bool, error)              // 移除用户角色
+	GetRolesForUser(c *app.RequestContext, req *dto.GetRolesForUserRequest) (*vo.UserRolesResponse, error) // 获取用户角色
+
+	// 权限检查
+	Enforce(c *app.RequestContext, req *dto.EnforceRequest) (*vo.EnforceResponse, error) // 权限检查
 }

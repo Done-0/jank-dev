@@ -8,9 +8,9 @@ import (
 
 	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/global"
+	"github.com/Done-0/jank/internal/model/rbac"
 
 	gormAdapter "github.com/casbin/gorm-adapter/v3"
-	hertzCasbin "github.com/hertz-contrib/casbin"
 )
 
 // New 初始化 Casbin 权限管理系统
@@ -23,8 +23,7 @@ func New(config *configs.Config) {
 
 	// 根据适配器类型创建 Enforcer
 	if config.CasbinConfig.DBAdapter {
-		// 使用数据库适配器
-		adapter, err := gormAdapter.NewAdapterByDB(global.DB)
+		adapter, err := gormAdapter.NewAdapterByDBWithCustomTable(global.DB, &rbac.Policy{})
 		if err != nil {
 			global.SysLog.Errorf("failed to create Casbin database adapter: %v", err)
 			return
@@ -33,44 +32,52 @@ func New(config *configs.Config) {
 		// 创建 Enforcer
 		enforcer, err = casbin.NewEnforcer(config.CasbinConfig.ModelPath, adapter)
 		if err != nil {
-			global.SysLog.Errorf("failed to create Casbin Enforcer: %v", err)
+			global.SysLog.Errorf("failed to create Casbin Enforcer with model %s: %v", config.CasbinConfig.ModelPath, err)
 			return
 		}
 
 		// 如果数据库中没有策略，从文件同步到数据库
 		if policies, _ := enforcer.GetPolicy(); len(policies) == 0 {
 			if fileEnforcer, err := casbin.NewEnforcer(config.CasbinConfig.ModelPath, config.CasbinConfig.PolicyPath); err == nil {
-				// 清除现有策略
-				enforcer.ClearPolicy()
+				var policyRecords []rbac.Policy
 
-				// 同步普通策略
+				// 收集普通策略
 				if policies, err := fileEnforcer.GetPolicy(); err == nil {
 					for _, policy := range policies {
 						if len(policy) >= 3 {
-							params := make([]interface{}, len(policy))
-							for i, v := range policy {
-								params[i] = v
+							policyRecord := rbac.Policy{
+								Ptype: "p",
+								V0:    policy[0],
+								V1:    policy[1],
+								V2:    policy[2],
 							}
-							enforcer.AddPolicy(params...)
+							policyRecords = append(policyRecords, policyRecord)
 						}
 					}
 				}
 
-				// 同步角色继承关系
+				// 收集角色继承关系
 				if groupPolicies, err := fileEnforcer.GetGroupingPolicy(); err == nil {
 					for _, groupPolicy := range groupPolicies {
 						if len(groupPolicy) >= 2 {
-							params := make([]interface{}, len(groupPolicy))
-							for i, v := range groupPolicy {
-								params[i] = v
+							policyRecord := rbac.Policy{
+								Ptype: "g",
+								V0:    groupPolicy[0],
+								V1:    groupPolicy[1],
 							}
-							enforcer.AddGroupingPolicy(params...)
+							policyRecords = append(policyRecords, policyRecord)
 						}
 					}
 				}
 
-				enforcer.SavePolicy()
-				global.SysLog.Infof("Casbin policy synced from file to database")
+				if len(policyRecords) > 0 {
+					if err := global.DB.Create(&policyRecords).Error; err != nil {
+						global.SysLog.Errorf("Failed to create policy records: %v", err)
+					} else {
+						enforcer.LoadPolicy()
+						global.SysLog.Infof("Casbin policy synced from file to database")
+					}
+				}
 			}
 		}
 	} else {
@@ -86,18 +93,4 @@ func New(config *configs.Config) {
 	enforcer.EnableAutoSave(true)
 	global.Enforcer = enforcer
 	global.SysLog.Infof("Casbin enforcer initialized successfully")
-}
-
-// GetMiddleware 获取 Hertz Casbin 中间件
-// 参数：
-//
-//	modelPath: 模型文件路径
-//	lookupHandler: 查找处理器
-//
-// 返回值：
-//
-//	*hertzCasbin.Middleware: Casbin 中间件
-//	error: 错误信息
-func GetMiddleware(modelPath string, lookupHandler hertzCasbin.LookupHandler) (*hertzCasbin.Middleware, error) {
-	return hertzCasbin.NewCasbinMiddleware(modelPath, global.Enforcer, lookupHandler)
 }

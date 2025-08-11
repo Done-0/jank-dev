@@ -3,9 +3,11 @@
 // 创建时间：2025-08-05
 package rbac
 
-import "github.com/Done-0/jank/internal/model/base"
+import (
+	"github.com/Done-0/jank/internal/model/base"
+)
 
-// Policy RBAC策略模型
+// Policy RBAC 策略模型
 type Policy struct {
 	base.Base
 	Ptype string `gorm:"type:varchar(10);not null" json:"ptype"` // 策略类型: p(权限)或g(角色)

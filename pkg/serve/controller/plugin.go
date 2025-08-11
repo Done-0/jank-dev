@@ -41,19 +41,19 @@ func NewPluginController(pluginService service.PluginService) *PluginController 
 func (pc *PluginController) RegisterPlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RegisterPluginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := pc.pluginService.RegisterPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginRegisterFailed, errorx.KV("id", req.ID))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginRegisterFailed, errorx.KV("plugin_id", req.ID))))
 		return
 	}
 
@@ -65,19 +65,19 @@ func (pc *PluginController) RegisterPlugin(ctx context.Context, c *app.RequestCo
 func (pc *PluginController) UnregisterPlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UnregisterPluginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := pc.pluginService.UnregisterPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginUnregisterFailed, errorx.KV("id", req.ID))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginUnregisterFailed, errorx.KV("plugin_id", req.ID))))
 		return
 	}
 
@@ -89,19 +89,19 @@ func (pc *PluginController) UnregisterPlugin(ctx context.Context, c *app.Request
 func (pc *PluginController) ExecutePlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ExecutePluginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := pc.pluginService.ExecutePlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginSystemError, errorx.KV("error", err.Error()))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "execute plugin failed"))))
 		return
 	}
 
@@ -113,19 +113,19 @@ func (pc *PluginController) ExecutePlugin(ctx context.Context, c *app.RequestCon
 func (pc *PluginController) GetPlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.GetPluginRequest)
 	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := pc.pluginService.GetPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginNotFound, errorx.KV("id", req.ID))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "get plugin failed"))))
 		return
 	}
 
@@ -137,19 +137,19 @@ func (pc *PluginController) GetPlugin(ctx context.Context, c *app.RequestContext
 func (pc *PluginController) ListPlugins(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListPluginsRequest)
 	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := pc.pluginService.ListPlugins(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginSystemError, errorx.KV("error", err.Error()))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "list plugins failed"))))
 		return
 	}
 

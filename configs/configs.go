@@ -22,6 +22,7 @@ type AppConfig struct {
 	AppPort    string      `mapstructure:"APP_PORT"` // 应用端口
 	CORSConfig CORSConfig  `mapstructure:"CORS"`     // CORS 跨域配置
 	Email      EmailConfig `mapstructure:"EMAIL"`    // 邮箱配置
+	JWT        JWTConfig   `mapstructure:"JWT"`      // JWT 认证配置
 	User       UserConfig  `mapstructure:"USER"`     // 用户相关配置
 }
 
@@ -32,7 +33,16 @@ type EmailConfig struct {
 	EmailSmtp string `mapstructure:"EMAIL_SMTP"` // 邮件SMTP服务器
 }
 
-// UserConfig 用户相关配置
+// JWTConfig JWT 认证配置
+type JWTConfig struct {
+	Secret        string `mapstructure:"SECRET"`         // JWT 签名密钥
+	ExpireTime    int    `mapstructure:"EXPIRE_TIME"`    // Token 有效期（小时）
+	RefreshExpire int    `mapstructure:"REFRESH_EXPIRE"` // 刷新Token有效期（小时）
+	Realm         string `mapstructure:"REALM"`          // JWT 域
+	IdentityKey   string `mapstructure:"IDENTITY_KEY"`   // 身份标识键
+}
+
+// UserConfig 用户相关配置 - 主流Casbin RBAC配置
 type UserConfig struct {
 	// 管理员账户配置
 	AdminEmail    string `mapstructure:"ADMIN_EMAIL"`    // 管理员邮箱

@@ -35,3 +35,18 @@ func NewThemeController() (*controller.ThemeController, error) {
 	themeController := controller.NewThemeController(themeService)
 	return themeController, nil
 }
+
+// NewUserController 使用 Wire 初始化用户控制器
+func NewUserController() (*controller.UserController, error) {
+	userMapper := impl2.NewUserMapper()
+	userService := impl.NewUserService(userMapper)
+	userController := controller.NewUserController(userService)
+	return userController, nil
+}
+
+// NewVerificationController 使用 Wire 初始化验证码控制器
+func NewVerificationController() (*controller.VerificationController, error) {
+	verificationService := impl.NewVerificationService()
+	verificationController := controller.NewVerificationController(verificationService)
+	return verificationController, nil
+}

@@ -66,6 +66,21 @@ func (w *statusError) Extra() map[string]string {
 	return w.ext.Extra
 }
 
+// Code 获取状态码
+func (w *withStatus) Code() int32 {
+	return w.status.Code()
+}
+
+// Msg 获取错误消息
+func (w *withStatus) Msg() string {
+	return w.status.Msg()
+}
+
+// Extra 获取额外信息
+func (w *withStatus) Extra() map[string]string {
+	return w.status.Extra()
+}
+
 // Unwrap 支持 Go errors.Unwrap()
 // 返回值：
 //
@@ -98,7 +113,7 @@ func (w *withStatus) Is(target error) bool {
 // 返回值：
 //
 //	bool: 是否匹配
-func (w *withStatus) As(target interface{}) bool {
+func (w *withStatus) As(target any) bool {
 	return errors.As(w.status, target)
 }
 

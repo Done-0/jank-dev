@@ -39,7 +39,7 @@ func (w *withMessage) Error() string {
 // 返回值：
 //
 //	error: 包装后的错误
-func wrapf(err error, format string, args ...interface{}) error {
+func wrapf(err error, format string, args ...any) error {
 	if err == nil {
 		return nil
 	}
@@ -62,6 +62,6 @@ func wrapf(err error, format string, args ...interface{}) error {
 // 返回值：
 //
 //	error: 带堆栈信息的包装错误
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	return withStackTraceIfNotExists(wrapf(err, format, args...))
 }

@@ -1,21 +1,28 @@
-// Package mapper 提供RBAC权限管理相关的数据访问接口
+// Package mapper 提供RBAC权限相关的数据访问接口
 // 创建者：Done-0
-// 创建时间：2025-08-08
+// 创建时间：2025-08-11
 package mapper
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/Done-0/jank/internal/model/rbac"
-	"github.com/Done-0/jank/internal/model/user"
 )
 
-// RBACMapper RBAC权限管理数据访问接口
+// RBACMapper RBAC数据访问接口
 type RBACMapper interface {
-	GetAllPolicies(ctx *app.RequestContext, pageNo, pageSize int64) ([]*rbac.Policy, int64, error) // GetAllPolicies 获取所有策略
-	GetPoliciesForRole(ctx *app.RequestContext, role string) ([]*rbac.Policy, error)               // GetPoliciesForRole 获取角色的所有策略
-	GetAllRoles(ctx *app.RequestContext, pageNo, pageSize int64) ([]string, int64, error)          // GetAllRoles 获取所有角色
-	GetRoleInheritances(ctx *app.RequestContext, role string) ([]string, error)                    // GetRoleInheritances 获取角色继承关系
-	GetUserByID(ctx *app.RequestContext, id int64) (*user.User, error)                             // GetUserByID 根据ID获取用户
-	UpdateUserRole(ctx *app.RequestContext, userID int64, role string) error                       // UpdateUserRole 更新用户角色
+	// 策略管理
+	AddPolicy(c *app.RequestContext, role, resource, action string) (*rbac.Policy, error) // 添加权限策略
+	RemovePolicy(c *app.RequestContext, role, resource, action string) (bool, error)      // 删除权限策略
+	GetAllPolicies(c *app.RequestContext) ([]*rbac.Policy, error)                         // 获取所有策略
+	PolicyExists(c *app.RequestContext, role, resource, action string) (bool, error)      // 检查策略是否存在
+
+	// 角色分配
+	AddRoleForUser(c *app.RequestContext, user, role string) (*rbac.Policy, error) // 为用户分配角色
+	RemoveRoleForUser(c *app.RequestContext, user, role string) (bool, error)      // 移除用户角色
+	GetRolesForUser(c *app.RequestContext, user string) ([]*rbac.Policy, error)    // 获取用户角色
+	UserHasRole(c *app.RequestContext, user, role string) (bool, error)            // 检查用户是否有指定角色
+
+	// 权限检查
+	Enforce(c *app.RequestContext, user, resource, action string) (bool, error) // 权限检查
 }

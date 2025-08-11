@@ -1,4 +1,4 @@
-// Package vo 主题视图对象
+// Package vo 主题相关值对象
 package vo
 
 // SwitchThemeResponse 切换主题响应

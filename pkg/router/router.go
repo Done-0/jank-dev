@@ -16,11 +16,11 @@ import (
 func New(app *server.Hertz) {
 	api := app.Group("/api")
 
-	// 注册主题前端路由（根路径和静态文件）
-	routes.RegisterThemeFrontendRoutes(app)
-
 	// 注册用户相关的路由
 	routes.RegisterUserRoutes(api)
+
+	// 注册验证码相关的路由
+	routes.RegisterVerificationRoutes(api)
 
 	// 注册分类相关的路由
 	routes.RegisterCategoryRoutes(api)
@@ -34,6 +34,6 @@ func New(app *server.Hertz) {
 	// 注册插件相关的路由
 	routes.RegisterPluginRoutes(api)
 
-	// 注册主题相关的路由
-	routes.RegisterThemeRoutes(api)
+	// 注册主题相关的路由（包含前端和API路由）
+	routes.RegisterThemeRoutes(app, api)
 }

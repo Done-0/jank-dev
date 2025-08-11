@@ -9,21 +9,21 @@ import (
 
 // 用户模块错误码: 20000 ~ 29999
 const (
-	ErrUserNotFound      = 20001 // 用户不存在
-	ErrUserInvalidPasswd = 20002 // 密码错误
-	ErrUserTokenExpired  = 20003 // 令牌过期
-	ErrUserBanned        = 20004 // 用户被禁用
-	ErrUserExists        = 20005 // 用户已存在
-	ErrUserInvalidEmail  = 20006 // 邮箱格式无效
-	ErrUserWeakPassword  = 20007 // 密码强度过低
+	ErrUserRegisterFailed      = 20001 // 注册失败
+	ErrUserLoginFailed         = 20002 // 登录失败
+	ErrUserLogoutFailed        = 20003 // 登出失败
+	ErrUserGetProfileFailed    = 20004 // 获取用户资料失败
+	ErrUserResetPasswordFailed = 20005 // 重置密码失败
+	ErrUserListFailed          = 20006 // 获取用户列表失败
+	ErrUserRefreshTokenFailed  = 20007 // 刷新 token 失败
 )
 
 func init() {
-	code.Register(ErrUserNotFound, "user not found: {id}")
-	code.Register(ErrUserInvalidPasswd, "invalid password for user: {username}")
-	code.Register(ErrUserTokenExpired, "token expired: {token}")
-	code.Register(ErrUserBanned, "user banned: {username} reason: {reason}")
-	code.Register(ErrUserExists, "user already exists: {username}")
-	code.Register(ErrUserInvalidEmail, "invalid email format: {email}")
-	code.Register(ErrUserWeakPassword, "password too weak: {msg}")
+	code.Register(ErrUserRegisterFailed, "user registration failed: {email}")
+	code.Register(ErrUserLoginFailed, "user login failed: {email}")
+	code.Register(ErrUserLogoutFailed, "user logout failed: {msg}")
+	code.Register(ErrUserGetProfileFailed, "get user profile failed: {msg}")
+	code.Register(ErrUserResetPasswordFailed, "reset password failed: {msg}")
+	code.Register(ErrUserListFailed, "list users failed: {msg}")
+	code.Register(ErrUserRefreshTokenFailed, "refresh token failed: {msg}")
 }

@@ -45,10 +45,21 @@ func Success(c *app.RequestContext, data any) Result {
 
 // Fail 失败返回
 func Fail(c *app.RequestContext, data any, err error) Result {
-	code, message := fmt.Sprintf("%d", errno.ErrInternalServer), errorx.ErrorWithoutStack(err)
+	if errData, ok := data.(error); ok {
+		data = errData.Error()
+	}
+
+	if statusErr, ok := err.(errorx.StatusError); ok {
+		return Result{
+			Error:     &Error{Code: fmt.Sprintf("%d", statusErr.Code()), Message: statusErr.Msg()},
+			Data:      data,
+			RequestId: requestid.Get(c),
+			TimeStamp: time.Now().Unix(),
+		}
+	}
 
 	return Result{
-		Error:     &Error{Code: code, Message: message},
+		Error:     &Error{Code: fmt.Sprintf("%d", errno.ErrInternalServer), Message: err.Error()},
 		Data:      data,
 		RequestId: requestid.Get(c),
 		TimeStamp: time.Now().Unix(),

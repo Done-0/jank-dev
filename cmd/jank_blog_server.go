@@ -12,6 +12,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	"github.com/Done-0/jank/configs"
+	"github.com/Done-0/jank/internal/casbin"
 	"github.com/Done-0/jank/internal/db"
 	"github.com/Done-0/jank/internal/global"
 	"github.com/Done-0/jank/internal/logger"
@@ -42,6 +43,9 @@ func Start() {
 
 	// 初始化 Redis
 	redis.New(cfgs)
+
+	// 初始化 Casbin 权限系统
+	casbin.New(cfgs)
 
 	// 初始化插件系统
 	plugin.New(cfgs)

@@ -25,15 +25,12 @@ func RegisterRBACRoutes(r *route.RouterGroup) {
 		rbacGroup.POST("/removePolicy", rbacController.RemovePolicy)    // 删除策略
 		rbacGroup.GET("/getAllPolicies", rbacController.GetAllPolicies) // 获取所有策略
 
-		// 角色管理
-		rbacGroup.GET("/getAllRoles", rbacController.GetAllRoles)                      // 获取所有角色
-		rbacGroup.GET("/getPoliciesForRole", rbacController.GetPoliciesForRole)        // 获取角色策略
-		rbacGroup.POST("/addRoleInheritance", rbacController.AddRoleInheritance)       // 添加角色继承
-		rbacGroup.POST("/removeRoleInheritance", rbacController.RemoveRoleInheritance) // 删除角色继承
-
 		// 用户角色管理
 		rbacGroup.POST("/addRoleForUser", rbacController.AddRoleForUser)       // 添加用户角色
 		rbacGroup.POST("/removeRoleForUser", rbacController.RemoveRoleForUser) // 删除用户角色
 		rbacGroup.GET("/getRolesForUser", rbacController.GetRolesForUser)      // 获取用户角色
+
+		// 权限检查
+		rbacGroup.POST("/enforce", rbacController.Enforce) // 权限检查
 	}
 }

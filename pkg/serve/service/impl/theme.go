@@ -2,15 +2,19 @@ package impl
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/Done-0/jank/internal/theme"
 	"github.com/Done-0/jank/internal/theme/impl"
-	themeUtils "github.com/Done-0/jank/internal/utils/theme"
+
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
 	"github.com/Done-0/jank/pkg/serve/service"
 	"github.com/Done-0/jank/pkg/vo"
+
+	themeUtils "github.com/Done-0/jank/internal/utils/theme"
 )
 
 // ThemeServiceImpl 主题服务实现
@@ -134,4 +138,34 @@ func (s *ThemeServiceImpl) ListThemes(c *app.RequestContext, req *dto.ListThemes
 		PageSize: pageSize,
 		List:     filteredThemes,
 	}, nil
+}
+
+// ServeHomePage 获取主题首页文件路径
+func (s *ThemeServiceImpl) ServeHomePage(c *app.RequestContext) (string, error) {
+	activeTheme, err := theme.GlobalThemeManager.GetActiveTheme()
+	if err != nil {
+		return "", fmt.Errorf("failed to get active theme: %w", err)
+	}
+
+	return filepath.Join(activeTheme.Path, activeTheme.IndexFilePath), nil
+}
+
+// ServeStaticResource 获取静态资源文件路径
+func (s *ThemeServiceImpl) ServeStaticResource(c *app.RequestContext, requestPath string) (string, error) {
+	// 跳过 API 路径
+	if strings.HasPrefix(requestPath, "/api/") {
+		return "", fmt.Errorf("API paths are not served as static resources")
+	}
+
+	activeTheme, err := theme.GlobalThemeManager.GetActiveTheme()
+	if err != nil {
+		return "", fmt.Errorf("failed to get active theme: %w", err)
+	}
+
+	// 拼接完整文件路径：themes/主题名/构建目录/请求文件
+	requestedFile := strings.TrimPrefix(requestPath, "/")
+	buildDir := filepath.Dir(activeTheme.IndexFilePath)
+	fullPath := filepath.Join(activeTheme.Path, buildDir, requestedFile)
+
+	return fullPath, nil
 }

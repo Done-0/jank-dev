@@ -9,6 +9,7 @@ import (
 
 // MapperProviderSet 数据访问层相关的 Provider 集合
 var MapperProviderSet = wire.NewSet(
+	mapperImpl.NewUserMapper,
 	mapperImpl.NewRBACMapper,
 )
 
@@ -17,6 +18,8 @@ var ServiceProviderSet = wire.NewSet(
 	serviceImpl.NewPluginService,
 	serviceImpl.NewRBACService,
 	serviceImpl.NewThemeService,
+	serviceImpl.NewUserService,
+	serviceImpl.NewVerificationService,
 )
 
 // AllProviderSet 所有 Provider 的集合

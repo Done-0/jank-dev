@@ -23,13 +23,6 @@ type RBACController struct {
 }
 
 // NewRBACController 创建RBAC权限管理控制器
-// 参数：
-//
-//	rbacService: RBAC权限管理服务
-//
-// 返回值：
-//
-//	*RBACController: RBAC权限管理控制器
 func NewRBACController(rbacService service.RBACService) *RBACController {
 	return &RBACController{
 		rbacService: rbacService,
@@ -37,23 +30,23 @@ func NewRBACController(rbacService service.RBACService) *RBACController {
 }
 
 // AddPolicy 添加策略
-// @Router /api/v1/rbac/addPolicy [post]
+// @Router /api/rbac/addPolicy [post]
 func (rc *RBACController) AddPolicy(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.AddPolicyRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPolicyExists)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPolicyExists)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := rc.rbacService.AddPolicy(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPolicyExists)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "add policy failed"))))
 		return
 	}
 
@@ -61,191 +54,23 @@ func (rc *RBACController) AddPolicy(ctx context.Context, c *app.RequestContext) 
 }
 
 // RemovePolicy 删除策略
-// @Router /api/v1/rbac/removePolicy [post]
+// @Router /api/rbac/removePolicy [post]
 func (rc *RBACController) RemovePolicy(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RemovePolicyRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPolicyNotFound)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPolicyNotFound)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
 	response, err := rc.rbacService.RemovePolicy(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPolicyNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// AddRoleForUser 为用户添加角色
-// @Router /api/v1/rbac/addRoleForUser [post]
-func (rc *RBACController) AddRoleForUser(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.AddRoleForUserRequest)
-	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.AddRoleForUser(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// RemoveRoleForUser 删除用户角色
-// @Router /api/v1/rbac/removeRoleForUser [post]
-func (rc *RBACController) RemoveRoleForUser(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.RemoveRoleForUserRequest)
-	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.RemoveRoleForUser(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// AddRoleInheritance 添加角色继承关系
-// @Router /api/v1/rbac/addRoleInheritance [post]
-func (rc *RBACController) AddRoleInheritance(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.AddRoleInheritanceRequest)
-	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.AddRoleInheritance(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// RemoveRoleInheritance 删除角色继承关系
-// @Router /api/v1/rbac/removeRoleInheritance [post]
-func (rc *RBACController) RemoveRoleInheritance(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.RemoveRoleInheritanceRequest)
-	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.RemoveRoleInheritance(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// GetRolesForUser 获取用户角色
-// @Router /api/v1/rbac/getRolesForUser [get]
-func (rc *RBACController) GetRolesForUser(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.GetRolesForUserRequest)
-	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.GetRolesForUser(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrUserRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// GetPoliciesForRole 获取角色策略
-// @Router /api/v1/rbac/getPoliciesForRole [get]
-func (rc *RBACController) GetPoliciesForRole(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.GetPoliciesForRoleRequest)
-	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.GetPoliciesForRole(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
-// GetAllRoles 获取所有角色
-// @Router /api/v1/rbac/getAllRoles [get]
-func (rc *RBACController) GetAllRoles(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.GetAllRolesRequest)
-	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrRoleNotFound)))
-		return
-	}
-
-	response, err := rc.rbacService.GetAllRoles(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrRoleNotFound)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "remove policy failed"))))
 		return
 	}
 
@@ -253,23 +78,107 @@ func (rc *RBACController) GetAllRoles(ctx context.Context, c *app.RequestContext
 }
 
 // GetAllPolicies 获取所有策略
-// @Router /api/v1/rbac/getAllPolicies [get]
+// @Router /api/rbac/getAllPolicies [get]
 func (rc *RBACController) GetAllPolicies(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.GetAllPoliciesRequest)
-	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPolicyNotFound)))
+	response, err := rc.rbacService.GetAllPolicies(c)
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "get all policies failed"))))
+		return
+	}
+
+	c.JSON(consts.StatusOK, vo.Success(c, response))
+}
+
+// AddRoleForUser 为用户添加角色
+// @Router /api/rbac/addRoleForUser [post]
+func (rc *RBACController) AddRoleForUser(ctx context.Context, c *app.RequestContext) {
+	req := new(dto.AddRoleForUserRequest)
+	if err := c.BindJSON(req); err != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPolicyNotFound)))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
-	response, err := rc.rbacService.GetAllPolicies(c, req)
+	response, err := rc.rbacService.AddRoleForUser(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPolicyNotFound)))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "add role for user failed"))))
+		return
+	}
+
+	c.JSON(consts.StatusOK, vo.Success(c, response))
+}
+
+// RemoveRoleForUser 删除用户角色
+// @Router /api/rbac/removeRoleForUser [post]
+func (rc *RBACController) RemoveRoleForUser(ctx context.Context, c *app.RequestContext) {
+	req := new(dto.RemoveRoleForUserRequest)
+	if err := c.BindJSON(req); err != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		return
+	}
+
+	errors := validator.Validate(req)
+	if errors != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		return
+	}
+
+	response, err := rc.rbacService.RemoveRoleForUser(c, req)
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "remove role for user failed"))))
+		return
+	}
+
+	c.JSON(consts.StatusOK, vo.Success(c, response))
+}
+
+// GetRolesForUser 获取用户角色
+// @Router /api/rbac/getRolesForUser [get]
+func (rc *RBACController) GetRolesForUser(ctx context.Context, c *app.RequestContext) {
+	req := new(dto.GetRolesForUserRequest)
+	if err := c.BindQuery(req); err != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
+		return
+	}
+
+	errors := validator.Validate(req)
+	if errors != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		return
+	}
+
+	response, err := rc.rbacService.GetRolesForUser(c, req)
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "get roles for user failed"))))
+		return
+	}
+
+	c.JSON(consts.StatusOK, vo.Success(c, response))
+}
+
+// Enforce 权限检查
+// @Router /api/rbac/enforce [post]
+func (rc *RBACController) Enforce(ctx context.Context, c *app.RequestContext) {
+	req := new(dto.EnforceRequest)
+	if err := c.BindJSON(req); err != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		return
+	}
+
+	errors := validator.Validate(req)
+	if errors != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		return
+	}
+
+	response, err := rc.rbacService.Enforce(c, req)
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "permission check failed"))))
 		return
 	}
 

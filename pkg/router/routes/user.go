@@ -4,25 +4,40 @@
 package routes
 
 import (
+	"log"
+
 	"github.com/cloudwego/hertz/pkg/route"
+
+	"github.com/Done-0/jank/internal/middleware/jwt"
+	"github.com/Done-0/jank/pkg/wire"
 )
 
 // RegisterUserRoutes 注册用户相关路由
 // 参数：
 //
-//	r: Hertz 路由组数组，r[0] 为 API v1 版本组
-func RegisterUserRoutes(r ...*route.RouterGroup) {
-	// api v1 group
-	apiV1 := r[0]
-	userGroup := apiV1.Group("/user")
+//	r: Hertz 路由组，API v1 版本组
+func RegisterUserRoutes(r *route.RouterGroup) {
+	userController, err := wire.NewUserController()
+	if err != nil {
+		log.Fatalf("Failed to initialize user controller: %v", err)
+	}
 
-	// TODO: 实现具体的路由处理函数后，取消注释以下路由
-	// userGroup.POST("/register", account.RegisterAcc)
-	// userGroup.POST("/login", account.LoginAccount)
-	// userGroup.GET("/profile", account.GetAccount, middleware.AuthMiddleware())
-	// userGroup.POST("/update", account.UpdateAccount, middleware.AuthMiddleware())
-	// userGroup.POST("/logout", account.LogoutAccount, middleware.AuthMiddleware())
-	// userGroup.POST("/resetPassword", account.ResetPassword, middleware.AuthMiddleware())
+	// 用户路由组
+	userGroup := r.Group("/user")
+	{
+		// 公开接口（无需认证）
+		userGroup.POST("/register", userController.Register)          // 用户注册
+		userGroup.POST("/login", userController.Login)                // 用户登录
+		userGroup.POST("/refresh-token", userController.RefreshToken) // 刷新token - 主流命名
 
-	_ = userGroup // 避免未使用变量警告
+		// 需要认证的接口
+		userGroup.POST("/logout", jwt.New(), userController.Logout)                // 用户登出
+		userGroup.POST("/update", jwt.New(), userController.Update)                // 更新用户信息
+		userGroup.POST("/reset-password", jwt.New(), userController.ResetPassword) // 重置密码
+
+		userGroup.GET("/profile", jwt.New(), userController.GetProfile) // 获取用户资料
+		userGroup.GET("/list", jwt.New(), userController.ListUsers)     // 列举用户（管理员）
+
+		userGroup.POST("/role", jwt.New(), userController.UpdateUserRole) // 更新用户角色（管理员）
+	}
 }

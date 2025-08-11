@@ -1,4 +1,4 @@
-// Package vo 插件视图对象
+// Package vo 插件相关值对象
 package vo
 
 // RegisterPluginResponse 注册插件响应

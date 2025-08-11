@@ -12,4 +12,8 @@ type ThemeService interface {
 	SwitchTheme(c *app.RequestContext, req *dto.SwitchThemeRequest) (*vo.SwitchThemeResponse, error)
 	GetActiveTheme(c *app.RequestContext) (*vo.GetActiveThemeResponse, error)
 	ListThemes(c *app.RequestContext, req *dto.ListThemesRequest) (*vo.ListThemesResponse, error)
+	
+	// 前端路由服务方法
+	ServeHomePage(c *app.RequestContext) (string, error)
+	ServeStaticResource(c *app.RequestContext, requestPath string) (string, error)
 }

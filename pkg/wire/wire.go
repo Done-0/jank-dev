@@ -32,3 +32,19 @@ func NewThemeController() (*controller.ThemeController, error) {
 		controller.NewThemeController,
 	))
 }
+
+// NewUserController 使用 Wire 初始化用户控制器
+func NewUserController() (*controller.UserController, error) {
+	panic(wire.Build(
+		AllProviderSet,
+		controller.NewUserController,
+	))
+}
+
+// NewVerificationController 使用 Wire 初始化验证码控制器
+func NewVerificationController() (*controller.VerificationController, error) {
+	panic(wire.Build(
+		AllProviderSet,
+		controller.NewVerificationController,
+	))
+}
