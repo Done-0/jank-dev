@@ -4,7 +4,7 @@
 package consts
 
 const (
-	// Redis 缓存键前缀
-	UserCacheKeyPrefix        = "USER:CACHE"         // 用户 access token 缓存键前缀
-	UserRefreshCacheKeyPrefix = "USER:REFRESH:CACHE" // 用户 refresh token 缓存键前缀
+	// Redis 缓存键前缀 - 认证相关
+	AuthAccessTokenKeyPrefix  = "auth:access_token"  // 访问令牌缓存键前缀: auth:access_token:{userID}
+	AuthRefreshTokenKeyPrefix = "auth:refresh_token" // 刷新令牌缓存键前缀: auth:refresh_token:{userID}
 )

@@ -76,26 +76,29 @@ function App() {
 
   const switchTheme = async (themeId: string) => {
     try {
-      // Get current active theme to check if we're switching to a different theme
       const currentActiveTheme = themes.find(t => t.is_active);
       if (currentActiveTheme?.id === themeId) {
-        return; // Don't switch if it's already the active theme
+        return;
       }
 
-      // 使用AJAX调用，后端返回成功后刷新页面
+      const targetTheme = themes.find(t => t.id === themeId);
+      const needsRebuild = targetTheme?.id === 'com.jank.themes.moon';
+
       const response = await fetch('/api/theme/switch', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id: themeId })
+        body: JSON.stringify({ 
+          id: themeId,
+          rebuild: needsRebuild
+        })
       });
       
       if (response.ok) {
         const data = await response.json();
         console.log('Theme switch response:', data);
         
-        // 主题切换成功，直接刷新页面应用新主题
         setTimeout(() => {
           window.location.reload();
         }, 500);

@@ -20,13 +20,13 @@ func NewRBACMapper() mapper.RBACMapper {
 	return &RBACMapperImpl{}
 }
 
-// AddPolicy 添加权限策略
-func (m *RBACMapperImpl) AddPolicy(c *app.RequestContext, role, resource, action string) (*rbac.Policy, error) {
-	exists, err := m.PolicyExists(c, role, resource, action)
-	if err != nil {
+// CreatePermission 创建权限
+func (m *RBACMapperImpl) CreatePermission(c *app.RequestContext, name, description, role, resource, action string) (*rbac.Policy, error) {
+	var count int64
+	if err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND v2 = ? AND deleted = ?", "p", role, resource, action, false).Count(&count).Error; err != nil {
 		return nil, err
 	}
-	if exists {
+	if count > 0 {
 		return nil, nil
 	}
 
@@ -35,48 +35,106 @@ func (m *RBACMapperImpl) AddPolicy(c *app.RequestContext, role, resource, action
 		V0:    role,
 		V1:    resource,
 		V2:    action,
+		V3:    name,
+		V4:    description,
 	}
 
-	err = db.GetDBFromContext(c).Create(policy).Error
-	if err != nil {
+	if err := db.GetDBFromContext(c).Create(policy).Error; err != nil {
 		return nil, err
 	}
 
-	global.Enforcer.LoadPolicy()
 	return policy, nil
 }
 
-// RemovePolicy 删除权限策略
-func (m *RBACMapperImpl) RemovePolicy(c *app.RequestContext, role, resource, action string) (bool, error) {
-	result := db.GetDBFromContext(c).Where("ptype = ? AND v0 = ? AND v1 = ? AND v2 = ?", "p", role, resource, action).Delete(&rbac.Policy{})
+// DeletePermission 删除权限（软删除）
+func (m *RBACMapperImpl) DeletePermission(c *app.RequestContext, role, resource, action string) (bool, error) {
+	result := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND v2 = ? AND deleted = ?", "p", role, resource, action, false).Update("deleted", true)
 	if result.Error != nil {
 		return false, result.Error
 	}
-	global.Enforcer.LoadPolicy()
+
 	return result.RowsAffected > 0, nil
 }
 
-// GetAllPolicies 获取所有策略
-func (m *RBACMapperImpl) GetAllPolicies(c *app.RequestContext) ([]*rbac.Policy, error) {
+// ListPermissions 获取所有权限
+func (m *RBACMapperImpl) ListPermissions(c *app.RequestContext) ([]*rbac.Policy, error) {
 	var policies []*rbac.Policy
-	err := db.GetDBFromContext(c).Find(&policies).Error
-	return policies, err
-}
+	err := db.GetDBFromContext(c).
+		Where("ptype = ? AND deleted = ?", "p", false).
+		Order("id DESC").
+		Find(&policies).Error
 
-// PolicyExists 检查策略是否存在
-func (m *RBACMapperImpl) PolicyExists(c *app.RequestContext, role, resource, action string) (bool, error) {
-	var count int64
-	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND v2 = ?", "p", role, resource, action).Count(&count).Error
-	return count > 0, err
-}
-
-// AddRoleForUser 为用户分配角色
-func (m *RBACMapperImpl) AddRoleForUser(c *app.RequestContext, user, role string) (*rbac.Policy, error) {
-	has, err := m.UserHasRole(c, user, role)
 	if err != nil {
 		return nil, err
 	}
-	if has {
+
+	permissionMap := make(map[string]*rbac.Policy)
+	var result []*rbac.Policy
+
+	for _, policy := range policies {
+		key := policy.V1 + ":" + policy.V2
+		if _, exists := permissionMap[key]; !exists {
+			permissionMap[key] = policy
+			result = append(result, policy)
+		}
+	}
+
+	return result, nil
+}
+
+// PermissionExists 检查权限是否存在
+func (m *RBACMapperImpl) PermissionExists(c *app.RequestContext, resource, action string) (bool, error) {
+	var count int64
+	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v1 = ? AND v2 = ? AND deleted = ?", "p", resource, action, false).Count(&count).Error
+	return count > 0, err
+}
+
+// ListRoles 获取所有角色
+func (m *RBACMapperImpl) ListRoles(c *app.RequestContext) ([]*rbac.Policy, error) {
+	var policies []*rbac.Policy
+	err := db.GetDBFromContext(c).
+		Where("ptype = ? AND deleted = ?", "p", false).
+		Order("id DESC").
+		Find(&policies).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	roleMap := make(map[string]*rbac.Policy)
+	var result []*rbac.Policy
+
+	for _, policy := range policies {
+		if _, exists := roleMap[policy.V0]; !exists {
+			roleMap[policy.V0] = policy
+			result = append(result, policy)
+		}
+	}
+
+	return result, nil
+}
+
+// RoleExists 检查角色是否存在
+func (m *RBACMapperImpl) RoleExists(c *app.RequestContext, role string) (bool, error) {
+	var count int64
+	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND deleted = ?", "p", role, false).Count(&count).Error
+	return count > 0, err
+}
+
+// GetRolePermissions 获取角色权限
+func (m *RBACMapperImpl) GetRolePermissions(c *app.RequestContext, role string) ([]*rbac.Policy, error) {
+	var policies []*rbac.Policy
+	err := db.GetDBFromContext(c).Where("ptype = ? AND v0 = ? AND deleted = ?", "p", role, false).Order("id DESC").Find(&policies).Error
+	return policies, err
+}
+
+// AssignRole 分配角色
+func (m *RBACMapperImpl) AssignRole(c *app.RequestContext, user, role string) (*rbac.Policy, error) {
+	var count int64
+	if err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND deleted = ?", "g", user, role, false).Count(&count).Error; err != nil {
+		return nil, err
+	}
+	if count > 0 {
 		return nil, nil
 	}
 
@@ -86,40 +144,63 @@ func (m *RBACMapperImpl) AddRoleForUser(c *app.RequestContext, user, role string
 		V1:    role,
 	}
 
-	err = db.GetDBFromContext(c).Create(policy).Error
-	if err != nil {
+	if err := db.GetDBFromContext(c).Create(policy).Error; err != nil {
 		return nil, err
 	}
 
-	global.Enforcer.LoadPolicy()
 	return policy, nil
 }
 
-// RemoveRoleForUser 移除用户角色
-func (m *RBACMapperImpl) RemoveRoleForUser(c *app.RequestContext, user, role string) (bool, error) {
-	result := db.GetDBFromContext(c).Where("ptype = ? AND v0 = ? AND v1 = ?", "g", user, role).Delete(&rbac.Policy{})
+// RevokeRole 撤销角色（软删除）
+func (m *RBACMapperImpl) RevokeRole(c *app.RequestContext, user, role string) (bool, error) {
+	result := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND deleted = ?", "g", user, role, false).Update("deleted", true)
 	if result.Error != nil {
 		return false, result.Error
 	}
-	global.Enforcer.LoadPolicy()
+
 	return result.RowsAffected > 0, nil
 }
 
-// GetRolesForUser 获取用户角色
-func (m *RBACMapperImpl) GetRolesForUser(c *app.RequestContext, user string) ([]*rbac.Policy, error) {
+// GetUserRoles 获取用户角色
+func (m *RBACMapperImpl) GetUserRoles(c *app.RequestContext, user string) ([]*rbac.Policy, error) {
 	var policies []*rbac.Policy
-	err := db.GetDBFromContext(c).Where("ptype = ? AND v0 = ?", "g", user).Find(&policies).Error
+	err := db.GetDBFromContext(c).Where("ptype = ? AND v0 = ? AND deleted = ?", "g", user, false).Order("id DESC").Find(&policies).Error
 	return policies, err
 }
 
 // UserHasRole 检查用户是否有指定角色
 func (m *RBACMapperImpl) UserHasRole(c *app.RequestContext, user, role string) (bool, error) {
 	var count int64
-	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ?", "g", user, role).Count(&count).Error
+	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).Where("ptype = ? AND v0 = ? AND v1 = ? AND deleted = ?", "g", user, role, false).Count(&count).Error
 	return count > 0, err
 }
 
-// Enforce 权限检查
-func (m *RBACMapperImpl) Enforce(c *app.RequestContext, user, resource, action string) (bool, error) {
+// ListUsers 获取所有用户
+func (m *RBACMapperImpl) ListUsers(c *app.RequestContext) ([]*rbac.Policy, error) {
+	var policies []*rbac.Policy
+	err := db.GetDBFromContext(c).
+		Where("ptype = ? AND deleted = ?", "g", false).
+		Order("id DESC").
+		Find(&policies).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	userMap := make(map[string]*rbac.Policy)
+	var result []*rbac.Policy
+
+	for _, policy := range policies {
+		if _, exists := userMap[policy.V0]; !exists {
+			userMap[policy.V0] = policy
+			result = append(result, policy)
+		}
+	}
+
+	return result, nil
+}
+
+// CheckPermission 权限检查
+func (m *RBACMapperImpl) CheckPermission(c *app.RequestContext, user, resource, action string) (bool, error) {
 	return global.Enforcer.Enforce(user, resource, action)
 }

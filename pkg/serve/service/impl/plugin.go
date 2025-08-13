@@ -13,6 +13,7 @@ import (
 	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/plugin"
 	"github.com/Done-0/jank/internal/plugin/impl"
+	"github.com/Done-0/jank/internal/utils/logger"
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
 	"github.com/Done-0/jank/pkg/serve/service"
 	"github.com/Done-0/jank/pkg/vo"
@@ -28,15 +29,17 @@ func NewPluginService() service.PluginService {
 	return &PluginServiceImpl{}
 }
 
-// RegisterPlugin 注册插件
+// RegisterPlugin 注册插件逻辑
 func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.RegisterPluginRequest) (*vo.RegisterPluginResponse, error) {
 	cfgs, err := configs.GetConfig()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get config: %v", err)
 		log.Fatalf("failed to get config: %v", err)
 	}
 
 	entries, err := os.ReadDir(cfgs.PluginConfig.PluginDir)
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to read plugin directory: %v", err)
 		return &vo.RegisterPluginResponse{Message: err.Error()}, fmt.Errorf("failed to read plugin directory: %w", err)
 	}
 
@@ -65,7 +68,9 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 			// 检查是否需要构建：强制重建 或 二进制文件不存在
 			isRebuild := req.Rebuild || !pluginUtils.CheckBinaryExists(binaryPath)
 			if isRebuild {
+				logger.BizLogger(c).Infof("building plugin: %s", req.ID)
 				if err := pluginUtils.ExecuteBuildScript(pluginPath); err != nil {
+					logger.BizLogger(c).Errorf("failed to build plugin %s: %v", req.ID, err)
 					return &vo.RegisterPluginResponse{Message: err.Error()},
 						fmt.Errorf("build failed: %w", err)
 				}
@@ -78,29 +83,33 @@ func (s *PluginServiceImpl) RegisterPlugin(c *app.RequestContext, req *dto.Regis
 	}
 
 	if pluginInfo == nil {
+		logger.BizLogger(c).Errorf("plugin not found: %s", req.ID)
 		return &vo.RegisterPluginResponse{Message: "plugin not found"},
 			fmt.Errorf("plugin with ID %s not found", req.ID)
 	}
 
 	if err := plugin.GlobalPluginManager.RegisterPlugin(req.ID); err != nil {
+		logger.BizLogger(c).Errorf("failed to register plugin %s: %v", req.ID, err)
 		return &vo.RegisterPluginResponse{Message: err.Error()}, fmt.Errorf("failed to register plugin %s: %v", req.ID, err)
 	}
 
 	return &vo.RegisterPluginResponse{Message: "Plugin registered successfully"}, nil
 }
 
-// UnregisterPlugin 注销插件
+// UnregisterPlugin 注销插件逻辑
 func (s *PluginServiceImpl) UnregisterPlugin(c *app.RequestContext, req *dto.UnregisterPluginRequest) (*vo.UnregisterPluginResponse, error) {
 	if err := plugin.GlobalPluginManager.UnregisterPlugin(req.ID); err != nil {
+		logger.BizLogger(c).Errorf("failed to unregister plugin %s: %v", req.ID, err)
 		return &vo.UnregisterPluginResponse{Message: err.Error()}, err
 	}
 	return &vo.UnregisterPluginResponse{Message: "Plugin unregistered successfully"}, nil
 }
 
-// ExecutePlugin 执行插件方法
+// ExecutePlugin 执行插件方法逻辑
 func (s *PluginServiceImpl) ExecutePlugin(c *app.RequestContext, req *dto.ExecutePluginRequest) (*vo.ExecutePluginResponse, error) {
 	result, err := plugin.GlobalPluginManager.ExecutePlugin(context.Background(), req.ID, req.Method, req.Args)
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to execute plugin %s method %s: %v", req.ID, req.Method, err)
 		return &vo.ExecutePluginResponse{}, fmt.Errorf("failed to execute plugin %s method %s: %v", req.ID, req.Method, err)
 	}
 
@@ -115,10 +124,11 @@ func (s *PluginServiceImpl) ExecutePlugin(c *app.RequestContext, req *dto.Execut
 	}, nil
 }
 
-// GetPlugin 获取插件信息
+// GetPlugin 获取插件信息逻辑
 func (s *PluginServiceImpl) GetPlugin(c *app.RequestContext, req *dto.GetPluginRequest) (*vo.GetPluginResponse, error) {
 	info, err := plugin.GlobalPluginManager.GetPlugin(req.ID)
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get plugin %s: %v", req.ID, err)
 		return &vo.GetPluginResponse{}, fmt.Errorf("failed to get plugin %s: %v", req.ID, err)
 	}
 
@@ -155,10 +165,11 @@ func (s *PluginServiceImpl) GetPlugin(c *app.RequestContext, req *dto.GetPluginR
 	return &response, nil
 }
 
-// ListPlugins 列举所有插件（包括未注册的）
+// ListPlugins 列举所有插件逻辑（包括未注册的）
 func (s *PluginServiceImpl) ListPlugins(c *app.RequestContext, req *dto.ListPluginsRequest) (*vo.ListPluginsResponse, error) {
 	discoveredPlugins, err := plugin.GlobalPluginManager.ListPlugins()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to list plugins: %v", err)
 		return &vo.ListPluginsResponse{}, fmt.Errorf("failed to list plugins: %w", err)
 	}
 

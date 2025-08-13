@@ -7,14 +7,14 @@ import "time"
 
 const (
 	// 验证码缓存键前缀
-	EmailVerificationCodeCacheKeyPrefix = "EMAIL:VERIFICATION:CODE"     // 邮箱验证码缓存键前缀
-	ImgVerificationCodeCacheKeyPrefix   = "IMG:VERIFICATION:CODE:CACHE" // 图形验证码缓存键前缀
+	EmailVerificationKeyPrefix = "verification:email" // 邮箱验证码缓存键前缀: verification:email:{email}
+	ImgVerificationKeyPrefix   = "verification:image" // 图形验证码缓存键前缀: verification:image:{sessionId}
 
 	// 验证码缓存过期时间
-	EmailVerificationCodeCacheExpiration = 3 * time.Minute // 邮箱验证码缓存过期时间（3分钟）
-	ImgVerificationCodeCacheExpiration   = 5 * time.Minute // 图形验证码缓存过期时间（5分钟）
+	EmailVerificationExpiration = 3 * time.Minute // 邮箱验证码缓存过期时间（3分钟）
+	ImgVerificationExpiration   = 5 * time.Minute // 图形验证码缓存过期时间（5分钟）
 
 	// 验证码长度配置
-	EmailVerificationCodeLength = 6 // 邮箱验证码长度（6位数字）
-	ImgVerificationCodeLength   = 4 // 图形验证码长度（4位字符）
+	EmailVerificationLength = 6 // 邮箱验证码长度（6位数字）
+	ImgVerificationLength   = 4 // 图形验证码长度（4位字符）
 )

@@ -27,17 +27,17 @@ func NewVerificationService() service.VerificationService {
 
 // SendEmailVerificationCode 发送邮箱验证码
 func (v *VerificationServiceImpl) SendEmailVerificationCode(c *app.RequestContext, req *dto.SendEmailCodeRequest) error {
-	key := consts.EmailVerificationCodeCacheKeyPrefix + req.Email
+	key := consts.EmailVerificationKeyPrefix + req.Email
 
 	// 生成并缓存验证码（如果已存在则覆盖旧的验证码）
 	code := email.NewRand()
-	err := global.RedisClient.Set(context.Background(), key, strconv.Itoa(code), consts.EmailVerificationCodeCacheExpiration).Err()
+	err := global.RedisClient.Set(context.Background(), key, strconv.Itoa(code), consts.EmailVerificationExpiration).Err()
 	if err != nil {
 		return err
 	}
 
 	// 发送验证码邮件
-	expirationInMinutes := int(consts.EmailVerificationCodeCacheExpiration.Minutes())
+	expirationInMinutes := int(consts.EmailVerificationExpiration.Minutes())
 	emailContent := fmt.Sprintf("Your registration verification code is: %d, valid for %d minutes.", code, expirationInMinutes)
 	success, err := email.SendEmail(emailContent, []string{req.Email})
 	if !success {

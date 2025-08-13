@@ -21,7 +21,7 @@ const (
 
 func init() {
 	code.Register(ErrInternalServer, "internal server error: {msg}")
-	code.Register(ErrInvalidParams, "invalid parameter: {field} {msg}")
+	code.Register(ErrInvalidParams, "invalid parameter: {msg}")
 	code.Register(ErrUnauthorized, "unauthorized access: {msg}")
 	code.Register(ErrForbidden, "permission denied: {resource}")
 	code.Register(ErrResourceNotFound, "{resource} not found: {id}")

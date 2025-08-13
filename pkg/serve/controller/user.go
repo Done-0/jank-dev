@@ -34,13 +34,13 @@ func NewUserController(userService service.UserService) *UserController {
 func (uc *UserController) Register(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RegisterRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -58,13 +58,13 @@ func (uc *UserController) Register(ctx context.Context, c *app.RequestContext) {
 func (uc *UserController) Login(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.LoginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -94,13 +94,13 @@ func (uc *UserController) Logout(ctx context.Context, c *app.RequestContext) {
 func (uc *UserController) RefreshToken(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RefreshTokenRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -130,13 +130,13 @@ func (uc *UserController) GetProfile(ctx context.Context, c *app.RequestContext)
 func (uc *UserController) Update(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UpdateRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -149,36 +149,12 @@ func (uc *UserController) Update(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, vo.Success(c, response))
 }
 
-// UpdateUserRole 管理员更新用户角色
-// @Router /api/user/role [post]
-func (uc *UserController) UpdateUserRole(ctx context.Context, c *app.RequestContext) {
-	req := new(dto.UpdateUserRoleRequest)
-	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
-		return
-	}
-
-	errors := validator.Validate(req)
-	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
-		return
-	}
-
-	response, err := uc.userService.UpdateUserRole(c, req)
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "update user role failed"))))
-		return
-	}
-
-	c.JSON(consts.StatusOK, vo.Success(c, response))
-}
-
 // ResetPassword 重置密码
 // @Router /api/user/reset-password [post]
 func (uc *UserController) ResetPassword(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ResetPasswordRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
@@ -202,7 +178,7 @@ func (uc *UserController) ResetPassword(ctx context.Context, c *app.RequestConte
 func (uc *UserController) ListUsers(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListUsersRequest)
 	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind query failed"))))
 		return
 	}
 
@@ -215,6 +191,30 @@ func (uc *UserController) ListUsers(ctx context.Context, c *app.RequestContext) 
 	response, err := uc.userService.ListUsers(c, req)
 	if err != nil {
 		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrUserListFailed, errorx.KV("msg", "list users failed"))))
+		return
+	}
+
+	c.JSON(consts.StatusOK, vo.Success(c, response))
+}
+
+// UpdateUserRole 管理员更新用户角色
+// @Router /api/user/role [post]
+func (uc *UserController) UpdateUserRole(ctx context.Context, c *app.RequestContext) {
+	req := new(dto.UpdateUserRoleRequest)
+	if err := c.BindJSON(req); err != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
+		return
+	}
+
+	errors := validator.Validate(req)
+	if errors != nil {
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
+		return
+	}
+
+	response, err := uc.userService.UpdateUserRole(c, req)
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "update user role failed"))))
 		return
 	}
 

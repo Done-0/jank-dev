@@ -6,7 +6,6 @@ package impl
 import (
 	"context"
 	"fmt"
-
 	"strconv"
 	"sync"
 	"time"
@@ -36,12 +35,14 @@ var (
 // UserServiceImpl 用户服务实现
 type UserServiceImpl struct {
 	userMapper mapper.UserMapper
+	rbacMapper mapper.RBACMapper
 }
 
 // NewUserService 创建用户服务实例
-func NewUserService(userMapperImpl mapper.UserMapper) service.UserService {
+func NewUserService(userMapperImpl mapper.UserMapper, rbacMapperImpl mapper.RBACMapper) service.UserService {
 	return &UserServiceImpl{
 		userMapper: userMapperImpl,
+		rbacMapper: rbacMapperImpl,
 	}
 }
 
@@ -70,7 +71,6 @@ func (us *UserServiceImpl) Register(c *app.RequestContext, req *dto.RegisterRequ
 		Email:    req.Email,
 		Password: string(hashedPassword),
 		Nickname: req.Nickname,
-		Role:     cfgs.AppConfig.User.DefaultRole,
 	}
 
 	if err := us.userMapper.RegisterUser(c, u); err != nil {
@@ -79,16 +79,24 @@ func (us *UserServiceImpl) Register(c *app.RequestContext, req *dto.RegisterRequ
 	}
 
 	userIDStr := strconv.FormatInt(u.ID, 10)
-	if _, err := global.Enforcer.AddRoleForUser(userIDStr, u.Role); err != nil {
+	if _, err := us.rbacMapper.AssignRole(c, userIDStr, cfgs.AppConfig.User.DefaultRole); err != nil {
 		us.userMapper.DeleteUser(c, userIDStr)
 		return nil, fmt.Errorf("user registration failed due to RBAC system error: %w", err)
+	}
+
+	roles, err := us.rbacMapper.GetUserRoles(c, userIDStr)
+	userRoles := make([]string, 0)
+	if err == nil {
+		for _, role := range roles {
+			userRoles = append(userRoles, role.V1)
+		}
 	}
 
 	return &vo.RegisterResponse{
 		ID:       strconv.FormatInt(u.ID, 10),
 		Email:    u.Email,
 		Nickname: u.Nickname,
-		Role:     u.Role,
+		Roles:    userRoles,
 	}, nil
 }
 
@@ -108,48 +116,49 @@ func (us *UserServiceImpl) Login(c *app.RequestContext, req *dto.LoginRequest) (
 
 	cfgs, err := configs.GetConfig()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
 		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
 
-	// 生成 access_token 和 refresh_token
+	now := time.Now()
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		cfgs.AppConfig.JWT.IdentityKey: u.ID,
-		"exp":                          time.Now().Add(time.Duration(cfgs.AppConfig.JWT.ExpireTime) * time.Hour).Unix(),
-		"iat":                          time.Now().Unix(),
+		consts.JWTSubjectClaim: u.ID,
+		"exp":                  now.Add(time.Duration(cfgs.AppConfig.JWT.ExpireTime) * time.Hour).Unix(),
+		"iat":                  now.Unix(),
 	})
-	accessTokenString, err := accessToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
+	accessTokenStr, err := accessToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
 	if err != nil {
-		logger.BizLogger(c).Errorf("access token generation failed: %v", err)
-		return nil, fmt.Errorf("access token generation failed: %w", err)
+		logger.BizLogger(c).Errorf("failed to sign access token for user %d: %v", u.ID, err)
+		return nil, fmt.Errorf("failed to sign access token: %w", err)
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		cfgs.AppConfig.JWT.IdentityKey: u.ID,
-		"exp":                          time.Now().Add(time.Duration(cfgs.AppConfig.JWT.RefreshExpire) * time.Hour).Unix(),
-		"iat":                          time.Now().Unix(),
+		consts.JWTSubjectClaim: u.ID,
+		"exp":                  now.Add(time.Duration(cfgs.AppConfig.JWT.RefreshExpire) * time.Hour).Unix(),
+		"iat":                  now.Unix(),
 	})
-	refreshTokenString, err := refreshToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
+	refreshTokenStr, err := refreshToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
 	if err != nil {
-		logger.BizLogger(c).Errorf("refresh token generation failed: %v", err)
-		return nil, fmt.Errorf("refresh token generation failed: %w", err)
+		logger.BizLogger(c).Errorf("failed to sign refresh token for user %d: %v", u.ID, err)
+		return nil, fmt.Errorf("failed to sign refresh token: %w", err)
 	}
 
-	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.UserCacheKeyPrefix, u.ID), accessTokenString, time.Duration(cfgs.AppConfig.JWT.ExpireTime)*time.Hour).Err()
+	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.AuthAccessTokenKeyPrefix, u.ID), accessTokenStr, time.Duration(cfgs.AppConfig.JWT.ExpireTime)*time.Hour).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to set access token cache: %v", err)
-		return nil, fmt.Errorf("failed to set access token cache: %w", err)
+		logger.BizLogger(c).Errorf("failed to cache access token for user %d: %v", u.ID, err)
+		return nil, fmt.Errorf("failed to cache access token: %w", err)
 	}
 
-	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.UserRefreshCacheKeyPrefix, u.ID), refreshTokenString, time.Duration(cfgs.AppConfig.JWT.RefreshExpire)*time.Hour).Err()
+	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.AuthRefreshTokenKeyPrefix, u.ID), refreshTokenStr, time.Duration(cfgs.AppConfig.JWT.RefreshExpire)*time.Hour).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to set refresh token cache: %v", err)
-		return nil, fmt.Errorf("failed to set refresh token cache: %w", err)
+		logger.BizLogger(c).Errorf("failed to cache refresh token for user %d: %v", u.ID, err)
+		return nil, fmt.Errorf("failed to cache refresh token: %w", err)
 	}
+
+	logger.BizLogger(c).Infof("user %d logged in successfully", u.ID)
 
 	return &vo.LoginResponse{
-		AccessToken:  accessTokenString,
-		RefreshToken: refreshTokenString,
+		AccessToken:  accessTokenStr,
+		RefreshToken: refreshTokenStr,
 	}, nil
 }
 
@@ -158,44 +167,38 @@ func (us *UserServiceImpl) Logout(c *app.RequestContext) (*vo.LogoutResponse, er
 	logoutLock.Lock()
 	defer logoutLock.Unlock()
 
-	cfgs, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	userID, exists := c.Get(cfgs.AppConfig.JWT.IdentityKey)
+	userID, exists := c.Get(consts.JWTSubjectClaim)
 	if !exists {
-		logger.BizLogger(c).Errorf("unable to get current user ID from context")
-		return nil, fmt.Errorf("authentication required")
+		logger.BizLogger(c).Errorf("user ID not found in context")
+		return nil, fmt.Errorf("user ID not found in context")
 	}
 
-	err = global.RedisClient.Del(context.Background(), fmt.Sprintf("%s:%d", consts.UserCacheKeyPrefix, userID.(int64))).Err()
+	err := global.RedisClient.Del(context.Background(), fmt.Sprintf("%s:%d", consts.AuthAccessTokenKeyPrefix, userID.(int64))).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to delete access token cache: %v", err)
+		logger.BizLogger(c).Errorf("failed to delete access token cache for user %d: %v", userID.(int64), err)
 		return nil, fmt.Errorf("failed to delete access token cache: %w", err)
 	}
 
-	err = global.RedisClient.Del(context.Background(), fmt.Sprintf("%s:%d", consts.UserRefreshCacheKeyPrefix, userID.(int64))).Err()
+	err = global.RedisClient.Del(context.Background(), fmt.Sprintf("%s:%d", consts.AuthRefreshTokenKeyPrefix, userID.(int64))).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to delete refresh token cache: %v", err)
+		logger.BizLogger(c).Errorf("failed to delete refresh token cache for user %d: %v", userID.(int64), err)
 		return nil, fmt.Errorf("failed to delete refresh token cache: %w", err)
 	}
 
+	logger.BizLogger(c).Infof("user %d logged out successfully", userID.(int64))
+
 	return &vo.LogoutResponse{
-		Message: "登出成功",
+		Message: "Logged out successfully",
 	}, nil
 }
 
-// RefreshToken 刷新token
+// RefreshToken 刷新token逻辑
 func (us *UserServiceImpl) RefreshToken(c *app.RequestContext, req *dto.RefreshTokenRequest) (*vo.RefreshTokenResponse, error) {
 	cfgs, err := configs.GetConfig()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
 		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
 
-	// 解析refresh token
 	token, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -204,83 +207,79 @@ func (us *UserServiceImpl) RefreshToken(c *app.RequestContext, req *dto.RefreshT
 	})
 
 	if err != nil || !token.Valid {
-		logger.BizLogger(c).Errorf("invalid refresh token: %v", err)
+		logger.BizLogger(c).Errorf("invalid refresh token provided: %v", err)
 		return nil, fmt.Errorf("invalid refresh token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		logger.BizLogger(c).Errorf("invalid token claims")
+		logger.BizLogger(c).Errorf("invalid token claims format")
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
-	userID, ok := claims[cfgs.AppConfig.JWT.IdentityKey].(float64)
+	userIDFloat, ok := claims[consts.JWTSubjectClaim].(float64)
 	if !ok {
-		logger.BizLogger(c).Errorf("invalid user ID in token")
-		return nil, fmt.Errorf("invalid user ID in token")
+		logger.BizLogger(c).Errorf("invalid user ID in refresh token claims")
+		return nil, fmt.Errorf("invalid refresh token")
 	}
+	userID := int64(userIDFloat)
 
-	storedRefreshToken, err := global.RedisClient.Get(context.Background(), fmt.Sprintf("%s:%d", consts.UserRefreshCacheKeyPrefix, int64(userID))).Result()
-	if err != nil {
-		logger.BizLogger(c).Errorf("refresh token not found in cache: %v", err)
-		return nil, fmt.Errorf("refresh token expired or invalid")
-	}
-
-	if storedRefreshToken != req.RefreshToken {
-		logger.BizLogger(c).Errorf("refresh token mismatch")
-		return nil, fmt.Errorf("refresh token invalid")
-	}
-
-	// 生成新的 access token 和 refresh token
-	newAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		cfgs.AppConfig.JWT.IdentityKey: int64(userID),
-		"exp":                          time.Now().Add(time.Duration(cfgs.AppConfig.JWT.ExpireTime) * time.Hour).Unix(),
-		"iat":                          time.Now().Unix(),
+	now := time.Now()
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		consts.JWTSubjectClaim: userID,
+		"exp":                  now.Add(time.Duration(cfgs.AppConfig.JWT.ExpireTime) * time.Hour).Unix(),
+		"iat":                  now.Unix(),
 	})
-	newAccessTokenString, err := newAccessToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
+	accessTokenString, err := accessToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
 	if err != nil {
-		logger.BizLogger(c).Errorf("new access token generation failed: %v", err)
-		return nil, fmt.Errorf("new access token generation failed: %w", err)
+		return nil, fmt.Errorf("failed to sign access token: %w", err)
 	}
 
-	newRefreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		cfgs.AppConfig.JWT.IdentityKey: int64(userID),
-		"exp":                          time.Now().Add(time.Duration(cfgs.AppConfig.JWT.RefreshExpire) * time.Hour).Unix(),
-		"iat":                          time.Now().Unix(),
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		consts.JWTSubjectClaim: userID,
+		"exp":                  now.Add(time.Duration(cfgs.AppConfig.JWT.RefreshExpire) * time.Hour).Unix(),
+		"iat":                  now.Unix(),
 	})
-	newRefreshTokenString, err := newRefreshToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
+	refreshTokenString, err := refreshToken.SignedString([]byte(cfgs.AppConfig.JWT.Secret))
 	if err != nil {
-		logger.BizLogger(c).Errorf("new refresh token generation failed: %v", err)
-		return nil, fmt.Errorf("new refresh token generation failed: %w", err)
+		return nil, fmt.Errorf("failed to sign refresh token: %w", err)
 	}
 
-	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.UserCacheKeyPrefix, int64(userID)), newAccessTokenString, time.Duration(cfgs.AppConfig.JWT.ExpireTime)*time.Hour).Err()
+	refreshCacheKey := fmt.Sprintf("%s:%d", consts.AuthRefreshTokenKeyPrefix, userID)
+	cachedRefreshToken := global.RedisClient.Get(context.Background(), refreshCacheKey).Val()
+	if cachedRefreshToken == "" {
+		logger.BizLogger(c).Errorf("refresh token not found in cache for user %d", userID)
+		return nil, fmt.Errorf("refresh token expired or not found")
+	}
+	if cachedRefreshToken != req.RefreshToken {
+		logger.BizLogger(c).Errorf("refresh token mismatch for user %d", userID)
+		return nil, fmt.Errorf("invalid refresh token")
+	}
+
+	cacheKey := fmt.Sprintf("%s:%d", consts.AuthAccessTokenKeyPrefix, userID)
+	err = global.RedisClient.Set(context.Background(), cacheKey, accessTokenString, time.Duration(cfgs.AppConfig.JWT.ExpireTime)*time.Hour).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to update access token cache: %v", err)
+		logger.BizLogger(c).Errorf("failed to update access token cache for user %d: %v", userID, err)
 		return nil, fmt.Errorf("failed to update access token cache: %w", err)
 	}
 
-	err = global.RedisClient.Set(context.Background(), fmt.Sprintf("%s:%d", consts.UserRefreshCacheKeyPrefix, int64(userID)), newRefreshTokenString, time.Duration(cfgs.AppConfig.JWT.RefreshExpire)*time.Hour).Err()
+	err = global.RedisClient.Set(context.Background(), refreshCacheKey, refreshTokenString, time.Duration(cfgs.AppConfig.JWT.RefreshExpire)*time.Hour).Err()
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to update refresh token cache: %v", err)
+		logger.BizLogger(c).Errorf("failed to update refresh token cache for user %d: %v", userID, err)
 		return nil, fmt.Errorf("failed to update refresh token cache: %w", err)
 	}
 
+	logger.BizLogger(c).Infof("token refreshed successfully for user %d", userID)
+
 	return &vo.RefreshTokenResponse{
-		AccessToken:  newAccessTokenString,
-		RefreshToken: newRefreshTokenString,
+		AccessToken:  accessTokenString,
+		RefreshToken: refreshTokenString,
 	}, nil
 }
 
 // GetProfile 获取用户资料逻辑
 func (us *UserServiceImpl) GetProfile(c *app.RequestContext) (*vo.GetProfileResponse, error) {
-	cfgs, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	userID, exists := c.Get(cfgs.AppConfig.JWT.IdentityKey)
+	userID, exists := c.Get(consts.JWTSubjectClaim)
 	if !exists {
 		logger.BizLogger(c).Errorf("unable to get current user ID from context")
 		return nil, fmt.Errorf("authentication required")
@@ -292,25 +291,29 @@ func (us *UserServiceImpl) GetProfile(c *app.RequestContext) (*vo.GetProfileResp
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
+	roles, err := us.rbacMapper.GetUserRoles(c, strconv.FormatInt(u.ID, 10))
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get user roles: %v", err)
+		return nil, fmt.Errorf("failed to get user roles: %w", err)
+	}
+
+	userRoles := make([]string, 0, len(roles))
+	for _, role := range roles {
+		userRoles = append(userRoles, role.V1)
+	}
+
 	return &vo.GetProfileResponse{
 		ID:       strconv.FormatInt(u.ID, 10),
 		Email:    u.Email,
 		Nickname: u.Nickname,
 		Avatar:   u.Avatar,
-		Role:     u.Role,
+		Roles:    userRoles,
 	}, nil
-
 }
 
 // Update 更新用户信息逻辑
 func (us *UserServiceImpl) Update(c *app.RequestContext, req *dto.UpdateRequest) (*vo.UpdateResponse, error) {
-	cfgs, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	userID, exists := c.Get(cfgs.AppConfig.JWT.IdentityKey)
+	userID, exists := c.Get(consts.JWTSubjectClaim)
 	if !exists {
 		logger.BizLogger(c).Errorf("unable to get user ID from context")
 		return nil, fmt.Errorf("unable to get user ID from context")
@@ -330,7 +333,6 @@ func (us *UserServiceImpl) Update(c *app.RequestContext, req *dto.UpdateRequest)
 		}
 	}
 
-	// 更新用户信息
 	if req.Nickname != "" {
 		u.Nickname = req.Nickname
 	}
@@ -343,85 +345,23 @@ func (us *UserServiceImpl) Update(c *app.RequestContext, req *dto.UpdateRequest)
 		return nil, fmt.Errorf("user update failed: %w", err)
 	}
 
+	roles, err := us.rbacMapper.GetUserRoles(c, strconv.FormatInt(u.ID, 10))
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get user roles: %v", err)
+		return nil, fmt.Errorf("failed to get user roles: %w", err)
+	}
+
+	userRoles := make([]string, 0, len(roles))
+	for _, role := range roles {
+		userRoles = append(userRoles, role.V1)
+	}
+
 	return &vo.UpdateResponse{
 		ID:       strconv.FormatInt(u.ID, 10),
 		Email:    u.Email,
 		Nickname: u.Nickname,
 		Avatar:   u.Avatar,
-		Role:     u.Role,
-	}, nil
-
-}
-
-// UpdateUserRole 管理员更新用户角色
-func (us *UserServiceImpl) UpdateUserRole(c *app.RequestContext, req *dto.UpdateUserRoleRequest) (*vo.UpdateUserRoleResponse, error) {
-	cfgs, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	userID, exists := c.Get(cfgs.AppConfig.JWT.IdentityKey)
-	if !exists {
-		logger.BizLogger(c).Errorf("unable to get current user ID from context")
-		return nil, fmt.Errorf("authentication required")
-	}
-
-	// 验证当前用户是否有权限更新用户角色
-	hasPermission, err := global.Enforcer.Enforce(userID.(string), string(c.Path()), string(c.Method()))
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to check user permissions: %v", err)
-		return nil, fmt.Errorf("failed to verify permissions: %w", err)
-	}
-	if !hasPermission {
-		logger.BizLogger(c).Warnf("user ID %s attempted to update user role without permission", userID.(string))
-		return nil, fmt.Errorf("insufficient permissions: you do not have permission to update user roles")
-	}
-
-	// 防止用户修改自己的角色
-	if userID.(string) == req.ID {
-		logger.BizLogger(c).Warnf("user ID %s attempted to modify their own role", userID.(string))
-		return nil, fmt.Errorf("cannot modify your own role")
-	}
-
-	// 获取目标用户信息
-	targetUserID, err := strconv.ParseInt(req.ID, 10, 64)
-	if err != nil {
-		logger.BizLogger(c).Errorf("invalid target user ID format: %v", err)
-		return nil, fmt.Errorf("invalid target user ID format: %w", err)
-	}
-
-	targetUser, err := us.userMapper.GetUserByID(c, targetUserID)
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get target user info: %v", err)
-		return nil, fmt.Errorf("failed to get target user info: %w", err)
-	}
-
-	// 更新用户角色并同步到 Casbin
-	oldRole := targetUser.Role
-	targetUser.Role = req.Role
-
-	if err := us.userMapper.UpdateUser(c, targetUser); err != nil {
-		logger.BizLogger(c).Errorf("failed to update user role for user '%s': %v", targetUser.Email, err)
-		return nil, fmt.Errorf("failed to update user role: %w", err)
-	}
-
-	if oldRole != "" {
-		if _, err := global.Enforcer.DeleteRoleForUser(req.ID, oldRole); err != nil {
-			logger.BizLogger(c).Errorf("failed to remove old role from RBAC: %v", err)
-		}
-	}
-	if _, err := global.Enforcer.AddRoleForUser(req.ID, req.Role); err != nil {
-		logger.BizLogger(c).Errorf("failed to add new role to RBAC: %v", err)
-		return nil, fmt.Errorf("failed to sync role to RBAC system: %w", err)
-	}
-
-	return &vo.UpdateUserRoleResponse{
-		ID:       req.ID,
-		Email:    targetUser.Email,
-		Nickname: targetUser.Nickname,
-		Role:     req.Role,
-		Message:  fmt.Sprintf("User role successfully updated to %s", req.Role),
+		Roles:    userRoles,
 	}, nil
 }
 
@@ -430,13 +370,7 @@ func (us *UserServiceImpl) ResetPassword(c *app.RequestContext, req *dto.ResetPa
 	passwordResetLock.Lock()
 	defer passwordResetLock.Unlock()
 
-	cfgs, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to get config: %v", err)
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-
-	userID, exists := c.Get(cfgs.AppConfig.JWT.IdentityKey)
+	userID, exists := c.Get(consts.JWTSubjectClaim)
 	if !exists {
 		logger.BizLogger(c).Errorf("unable to get user ID from context")
 		return nil, fmt.Errorf("unable to get user ID from context")
@@ -482,12 +416,21 @@ func (us *UserServiceImpl) ListUsers(c *app.RequestContext, req *dto.ListUsersRe
 
 	list := make([]*vo.UserItem, 0, len(users))
 	for _, u := range users {
+		userIDStr := strconv.FormatInt(u.ID, 10)
+		roles, err := us.rbacMapper.GetUserRoles(c, userIDStr)
+		userRoles := make([]string, 0)
+		if err == nil {
+			for _, role := range roles {
+				userRoles = append(userRoles, role.V1)
+			}
+		}
+
 		list = append(list, &vo.UserItem{
 			ID:       strconv.FormatInt(u.ID, 10),
 			Email:    u.Email,
 			Nickname: u.Nickname,
 			Avatar:   u.Avatar,
-			Role:     u.Role,
+			Roles:    userRoles,
 		})
 	}
 
@@ -496,5 +439,99 @@ func (us *UserServiceImpl) ListUsers(c *app.RequestContext, req *dto.ListUsersRe
 		PageNo:   req.PageNo,
 		PageSize: req.PageSize,
 		List:     list,
+	}, nil
+}
+
+// UpdateUserRole 管理员更新用户角色
+func (us *UserServiceImpl) UpdateUserRole(c *app.RequestContext, req *dto.UpdateUserRoleRequest) (*vo.UpdateUserRoleResponse, error) {
+	userID, exists := c.Get(consts.JWTSubjectClaim)
+	if !exists {
+		logger.BizLogger(c).Errorf("unable to get current user ID from context")
+		return nil, fmt.Errorf("authentication required")
+	}
+
+	currentUserID, ok := userID.(int64)
+	if !ok {
+		logger.BizLogger(c).Errorf("invalid user ID type in context")
+		return nil, fmt.Errorf("invalid user ID type")
+	}
+
+	currentUserIDStr := strconv.FormatInt(currentUserID, 10)
+	currentUserRoles, err := us.rbacMapper.GetUserRoles(c, currentUserIDStr)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get current user roles: %v", err)
+		return nil, fmt.Errorf("failed to get current user roles: %w", err)
+	}
+
+	var hasPermission bool
+	for _, role := range currentUserRoles {
+		permission, err := global.Enforcer.Enforce(role.V1, string(c.Path()), string(c.Method()))
+		if err != nil {
+			logger.BizLogger(c).Errorf("failed to check user permissions for role %s: %v", role.V1, err)
+			continue
+		}
+		if permission {
+			hasPermission = true
+			break
+		}
+	}
+
+	if !hasPermission {
+		logger.BizLogger(c).Warnf("user ID %d attempted to update user role without permission", currentUserID)
+		return nil, fmt.Errorf("insufficient permissions: you do not have permission to update user roles")
+	}
+
+	if fmt.Sprintf("%d", currentUserID) == req.ID {
+		logger.BizLogger(c).Warnf("user ID %d attempted to modify their own role", currentUserID)
+		return nil, fmt.Errorf("cannot modify your own role")
+	}
+
+	targetUserID, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		logger.BizLogger(c).Errorf("invalid target user ID format: %v", err)
+		return nil, fmt.Errorf("invalid target user ID format: %w", err)
+	}
+
+	targetUser, err := us.userMapper.GetUserByID(c, targetUserID)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get target user info: %v", err)
+		return nil, fmt.Errorf("failed to get target user info: %w", err)
+	}
+
+	oldRoles, err := us.rbacMapper.GetUserRoles(c, req.ID)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get target user roles: %v", err)
+		return nil, fmt.Errorf("failed to get target user roles: %w", err)
+	}
+
+	for _, oldRole := range oldRoles {
+		if _, err := us.rbacMapper.RevokeRole(c, req.ID, oldRole.V1); err != nil {
+			logger.BizLogger(c).Errorf("failed to remove old role %s: %v", oldRole.V1, err)
+			return nil, fmt.Errorf("failed to remove old role: %w", err)
+		}
+	}
+
+	if _, err := us.rbacMapper.AssignRole(c, req.ID, req.Role); err != nil {
+		logger.BizLogger(c).Errorf("failed to add new role %s: %v", req.Role, err)
+		return nil, fmt.Errorf("failed to add new role: %w", err)
+	}
+
+	updatedRoles, err := us.rbacMapper.GetUserRoles(c, req.ID)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get updated user roles: %v", err)
+		return nil, fmt.Errorf("failed to get updated user roles: %w", err)
+	}
+
+	userRoles := make([]string, 0, len(updatedRoles))
+	for _, role := range updatedRoles {
+		userRoles = append(userRoles, role.V1)
+	}
+
+	return &vo.UpdateUserRoleResponse{
+		ID:       req.ID,
+		Email:    targetUser.Email,
+		Nickname: targetUser.Nickname,
+		Roles:    userRoles,
+		Message:  fmt.Sprintf("User role successfully updated to %s", req.Role),
 	}, nil
 }

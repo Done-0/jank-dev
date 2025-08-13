@@ -45,6 +45,6 @@ type ListUsersRequest struct {
 
 // UpdateUserRoleRequest 管理员更新用户角色请求
 type UpdateUserRoleRequest struct {
-	ID   string `path:"id" validate:"required,min=1"` // 目标用户 ID
+	ID   string `json:"id" validate:"required,min=1"` // 目标用户 ID
 	Role string `json:"role" validate:"required"`     // 新角色
 }

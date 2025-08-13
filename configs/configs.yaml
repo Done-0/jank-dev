@@ -6,9 +6,6 @@ APP:
   # CORS 跨域相关
   CORS:
     ALLOW_ORIGINS: ["*"] # 允许的源，生产环境应指定具体域名
-    ALLOW_METHODS: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
-    ALLOW_HEADERS: ["Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"]
-    EXPOSE_HEADERS: ["Content-Length", "Authorization"]
     ALLOW_CREDENTIALS: true # 是否允许携带凭证
     MAX_AGE: 12 # 预检请求缓存时间（小时）
   # 邮箱相关
@@ -21,9 +18,7 @@ APP:
     SECRET: "jank-blog-jwt-secret-key" # JWT 签名密钥
     EXPIRE_TIME: 2 # Token 有效期（小时）
     REFRESH_EXPIRE: 48 # 刷新Token有效期（小时）
-    REALM: "jank-blog" # JWT 域
-    IDENTITY_KEY: "user_id" # 身份标识键
-  # 用户角色相关 - 主流Casbin RBAC配置
+  # 用户角色相关
   USER:
     # 管理员账户配置
     ADMIN_EMAIL: "927171598@qq.com" # 管理员邮箱

@@ -11,6 +11,7 @@ import (
 	"github.com/hertz-contrib/cors"
 
 	"github.com/Done-0/jank/configs"
+	"github.com/Done-0/jank/internal/types/consts"
 )
 
 // New 创建 CORS 中间件
@@ -23,10 +24,26 @@ func New() app.HandlerFunc {
 	}
 
 	return cors.New(cors.Config{
-		AllowOrigins:     cfgs.AppConfig.CORSConfig.AllowOrigins,
-		AllowMethods:     cfgs.AppConfig.CORSConfig.AllowMethods,
-		AllowHeaders:     cfgs.AppConfig.CORSConfig.AllowHeaders,
-		ExposeHeaders:    cfgs.AppConfig.CORSConfig.ExposeHeaders,
+		AllowOrigins: cfgs.AppConfig.CORSConfig.AllowOrigins,
+		AllowMethods: []string{
+			consts.MethodGET,
+			consts.MethodPOST,
+			consts.MethodPUT,
+			consts.MethodDELETE,
+			consts.MethodOPTIONS,
+			consts.MethodPATCH,
+		},
+		AllowHeaders: []string{
+			consts.HeaderOrigin,
+			consts.HeaderContentType,
+			consts.HeaderAccept,
+			consts.HeaderAuthorization,
+			consts.HeaderXRequestedWith,
+		},
+		ExposeHeaders: []string{
+			consts.HeaderContentLength,
+			consts.HeaderAuthorization,
+		},
 		AllowCredentials: cfgs.AppConfig.CORSConfig.AllowCredentials,
 		MaxAge:           time.Duration(cfgs.AppConfig.CORSConfig.MaxAge) * time.Hour,
 	})

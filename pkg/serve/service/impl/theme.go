@@ -7,8 +7,10 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 
+	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/theme"
 	"github.com/Done-0/jank/internal/theme/impl"
+	"github.com/Done-0/jank/internal/utils/logger"
 
 	"github.com/Done-0/jank/pkg/serve/controller/dto"
 	"github.com/Done-0/jank/pkg/serve/service"
@@ -25,11 +27,12 @@ func NewThemeService() service.ThemeService {
 	return &ThemeServiceImpl{}
 }
 
-// SwitchTheme 切换主题
+// SwitchTheme 切换主题逻辑
 func (s *ThemeServiceImpl) SwitchTheme(c *app.RequestContext, req *dto.SwitchThemeRequest) (*vo.SwitchThemeResponse, error) {
 	if req.Rebuild {
 		themes, err := theme.GlobalThemeManager.ListThemes()
 		if err != nil {
+			logger.BizLogger(c).Errorf("failed to list themes: %v", err)
 			return nil, fmt.Errorf("failed to list themes: %w", err)
 		}
 
@@ -42,16 +45,18 @@ func (s *ThemeServiceImpl) SwitchTheme(c *app.RequestContext, req *dto.SwitchThe
 		}
 
 		if targetTheme == nil {
+			logger.BizLogger(c).Errorf("theme not found: %s", req.ID)
 			return nil, fmt.Errorf("theme %s not found", req.ID)
 		}
 
-		// 执行构建
 		if err := themeUtils.ExecuteBuildScript(targetTheme.Path); err != nil {
+			logger.BizLogger(c).Errorf("failed to rebuild theme %s: %v", req.ID, err)
 			return nil, fmt.Errorf("failed to rebuild theme %s: %w", req.ID, err)
 		}
 	}
 
 	if err := theme.GlobalThemeManager.SwitchTheme(req.ID); err != nil {
+		logger.BizLogger(c).Errorf("failed to switch theme to %s: %v", req.ID, err)
 		return nil, fmt.Errorf("failed to switch theme: %w", err)
 	}
 
@@ -60,10 +65,11 @@ func (s *ThemeServiceImpl) SwitchTheme(c *app.RequestContext, req *dto.SwitchThe
 	}, nil
 }
 
-// GetActiveTheme 获取当前激活的主题
+// GetActiveTheme 获取当前激活的主题逻辑
 func (s *ThemeServiceImpl) GetActiveTheme(c *app.RequestContext) (*vo.GetActiveThemeResponse, error) {
 	themeInfo, err := theme.GlobalThemeManager.GetActiveTheme()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get active theme: %v", err)
 		return nil, fmt.Errorf("failed to get active theme: %w", err)
 	}
 
@@ -86,10 +92,11 @@ func (s *ThemeServiceImpl) GetActiveTheme(c *app.RequestContext) (*vo.GetActiveT
 	}, nil
 }
 
-// ListThemes 列举主题
+// ListThemes 列举主题逻辑
 func (s *ThemeServiceImpl) ListThemes(c *app.RequestContext, req *dto.ListThemesRequest) (*vo.ListThemesResponse, error) {
 	discoveredThemes, err := theme.GlobalThemeManager.ListThemes()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to list themes: %v", err)
 		return &vo.ListThemesResponse{}, fmt.Errorf("failed to list themes: %w", err)
 	}
 
@@ -140,32 +147,64 @@ func (s *ThemeServiceImpl) ListThemes(c *app.RequestContext, req *dto.ListThemes
 	}, nil
 }
 
-// ServeHomePage 获取主题首页文件路径
+// ServeHomePage 获取主题首页文件路径逻辑
 func (s *ThemeServiceImpl) ServeHomePage(c *app.RequestContext) (string, error) {
 	activeTheme, err := theme.GlobalThemeManager.GetActiveTheme()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get active theme for home page: %v", err)
 		return "", fmt.Errorf("failed to get active theme: %w", err)
 	}
 
 	return filepath.Join(activeTheme.Path, activeTheme.IndexFilePath), nil
 }
 
-// ServeStaticResource 获取静态资源文件路径
+// ServeStaticResource 获取静态资源文件路径逻辑
 func (s *ThemeServiceImpl) ServeStaticResource(c *app.RequestContext, requestPath string) (string, error) {
 	// 跳过 API 路径
 	if strings.HasPrefix(requestPath, "/api/") {
+		logger.BizLogger(c).Warnf("attempted to serve API path as static resource: %s", requestPath)
 		return "", fmt.Errorf("API paths are not served as static resources")
 	}
 
 	activeTheme, err := theme.GlobalThemeManager.GetActiveTheme()
 	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get active theme for static resource: %v", err)
 		return "", fmt.Errorf("failed to get active theme: %w", err)
 	}
 
-	// 拼接完整文件路径：themes/主题名/构建目录/请求文件
-	requestedFile := strings.TrimPrefix(requestPath, "/")
+	// 安全检查：防止路径遍历攻击
+	requestedFile := filepath.Clean(strings.TrimPrefix(requestPath, "/"))
+	if strings.Contains(requestedFile, "..") || strings.Contains(requestedFile, "\\") {
+		logger.BizLogger(c).Errorf("path traversal attempt detected: %s", requestPath)
+		return "", fmt.Errorf("invalid file path: path traversal not allowed")
+	}
+
 	buildDir := filepath.Dir(activeTheme.IndexFilePath)
-	fullPath := filepath.Join(activeTheme.Path, buildDir, requestedFile)
+	basePath := filepath.Join(activeTheme.Path, buildDir)
+	fullPath := filepath.Join(basePath, requestedFile)
+
+	absFullPath, err := filepath.Abs(fullPath)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to resolve file path: %v", err)
+		return "", fmt.Errorf("failed to resolve file path")
+	}
+
+	cfgs, err := configs.GetConfig()
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to get config: %v", err)
+		return "", fmt.Errorf("failed to get configuration")
+	}
+	absThemesDir, err := filepath.Abs(cfgs.ThemeConfig.ThemeDir)
+	if err != nil {
+		logger.BizLogger(c).Errorf("failed to resolve themes directory: %v", err)
+		return "", fmt.Errorf("failed to resolve themes directory")
+	}
+
+	// 安全边界检查
+	if !strings.HasPrefix(absFullPath, absThemesDir) {
+		logger.BizLogger(c).Errorf("access denied: %s outside themes directory", absFullPath)
+		return "", fmt.Errorf("access denied: file outside themes directory")
+	}
 
 	return fullPath, nil
 }

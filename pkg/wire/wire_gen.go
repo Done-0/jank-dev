@@ -24,7 +24,8 @@ func NewPluginController() (*controller.PluginController, error) {
 // NewRBACController 使用 Wire 初始化RBAC控制器
 func NewRBACController() (*controller.RBACController, error) {
 	rbacMapper := impl2.NewRBACMapper()
-	rbacService := impl.NewRBACService(rbacMapper)
+	userMapper := impl2.NewUserMapper()
+	rbacService := impl.NewRBACService(rbacMapper, userMapper)
 	rbacController := controller.NewRBACController(rbacService)
 	return rbacController, nil
 }
@@ -39,7 +40,8 @@ func NewThemeController() (*controller.ThemeController, error) {
 // NewUserController 使用 Wire 初始化用户控制器
 func NewUserController() (*controller.UserController, error) {
 	userMapper := impl2.NewUserMapper()
-	userService := impl.NewUserService(userMapper)
+	rbacMapper := impl2.NewRBACMapper()
+	userService := impl.NewUserService(userMapper, rbacMapper)
 	userController := controller.NewUserController(userService)
 	return userController, nil
 }

@@ -4,6 +4,8 @@
 package rbac
 
 import (
+	"gorm.io/gorm"
+
 	"github.com/Done-0/jank/internal/model/base"
 )
 
@@ -25,4 +27,14 @@ type Policy struct {
 //	string: 表名
 func (Policy) TableName() string {
 	return "casbin_rule"
+}
+
+// BeforeCreate 创建前钩子，确保基础字段正确生成
+func (p *Policy) BeforeCreate(db *gorm.DB) error {
+	return p.Base.BeforeCreate(db)
+}
+
+// BeforeUpdate 更新前钩子，确保修改时间正确更新
+func (p *Policy) BeforeUpdate(db *gorm.DB) error {
+	return p.Base.BeforeUpdate(db)
 }

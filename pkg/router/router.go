@@ -19,6 +19,9 @@ func New(app *server.Hertz) {
 	// 注册用户相关的路由
 	routes.RegisterUserRoutes(api)
 
+	// 注册RBAC相关的路由
+	routes.RegisterRBACRoutes(api)
+
 	// 注册验证码相关的路由
 	routes.RegisterVerificationRoutes(api)
 
@@ -34,6 +37,6 @@ func New(app *server.Hertz) {
 	// 注册插件相关的路由
 	routes.RegisterPluginRoutes(api)
 
-	// 注册主题相关的路由（包含前端和API路由）
+	// 注册主题相关的路由
 	routes.RegisterThemeRoutes(app, api)
 }

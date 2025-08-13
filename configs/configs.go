@@ -36,10 +36,8 @@ type EmailConfig struct {
 // JWTConfig JWT 认证配置
 type JWTConfig struct {
 	Secret        string `mapstructure:"SECRET"`         // JWT 签名密钥
-	ExpireTime    int    `mapstructure:"EXPIRE_TIME"`    // Token 有效期（小时）
-	RefreshExpire int    `mapstructure:"REFRESH_EXPIRE"` // 刷新Token有效期（小时）
-	Realm         string `mapstructure:"REALM"`          // JWT 域
-	IdentityKey   string `mapstructure:"IDENTITY_KEY"`   // 身份标识键
+	ExpireTime    int64  `mapstructure:"EXPIRE_TIME"`    // Token 有效期（小时）
+	RefreshExpire int64  `mapstructure:"REFRESH_EXPIRE"` // 刷新 Token 有效期（小时）
 }
 
 // UserConfig 用户相关配置 - 主流Casbin RBAC配置
@@ -91,9 +89,6 @@ type CasbinConfig struct {
 // CORSConfig CORS 跨域配置
 type CORSConfig struct {
 	AllowOrigins     []string `mapstructure:"ALLOW_ORIGINS"`     // 允许的源
-	AllowMethods     []string `mapstructure:"ALLOW_METHODS"`     // 允许的方法
-	AllowHeaders     []string `mapstructure:"ALLOW_HEADERS"`     // 允许的请求头
-	ExposeHeaders    []string `mapstructure:"EXPOSE_HEADERS"`    // 暴露的响应头
 	AllowCredentials bool     `mapstructure:"ALLOW_CREDENTIALS"` // 是否允许携带凭证
 	MaxAge           int64    `mapstructure:"MAX_AGE"`           // 预检请求缓存时间（小时）
 }

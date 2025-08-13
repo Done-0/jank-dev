@@ -20,17 +20,25 @@ func RegisterRBACRoutes(r *route.RouterGroup) {
 	// RBAC 路由组
 	rbacGroup := r.Group("/rbac")
 	{
-		// 策略管理
-		rbacGroup.POST("/addPolicy", rbacController.AddPolicy)          // 添加策略
-		rbacGroup.POST("/removePolicy", rbacController.RemovePolicy)    // 删除策略
-		rbacGroup.GET("/getAllPolicies", rbacController.GetAllPolicies) // 获取所有策略
+		// 权限管理
+		rbacGroup.POST("/create-permission", rbacController.CreatePermission) // 创建权限
+		rbacGroup.POST("/delete-permission", rbacController.DeletePermission) // 删除权限
+		rbacGroup.POST("/assign-permission", rbacController.AssignPermission) // 为角色分配权限
+		rbacGroup.POST("/revoke-permission", rbacController.RevokePermission) // 撤销角色权限
+		rbacGroup.GET("/list-permissions", rbacController.ListPermissions)    // 获取所有权限
+
+		// 角色管理
+		rbacGroup.POST("/create-role", rbacController.CreateRole)                 // 创建角色
+		rbacGroup.POST("/delete-role", rbacController.DeleteRole)                 // 删除角色
+		rbacGroup.GET("/list-roles", rbacController.ListRoles)                    // 获取所有角色
+		rbacGroup.GET("/get-role-permissions", rbacController.GetRolePermissions) // 获取角色权限
 
 		// 用户角色管理
-		rbacGroup.POST("/addRoleForUser", rbacController.AddRoleForUser)       // 添加用户角色
-		rbacGroup.POST("/removeRoleForUser", rbacController.RemoveRoleForUser) // 删除用户角色
-		rbacGroup.GET("/getRolesForUser", rbacController.GetRolesForUser)      // 获取用户角色
+		rbacGroup.POST("/assign-role", rbacController.AssignRole)     // 为用户分配角色
+		rbacGroup.POST("/revoke-role", rbacController.RevokeRole)     // 撤销用户角色
+		rbacGroup.GET("/get-user-roles", rbacController.GetUserRoles) // 获取用户角色
 
 		// 权限检查
-		rbacGroup.POST("/enforce", rbacController.Enforce) // 权限检查
+		rbacGroup.POST("/check-permission", rbacController.CheckPermission) // 权限检查
 	}
 }

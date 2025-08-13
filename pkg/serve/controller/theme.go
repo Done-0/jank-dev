@@ -34,13 +34,13 @@ func NewThemeController(themeService service.ThemeService) *ThemeController {
 func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.SwitchThemeRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "request_body"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -74,13 +74,13 @@ func (tc *ThemeController) GetActiveTheme(ctx context.Context, c *app.RequestCon
 func (tc *ThemeController) ListThemes(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListThemesRequest)
 	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind query failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -94,6 +94,7 @@ func (tc *ThemeController) ListThemes(ctx context.Context, c *app.RequestContext
 }
 
 // ServeHomePage 提供主题首页
+// @Router / [get]
 func (tc *ThemeController) ServeHomePage(ctx context.Context, c *app.RequestContext) {
 	homePagePath, err := tc.themeService.ServeHomePage(c)
 	if err != nil {
@@ -105,6 +106,7 @@ func (tc *ThemeController) ServeHomePage(ctx context.Context, c *app.RequestCont
 }
 
 // ServeStaticResource 提供静态资源文件
+// @Router /* [get]
 func (tc *ThemeController) ServeStaticResource(ctx context.Context, c *app.RequestContext) {
 	staticResourcePath, err := tc.themeService.ServeStaticResource(c, string(c.Path()))
 	if err != nil {

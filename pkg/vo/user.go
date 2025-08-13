@@ -5,10 +5,10 @@ package vo
 
 // RegisterResponse 用户注册响应
 type RegisterResponse struct {
-	ID       string `json:"id"`       // 用户ID
-	Email    string `json:"email"`    // 用户邮箱
-	Nickname string `json:"nickname"` // 用户昵称
-	Role     string `json:"role"`     // 用户角色
+	ID       string   `json:"id"`       // 用户 ID
+	Email    string   `json:"email"`    // 用户邮箱
+	Nickname string   `json:"nickname"` // 用户昵称
+	Roles    []string `json:"roles"`    // 用户角色列表
 }
 
 // LoginResponse 用户登录响应
@@ -30,20 +30,20 @@ type RefreshTokenResponse struct {
 
 // GetProfileResponse 获取用户资料响应
 type GetProfileResponse struct {
-	ID       string `json:"id"`       // 用户ID
-	Email    string `json:"email"`    // 用户邮箱
-	Nickname string `json:"nickname"` // 用户昵称
-	Avatar   string `json:"avatar"`   // 用户头像
-	Role     string `json:"role"`     // 用户角色
+	ID       string   `json:"id"`       // 用户 ID
+	Email    string   `json:"email"`    // 用户邮箱
+	Nickname string   `json:"nickname"` // 用户昵称
+	Avatar   string   `json:"avatar"`   // 用户头像
+	Roles    []string `json:"roles"`    // 用户角色列表
 }
 
 // UpdateResponse 更新用户信息响应
 type UpdateResponse struct {
-	ID       string `json:"id"`       // 用户ID
-	Email    string `json:"email"`    // 用户邮箱
-	Nickname string `json:"nickname"` // 用户昵称
-	Avatar   string `json:"avatar"`   // 用户头像
-	Role     string `json:"role"`     // 用户角色
+	ID       string   `json:"id"`       // 用户 ID
+	Email    string   `json:"email"`    // 用户邮箱
+	Nickname string   `json:"nickname"` // 用户昵称
+	Avatar   string   `json:"avatar"`   // 用户头像
+	Roles    []string `json:"roles"`    // 用户角色列表
 }
 
 // ResetPasswordResponse 重置密码响应
@@ -53,20 +53,20 @@ type ResetPasswordResponse struct {
 
 // UpdateUserRoleResponse 管理员更新用户角色响应
 type UpdateUserRoleResponse struct {
-	ID       string `json:"id"`       // 用户ID
-	Email    string `json:"email"`    // 用户邮箱
-	Nickname string `json:"nickname"` // 用户昵称
-	Role     string `json:"role"`     // 更新后的角色
-	Message  string `json:"message"`  // 操作结果消息
+	ID       string   `json:"id"`       // 用户 ID
+	Email    string   `json:"email"`    // 用户邮箱
+	Nickname string   `json:"nickname"` // 用户昵称
+	Roles    []string `json:"roles"`    // 更新后的角色列表
+	Message  string   `json:"message"`  // 操作结果消息
 }
 
 // UserItem 用户列表项
 type UserItem struct {
-	ID       string `json:"id"`       // 用户ID
-	Email    string `json:"email"`    // 用户邮箱
-	Nickname string `json:"nickname"` // 用户昵称
-	Avatar   string `json:"avatar"`   // 用户头像
-	Role     string `json:"role"`     // 用户角色
+	ID       string   `json:"id"`       // 用户 ID
+	Email    string   `json:"email"`    // 用户邮箱
+	Nickname string   `json:"nickname"` // 用户昵称
+	Avatar   string   `json:"avatar"`   // 用户头像
+	Roles    []string `json:"roles"`    // 用户角色列表
 }
 
 // ListUsersResponse 用户列表响应

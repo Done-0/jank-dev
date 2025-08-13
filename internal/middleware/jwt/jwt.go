@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -32,22 +33,22 @@ func New() app.HandlerFunc {
 
 	// 创建 JWT 中间件配置
 	authMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
-		Realm:       jwtConfig.Realm,
+		Realm:       constants.JWTRealm,
 		Key:         []byte(jwtConfig.Secret),
 		Timeout:     time.Duration(jwtConfig.ExpireTime) * time.Hour,
 		MaxRefresh:  time.Duration(jwtConfig.RefreshExpire) * time.Hour,
-		IdentityKey: jwtConfig.IdentityKey,
+		IdentityKey: constants.JWTSubjectClaim,
 		PayloadFunc: func(data any) jwt.MapClaims {
-			if v, ok := data.(int64); ok {
+			if userID, ok := data.(int64); ok {
 				return jwt.MapClaims{
-					jwtConfig.IdentityKey: v,
+					constants.JWTSubjectClaim: userID,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) any {
 			claims := jwt.ExtractClaims(ctx, c)
-			if userID, exists := claims[jwtConfig.IdentityKey]; exists {
+			if userID, exists := claims[constants.JWTSubjectClaim]; exists {
 				if id, ok := userID.(float64); ok {
 					return int64(id)
 				}
@@ -55,13 +56,20 @@ func New() app.HandlerFunc {
 			return nil
 		},
 		Authorizator: func(data any, ctx context.Context, c *app.RequestContext) bool {
-			if userID, ok := data.(int64); ok {
-				exists := global.RedisClient.Exists(ctx, fmt.Sprintf("%s:%d", constants.UserCacheKeyPrefix, userID)).Val()
-				if exists == 0 {
+			if userID, ok := data.(int64); ok && userID > 0 {
+				authHeader := string(c.GetHeader(constants.HeaderAuthorization))
+				if !strings.HasPrefix(authHeader, constants.JWTBearerPrefix) {
 					return false
 				}
-				// 将 userID 存入上下文
-				c.Set(jwtConfig.IdentityKey, userID)
+				currentToken := strings.TrimPrefix(authHeader, constants.JWTBearerPrefix)
+
+				cacheKey := fmt.Sprintf("%s:%d", constants.AuthAccessTokenKeyPrefix, userID)
+				cachedToken := global.RedisClient.Get(ctx, cacheKey).Val()
+				if cachedToken == "" || cachedToken != currentToken {
+					return false
+				}
+
+				c.Set(constants.JWTSubjectClaim, userID)
 				return true
 			}
 			return false
@@ -69,8 +77,8 @@ func New() app.HandlerFunc {
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
 			c.JSON(consts.StatusUnauthorized, vo.Fail(c, nil, errorx.New(errno.ErrUnauthorized, errorx.KV("msg", message))))
 		},
-		TokenLookup:   "header:Authorization",
-		TokenHeadName: "Bearer",
+		TokenLookup:   constants.JWTTokenLookup,
+		TokenHeadName: constants.JWTTokenHeadName,
 		TimeFunc:      time.Now,
 	})
 	if err != nil {

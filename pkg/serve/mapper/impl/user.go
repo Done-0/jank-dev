@@ -24,7 +24,7 @@ func NewUserMapper() mapper.UserMapper {
 // GetUserByEmail 根据邮箱获取用户
 func (m *UserMapperImpl) GetUserByEmail(c *app.RequestContext, email string) (*user.User, error) {
 	var u user.User
-	err := db.GetDBFromContext(c).Where("email = ?", email).First(&u).Error
+	err := db.GetDBFromContext(c).Where("email = ? AND deleted = ?", email, false).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (m *UserMapperImpl) GetUserByEmail(c *app.RequestContext, email string) (*u
 // GetUserByID 根据ID获取用户
 func (m *UserMapperImpl) GetUserByID(c *app.RequestContext, userID int64) (*user.User, error) {
 	var u user.User
-	err := db.GetDBFromContext(c).Where("id = ?", userID).First(&u).Error
+	err := db.GetDBFromContext(c).Where("id = ? AND deleted = ?", userID, false).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (m *UserMapperImpl) GetUserByID(c *app.RequestContext, userID int64) (*user
 // GetUserByNickname 根据昵称获取用户
 func (m *UserMapperImpl) GetUserByNickname(c *app.RequestContext, nickname string) (*user.User, error) {
 	var u user.User
-	err := db.GetDBFromContext(c).Where("nickname = ?", nickname).First(&u).Error
+	err := db.GetDBFromContext(c).Where("nickname = ? AND deleted = ?", nickname, false).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +56,12 @@ func (m *UserMapperImpl) RegisterUser(c *app.RequestContext, u *user.User) error
 	_, err := db.RunDBTransaction(c, func() (any, error) {
 		// 检查邮箱是否已被注册
 		var existingUser user.User
-		if err := db.GetDBFromContext(c).Where("email = ?", u.Email).First(&existingUser).Error; err == nil {
+		if err := db.GetDBFromContext(c).Where("email = ? AND deleted = ?", u.Email, false).First(&existingUser).Error; err == nil {
 			return nil, err
 		}
 
 		// 检查昵称是否已被使用
-		if err := db.GetDBFromContext(c).Where("nickname = ?", u.Nickname).First(&existingUser).Error; err == nil {
+		if err := db.GetDBFromContext(c).Where("nickname = ? AND deleted = ?", u.Nickname, false).First(&existingUser).Error; err == nil {
 			return nil, err
 		}
 
@@ -76,7 +76,7 @@ func (m *UserMapperImpl) RegisterUser(c *app.RequestContext, u *user.User) error
 
 // UpdateUser 更新用户信息
 func (m *UserMapperImpl) UpdateUser(c *app.RequestContext, u *user.User) error {
-	if err := db.GetDBFromContext(c).Where("id = ?", u.ID).Updates(u).Error; err != nil {
+	if err := db.GetDBFromContext(c).Where("id = ? AND deleted = ?", u.ID, false).Updates(u).Error; err != nil {
 		return err
 	}
 	return nil
@@ -87,7 +87,7 @@ func (m *UserMapperImpl) ListUsers(c *app.RequestContext, pageNo, pageSize int64
 	var users []*user.User
 	var total int64
 
-	query := db.GetDBFromContext(c).Model(&user.User{})
+	query := db.GetDBFromContext(c).Model(&user.User{}).Where("deleted = ?", false)
 
 	// 关键词搜索
 	if keyword != "" {

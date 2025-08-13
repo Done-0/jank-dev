@@ -22,7 +22,7 @@ import (
 // 返回值：
 //   - bool: 验证成功返回 true，失败返回 false
 func VerifyEmailCode(c *app.RequestContext, code, email string) bool {
-	return VerifyCode(c, code, email, consts.EmailVerificationCodeCacheKeyPrefix)
+	return VerifyCode(c, code, email, consts.EmailVerificationKeyPrefix)
 }
 
 // VerifyImgCode 校验图形验证码
@@ -34,7 +34,7 @@ func VerifyEmailCode(c *app.RequestContext, code, email string) bool {
 // 返回值：
 //   - bool: 验证成功返回 true，失败返回 false
 func VerifyImgCode(c *app.RequestContext, code, email string) bool {
-	return VerifyCode(c, code, email, consts.ImgVerificationCodeCacheKeyPrefix)
+	return VerifyCode(c, code, email, consts.ImgVerificationKeyPrefix)
 }
 
 // VerifyCode 通用验证码校验

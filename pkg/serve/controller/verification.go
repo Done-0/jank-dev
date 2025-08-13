@@ -41,13 +41,13 @@ func NewVerificationController(verificationService service.VerificationService) 
 func (ctrl *VerificationController) SendEmailVerificationCode(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.SendEmailCodeRequest)
 	if err := c.BindQuery(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "query_params"), errorx.KV("msg", "bind query failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind query failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("field", "validation"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"))))
 		return
 	}
 

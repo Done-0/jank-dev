@@ -18,11 +18,10 @@ import (
 //
 // app.HandlerFunc: 访问日志中间件
 func New() app.HandlerFunc {
-
 	return requestid.New(
 		requestid.WithGenerator(func(ctx context.Context, c *app.RequestContext) string {
 			return uuid.New().String()
 		}),
-		requestid.WithCustomHeaderStrKey(consts.RequestIDHeaderKey),
+		requestid.WithCustomHeaderStrKey(consts.HeaderRequestID),
 	)
 }

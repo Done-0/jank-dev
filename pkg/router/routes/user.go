@@ -28,7 +28,7 @@ func RegisterUserRoutes(r *route.RouterGroup) {
 		// 公开接口（无需认证）
 		userGroup.POST("/register", userController.Register)          // 用户注册
 		userGroup.POST("/login", userController.Login)                // 用户登录
-		userGroup.POST("/refresh-token", userController.RefreshToken) // 刷新token - 主流命名
+		userGroup.POST("/refresh-token", userController.RefreshToken) // 刷新 token
 
 		// 需要认证的接口
 		userGroup.POST("/logout", jwt.New(), userController.Logout)                // 用户登出
@@ -36,7 +36,7 @@ func RegisterUserRoutes(r *route.RouterGroup) {
 		userGroup.POST("/reset-password", jwt.New(), userController.ResetPassword) // 重置密码
 
 		userGroup.GET("/profile", jwt.New(), userController.GetProfile) // 获取用户资料
-		userGroup.GET("/list", jwt.New(), userController.ListUsers)     // 列举用户（管理员）
+		userGroup.GET("/list", userController.ListUsers)                // 获取用户列表（管理员）
 
 		userGroup.POST("/role", jwt.New(), userController.UpdateUserRole) // 更新用户角色（管理员）
 	}

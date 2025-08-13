@@ -9,16 +9,24 @@ import (
 
 // RBACService 权限管理服务接口
 type RBACService interface {
-	// 策略管理
-	AddPolicy(c *app.RequestContext, req *dto.AddPolicyRequest) (*vo.PolicyResponse, error) // 添加权限策略
-	RemovePolicy(c *app.RequestContext, req *dto.RemovePolicyRequest) (bool, error)         // 删除权限策略
-	GetAllPolicies(c *app.RequestContext) (*vo.PolicyListResponse, error)                   // 获取所有策略
+	// 权限策略管理
+	CreatePermission(c *app.RequestContext, req *dto.CreatePermissionRequest) (*vo.PolicyOpResponse, error) // 创建权限策略
+	DeletePermission(c *app.RequestContext, req *dto.DeletePermissionRequest) (*vo.PolicyOpResponse, error) // 删除权限策略
+	ListPermissions(c *app.RequestContext) (*vo.PermissionListResponse, error)                              // 获取所有权限
+	AssignPermission(c *app.RequestContext, req *dto.AssignPermissionRequest) (*vo.PolicyOpResponse, error) // 为角色分配权限
+	RevokePermission(c *app.RequestContext, req *dto.RevokePermissionRequest) (*vo.PolicyOpResponse, error) // 撤销角色权限
 
-	// 角色分配
-	AddRoleForUser(c *app.RequestContext, req *dto.AddRoleForUserRequest) (*vo.UserRolesResponse, error)   // 为用户分配角色
-	RemoveRoleForUser(c *app.RequestContext, req *dto.RemoveRoleForUserRequest) (bool, error)              // 移除用户角色
-	GetRolesForUser(c *app.RequestContext, req *dto.GetRolesForUserRequest) (*vo.UserRolesResponse, error) // 获取用户角色
+	// 角色管理
+	CreateRole(c *app.RequestContext, req *dto.CreateRoleRequest) (*vo.CreateRoleResponse, error)                      // 创建角色
+	DeleteRole(c *app.RequestContext, req *dto.DeleteRoleRequest) (*vo.DeleteRoleResponse, error)                      // 删除角色
+	ListRoles(c *app.RequestContext) (*vo.RoleListResponse, error)                                                     // 获取所有角色
+	GetRolePermissions(c *app.RequestContext, req *dto.GetRolePermissionsRequest) (*vo.RolePermissionsResponse, error) // 获取角色权限
+
+	// 用户角色管理
+	AssignRole(c *app.RequestContext, req *dto.AssignRoleRequest) (*vo.RoleOpResponse, error)        // 为用户分配角色
+	RevokeRole(c *app.RequestContext, req *dto.RevokeRoleRequest) (*vo.RoleOpResponse, error)        // 撤销用户角色
+	GetUserRoles(c *app.RequestContext, req *dto.GetUserRolesRequest) (*vo.UserRolesResponse, error) // 获取用户角色
 
 	// 权限检查
-	Enforce(c *app.RequestContext, req *dto.EnforceRequest) (*vo.EnforceResponse, error) // 权限检查
+	CheckPermission(c *app.RequestContext, req *dto.CheckPermissionRequest) (*vo.CheckResponse, error) // 权限检查
 }
