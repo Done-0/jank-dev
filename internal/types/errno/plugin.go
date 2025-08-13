@@ -7,12 +7,12 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// 插件模块错误码: 30000 ~ 39999
+// 插件模块错误码: 20000 ~ 29999
 const (
-	ErrPluginNotFound         = 30001 // 插件不存在
-	ErrPluginParamInvalid     = 30002 // 插件参数无效
-	ErrPluginRegisterFailed   = 30003 // 插件注册失败
-	ErrPluginUnregisterFailed = 30004 // 插件注销失败
+	ErrPluginNotFound         = 20001 // 插件不存在
+	ErrPluginParamInvalid     = 20002 // 插件参数无效
+	ErrPluginRegisterFailed   = 20003 // 插件注册失败
+	ErrPluginUnregisterFailed = 20004 // 插件注销失败
 )
 
 func init() {

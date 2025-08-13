@@ -56,3 +56,11 @@ func NewPostController() (*controller.PostController, error) {
 		controller.NewPostController,
 	))
 }
+
+// NewCategoryController 使用 Wire 初始化分类控制器
+func NewCategoryController() (*controller.CategoryController, error) {
+	panic(wire.Build(
+		AllProviderSet,
+		controller.NewCategoryController,
+	))
+}

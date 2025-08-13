@@ -56,7 +56,16 @@ func NewVerificationController() (*controller.VerificationController, error) {
 // NewPostController 使用 Wire 初始化文章控制器
 func NewPostController() (*controller.PostController, error) {
 	postMapper := impl2.NewPostMapper()
-	postService := impl.NewPostService(postMapper)
+	categoryMapper := impl2.NewCategoryMapper()
+	postService := impl.NewPostService(postMapper, categoryMapper)
 	postController := controller.NewPostController(postService)
 	return postController, nil
+}
+
+// NewCategoryController 使用 Wire 初始化分类控制器
+func NewCategoryController() (*controller.CategoryController, error) {
+	categoryMapper := impl2.NewCategoryMapper()
+	categoryService := impl.NewCategoryService(categoryMapper)
+	categoryController := controller.NewCategoryController(categoryService)
+	return categoryController, nil
 }

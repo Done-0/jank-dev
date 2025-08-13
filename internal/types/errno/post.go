@@ -7,13 +7,13 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// 文章模块错误码: 30000 ~ 39999
+// 文章模块错误码: 40000 ~ 49999
 const (
-	ErrPostCreateFailed = 30001 // 创建文章失败
-	ErrPostGetFailed    = 30002 // 获取文章失败
-	ErrPostUpdateFailed = 30003 // 更新文章失败
-	ErrPostDeleteFailed = 30004 // 删除文章失败
-	ErrPostListFailed   = 30005 // 获取文章列表失败
+	ErrPostCreateFailed = 40001 // 创建文章失败
+	ErrPostGetFailed    = 40002 // 获取文章失败
+	ErrPostUpdateFailed = 40003 // 更新文章失败
+	ErrPostDeleteFailed = 40004 // 删除文章失败
+	ErrPostListFailed   = 40005 // 获取文章列表失败
 )
 
 func init() {

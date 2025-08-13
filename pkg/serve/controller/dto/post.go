@@ -9,26 +9,28 @@ type CreatePostRequest struct {
 	Description string `json:"description" validate:"omitempty,max=500"`                           // 文章描述/摘要
 	Image       string `json:"image" validate:"omitempty,url"`                                     // 文章封面图片
 	Status      string `json:"status" validate:"omitempty,oneof=draft published private archived"` // 文章状态
+	CategoryID  string `json:"category_id" validate:"omitempty"`                                   // 分类 ID
 	Markdown    string `json:"markdown" validate:"omitempty,max=100000"`                           // Markdown 内容
 }
 
 // DeletePostRequest 删除文章请求
 type DeletePostRequest struct {
-	ID string `json:"id" validate:"required"` // 文章ID
+	ID string `json:"id" validate:"required"` // 文章 ID
 }
 
 // GetPostRequest 获取文章请求
 type GetPostRequest struct {
-	ID string `query:"id" validate:"required"` // 文章ID
+	ID string `query:"id" validate:"required"` // 文章 ID
 }
 
 // UpdatePostRequest 更新文章请求
 type UpdatePostRequest struct {
-	ID          string `json:"id" validate:"required"`                                             // 文章ID
+	ID          string `json:"id" validate:"required"`                                             // 文章 ID
 	Title       string `json:"title" validate:"omitempty,min=1,max=255"`                           // 文章标题
 	Description string `json:"description" validate:"omitempty,max=500"`                           // 文章描述/摘要
 	Image       string `json:"image" validate:"omitempty,url"`                                     // 文章封面图片
 	Status      string `json:"status" validate:"omitempty,oneof=draft published private archived"` // 文章状态
+	CategoryID  string `json:"category_id" validate:"omitempty"`                                   // 分类 ID
 	Markdown    string `json:"markdown" validate:"omitempty,max=100000"`                           // Markdown内容
 }
 

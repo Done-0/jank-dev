@@ -12,6 +12,7 @@ var MapperProviderSet = wire.NewSet(
 	mapperImpl.NewUserMapper,
 	mapperImpl.NewRBACMapper,
 	mapperImpl.NewPostMapper,
+	mapperImpl.NewCategoryMapper,
 )
 
 // ServiceProviderSet 服务相关的 Provider 集合
@@ -22,6 +23,7 @@ var ServiceProviderSet = wire.NewSet(
 	serviceImpl.NewUserService,
 	serviceImpl.NewVerificationService,
 	serviceImpl.NewPostService,
+	serviceImpl.NewCategoryService,
 )
 
 // AllProviderSet 所有 Provider 的集合

@@ -7,7 +7,7 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// 用户模块错误码: 20000 ~ 29999
+// 用户模块错误码: 50000 ~ 59999
 const (
 	ErrUserRegisterFailed      = 20001 // 注册失败
 	ErrUserLoginFailed         = 20002 // 登录失败

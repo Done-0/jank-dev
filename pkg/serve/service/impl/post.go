@@ -22,13 +22,15 @@ import (
 
 // PostServiceImpl 文章服务实现
 type PostServiceImpl struct {
-	postMapper mapper.PostMapper
+	postMapper     mapper.PostMapper
+	categoryMapper mapper.CategoryMapper
 }
 
 // NewPostService 创建文章服务实例
-func NewPostService(postMapperImpl mapper.PostMapper) service.PostService {
+func NewPostService(postMapperImpl mapper.PostMapper, categoryMapperImpl mapper.CategoryMapper) service.PostService {
 	return &PostServiceImpl{
-		postMapper: postMapperImpl,
+		postMapper:     postMapperImpl,
+		categoryMapper: categoryMapperImpl,
 	}
 }
 
@@ -46,16 +48,26 @@ func (ps *PostServiceImpl) GetPost(c *app.RequestContext, req *dto.GetPostReques
 		return nil, fmt.Errorf("failed to get post: %w", err)
 	}
 
+	var categoryIDStr, categoryName string
+	if post.CategoryID != nil {
+		categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+			categoryName = category.Name
+		}
+	}
+
 	return &vo.GetPostResponse{
-		ID:          strconv.FormatInt(post.ID, 10),
-		Title:       post.Title,
-		Description: post.Description,
-		Image:       post.Image,
-		Status:      post.Status,
-		Markdown:    post.Markdown,
-		HTML:        post.HTML,
-		CreatedAt:   time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
-		UpdatedAt:   time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
+		ID:           strconv.FormatInt(post.ID, 10),
+		Title:        post.Title,
+		Description:  post.Description,
+		Image:        post.Image,
+		Status:       post.Status,
+		CategoryID:   categoryIDStr,
+		CategoryName: categoryName,
+		Markdown:     post.Markdown,
+		HTML:         post.HTML,
+		CreatedAt:    time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
+		UpdatedAt:    time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
 	}, nil
 }
 
@@ -69,14 +81,24 @@ func (ps *PostServiceImpl) ListPublishedPosts(c *app.RequestContext, req *dto.Li
 
 	postItems := make([]*vo.PostItem, 0, len(posts))
 	for _, post := range posts {
+		var categoryIDStr, categoryName string
+		if post.CategoryID != nil {
+			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
+			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+				categoryName = category.Name
+			}
+		}
+
 		postItems = append(postItems, &vo.PostItem{
-			ID:          strconv.FormatInt(post.ID, 10),
-			Title:       post.Title,
-			Description: post.Description,
-			Image:       post.Image,
-			Status:      post.Status,
-			CreatedAt:   time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
-			UpdatedAt:   time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
+			ID:           strconv.FormatInt(post.ID, 10),
+			Title:        post.Title,
+			Description:  post.Description,
+			Image:        post.Image,
+			Status:       post.Status,
+			CategoryID:   categoryIDStr,
+			CategoryName: categoryName,
+			CreatedAt:    time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
+			UpdatedAt:    time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
 		})
 	}
 
@@ -98,14 +120,24 @@ func (ps *PostServiceImpl) ListPostsByStatus(c *app.RequestContext, req *dto.Lis
 
 	postItems := make([]*vo.PostItem, 0, len(posts))
 	for _, post := range posts {
+		var categoryIDStr, categoryName string
+		if post.CategoryID != nil {
+			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
+			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+				categoryName = category.Name
+			}
+		}
+
 		postItems = append(postItems, &vo.PostItem{
-			ID:          strconv.FormatInt(post.ID, 10),
-			Title:       post.Title,
-			Description: post.Description,
-			Image:       post.Image,
-			Status:      post.Status,
-			CreatedAt:   time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
-			UpdatedAt:   time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
+			ID:           strconv.FormatInt(post.ID, 10),
+			Title:        post.Title,
+			Description:  post.Description,
+			Image:        post.Image,
+			Status:       post.Status,
+			CategoryID:   categoryIDStr,
+			CategoryName: categoryName,
+			CreatedAt:    time.Unix(post.GmtCreated, 0).Format("2006-01-02 15:04:05"),
+			UpdatedAt:    time.Unix(post.GmtModified, 0).Format("2006-01-02 15:04:05"),
 		})
 	}
 
@@ -124,7 +156,6 @@ func (ps *PostServiceImpl) Create(c *app.RequestContext, req *dto.CreatePostRequ
 		status = consts.PostStatusDraft
 	}
 
-	// 渲染 Markdown 为 HTML
 	var htmlContent string
 	if req.Markdown != "" {
 		html, err := markdown.RenderMarkdown([]byte(req.Markdown))
@@ -135,11 +166,29 @@ func (ps *PostServiceImpl) Create(c *app.RequestContext, req *dto.CreatePostRequ
 		htmlContent = html
 	}
 
+	var categoryID *int64
+	if req.CategoryID != "" {
+		parsedCategoryID, err := strconv.ParseInt(req.CategoryID, 10, 64)
+		if err != nil {
+			logger.BizLogger(c).Errorf("invalid category ID format: %s", req.CategoryID)
+			return nil, fmt.Errorf("invalid category ID format: %w", err)
+		}
+
+		_, err = ps.categoryMapper.GetCategoryByID(c, parsedCategoryID)
+		if err != nil {
+			logger.BizLogger(c).Errorf("category with ID %d does not exist: %v", parsedCategoryID, err)
+			return nil, fmt.Errorf("category with ID %d does not exist", parsedCategoryID)
+		}
+
+		categoryID = &parsedCategoryID
+	}
+
 	post := &post.Post{
 		Title:       req.Title,
 		Description: req.Description,
 		Image:       req.Image,
 		Status:      status,
+		CategoryID:  categoryID,
 		Markdown:    req.Markdown,
 		HTML:        htmlContent,
 	}
@@ -151,14 +200,24 @@ func (ps *PostServiceImpl) Create(c *app.RequestContext, req *dto.CreatePostRequ
 
 	logger.BizLogger(c).Infof("post created successfully with ID: %d", post.ID)
 
+	var categoryIDStr, categoryName string
+	if post.CategoryID != nil {
+		categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+			categoryName = category.Name
+		}
+	}
+
 	return &vo.CreatePostResponse{
-		ID:          strconv.FormatInt(post.ID, 10),
-		Title:       post.Title,
-		Description: post.Description,
-		Image:       post.Image,
-		Status:      post.Status,
-		Markdown:    post.Markdown,
-		Message:     "Post created successfully",
+		ID:           strconv.FormatInt(post.ID, 10),
+		Title:        post.Title,
+		Description:  post.Description,
+		Image:        post.Image,
+		Status:       post.Status,
+		CategoryID:   categoryIDStr,
+		CategoryName: categoryName,
+		Markdown:     post.Markdown,
+		Message:      "Post created successfully",
 	}, nil
 }
 
@@ -198,6 +257,21 @@ func (ps *PostServiceImpl) Update(c *app.RequestContext, req *dto.UpdatePostRequ
 		}
 		existingPost.HTML = html
 	}
+	if req.CategoryID != "" {
+		parsedCategoryID, err := strconv.ParseInt(req.CategoryID, 10, 64)
+		if err != nil {
+			logger.BizLogger(c).Errorf("invalid category ID format: %s", req.CategoryID)
+			return nil, fmt.Errorf("invalid category ID format: %w", err)
+		}
+
+		_, err = ps.categoryMapper.GetCategoryByID(c, parsedCategoryID)
+		if err != nil {
+			logger.BizLogger(c).Errorf("category with ID %d does not exist: %v", parsedCategoryID, err)
+			return nil, fmt.Errorf("category with ID %d does not exist", parsedCategoryID)
+		}
+
+		existingPost.CategoryID = &parsedCategoryID
+	}
 
 	if err := ps.postMapper.UpdatePost(c, existingPost); err != nil {
 		logger.BizLogger(c).Errorf("failed to update post with ID %s: %v", req.ID, err)
@@ -206,14 +280,24 @@ func (ps *PostServiceImpl) Update(c *app.RequestContext, req *dto.UpdatePostRequ
 
 	logger.BizLogger(c).Infof("post updated successfully with ID: %s", req.ID)
 
+	var categoryIDStr, categoryName string
+	if existingPost.CategoryID != nil {
+		categoryIDStr = strconv.FormatInt(*existingPost.CategoryID, 10)
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *existingPost.CategoryID); err == nil {
+			categoryName = category.Name
+		}
+	}
+
 	return &vo.UpdatePostResponse{
-		ID:          strconv.FormatInt(existingPost.ID, 10),
-		Title:       existingPost.Title,
-		Description: existingPost.Description,
-		Image:       existingPost.Image,
-		Status:      existingPost.Status,
-		Markdown:    existingPost.Markdown,
-		Message:     "Post updated successfully",
+		ID:           strconv.FormatInt(existingPost.ID, 10),
+		Title:        existingPost.Title,
+		Description:  existingPost.Description,
+		Image:        existingPost.Image,
+		Status:       existingPost.Status,
+		CategoryID:   categoryIDStr,
+		CategoryName: categoryName,
+		Markdown:     existingPost.Markdown,
+		Message:      "Post updated successfully",
 	}, nil
 }
 

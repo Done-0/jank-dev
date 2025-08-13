@@ -46,7 +46,7 @@ func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContex
 
 	response, err := tc.themeService.SwitchTheme(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "switch theme failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrThemeSwitchFailed, errorx.KV("theme_id", req.ID))))
 		return
 	}
 
@@ -62,7 +62,7 @@ func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContex
 func (tc *ThemeController) GetActiveTheme(ctx context.Context, c *app.RequestContext) {
 	response, err := tc.themeService.GetActiveTheme(c)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "get active theme failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrThemeGetFailed, errorx.KV("msg", "get active theme failed"))))
 		return
 	}
 
@@ -86,7 +86,7 @@ func (tc *ThemeController) ListThemes(ctx context.Context, c *app.RequestContext
 
 	response, err := tc.themeService.ListThemes(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "list themes failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrThemeListFailed, errorx.KV("msg", "list themes failed"))))
 		return
 	}
 

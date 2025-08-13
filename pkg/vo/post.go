@@ -5,37 +5,43 @@ package vo
 
 // CreatePostResponse 创建文章响应
 type CreatePostResponse struct {
-	ID          string `json:"id"`          // 文章ID
-	Title       string `json:"title"`       // 文章标题
-	Description string `json:"description"` // 文章描述/摘要
-	Image       string `json:"image"`       // 文章封面图片
-	Status      string `json:"status"`      // 文章状态
-	Markdown    string `json:"markdown"`    // Markdown内容
-	Message     string `json:"message"`     // 创建结果消息
+	ID           string `json:"id"`            // 文章 ID
+	Title        string `json:"title"`         // 文章标题
+	Description  string `json:"description"`   // 文章描述/摘要
+	Image        string `json:"image"`         // 文章封面图片
+	Status       string `json:"status"`        // 文章状态
+	CategoryID   string `json:"category_id"`   // 分类 ID
+	CategoryName string `json:"category_name"` // 分类名称
+	Markdown     string `json:"markdown"`      // Markdown内容
+	Message      string `json:"message"`       // 创建结果消息
 }
 
 // GetPostResponse 获取文章响应
 type GetPostResponse struct {
-	ID          string `json:"id"`          // 文章ID
-	Title       string `json:"title"`       // 文章标题
-	Description string `json:"description"` // 文章描述/摘要
-	Image       string `json:"image"`       // 文章封面图片
-	Status      string `json:"status"`      // 文章状态
-	Markdown    string `json:"markdown"`    // Markdown 内容
-	HTML        string `json:"html"`        // 渲染后的 HTML
-	CreatedAt   string `json:"created_at"`  // 创建时间
-	UpdatedAt   string `json:"updated_at"`  // 更新时间
+	ID           string `json:"id"`            // 文章 ID
+	Title        string `json:"title"`         // 文章标题
+	Description  string `json:"description"`   // 文章描述/摘要
+	Image        string `json:"image"`         // 文章封面图片
+	Status       string `json:"status"`        // 文章状态
+	CategoryID   string `json:"category_id"`   // 分类 ID
+	CategoryName string `json:"category_name"` // 分类名称
+	Markdown     string `json:"markdown"`      // Markdown 内容
+	HTML         string `json:"html"`          // 渲染后的 HTML
+	CreatedAt    string `json:"created_at"`    // 创建时间
+	UpdatedAt    string `json:"updated_at"`    // 更新时间
 }
 
 // UpdatePostResponse 更新文章响应
 type UpdatePostResponse struct {
-	ID          string `json:"id"`          // 文章ID
-	Title       string `json:"title"`       // 文章标题
-	Description string `json:"description"` // 文章描述/摘要
-	Image       string `json:"image"`       // 文章封面图片
-	Status      string `json:"status"`      // 文章状态
-	Markdown    string `json:"markdown"`    // Markdown内容
-	Message     string `json:"message"`     // 更新结果消息
+	ID           string `json:"id"`            // 文章 ID
+	Title        string `json:"title"`         // 文章标题
+	Description  string `json:"description"`   // 文章描述/摘要
+	Image        string `json:"image"`         // 文章封面图片
+	Status       string `json:"status"`        // 文章状态
+	CategoryID   string `json:"category_id"`   // 分类 ID
+	CategoryName string `json:"category_name"` // 分类名称
+	Markdown     string `json:"markdown"`      // Markdown内容
+	Message      string `json:"message"`       // 更新结果消息
 }
 
 // DeletePostResponse 删除文章响应
@@ -45,13 +51,15 @@ type DeletePostResponse struct {
 
 // PostItem 文章列表项
 type PostItem struct {
-	ID          string `json:"id"`          // 文章ID
-	Title       string `json:"title"`       // 文章标题
-	Description string `json:"description"` // 文章描述/摘要
-	Image       string `json:"image"`       // 文章封面图片
-	Status      string `json:"status"`      // 文章状态
-	CreatedAt   string `json:"created_at"`  // 创建时间
-	UpdatedAt   string `json:"updated_at"`  // 更新时间
+	ID           string `json:"id"`            // 文章 ID
+	Title        string `json:"title"`         // 文章标题
+	Description  string `json:"description"`   // 文章描述/摘要
+	Image        string `json:"image"`         // 文章封面图片
+	Status       string `json:"status"`        // 文章状态
+	CategoryID   string `json:"category_id"`   // 分类 ID
+	CategoryName string `json:"category_name"` // 分类名称
+	CreatedAt    string `json:"created_at"`    // 创建时间
+	UpdatedAt    string `json:"updated_at"`    // 更新时间
 }
 
 // ListPostsResponse 文章列表响应

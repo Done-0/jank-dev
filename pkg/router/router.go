@@ -31,9 +31,6 @@ func New(app *server.Hertz) {
 	// 注册文章相关的路由
 	routes.RegisterPostRoutes(api)
 
-	// 注册评论相关的路由
-	routes.RegisterCommentRoutes(api)
-
 	// 注册插件相关的路由
 	routes.RegisterPluginRoutes(api)
 

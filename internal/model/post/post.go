@@ -14,6 +14,7 @@ type Post struct {
 	Description string `gorm:"type:varchar(500)" json:"description"`                          // 文章描述/摘要（可选）
 	Image       string `gorm:"type:varchar(255)" json:"image"`                                // 图片
 	Status      string `gorm:"type:varchar(20);not null;default:'draft';index" json:"status"` // 文章状态
+	CategoryID  *int64 `gorm:"type:bigint;index" json:"category_id"`                          // 分类 ID，NULL表示未分类
 	Markdown    string `gorm:"type:text" json:"Markdown"`                                     // Markdown 内容
 	HTML        string `gorm:"type:text" json:"Html"`                                         // 渲染后的 HTML 内容
 }
