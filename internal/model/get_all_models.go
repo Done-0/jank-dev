@@ -4,6 +4,7 @@
 package model
 
 import (
+	"github.com/Done-0/jank/internal/model/post"
 	"github.com/Done-0/jank/internal/model/rbac"
 	"github.com/Done-0/jank/internal/model/user"
 )
@@ -16,5 +17,6 @@ func GetAllModels() []any {
 	return []any{
 		&user.User{},   // 用户模型
 		&rbac.Policy{}, // RBAC策略模型
+		&post.Post{},   // 文章模型
 	}
 }

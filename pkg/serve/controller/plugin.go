@@ -125,7 +125,7 @@ func (pc *PluginController) GetPlugin(ctx context.Context, c *app.RequestContext
 
 	response, err := pc.pluginService.GetPlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "get plugin failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrPluginNotFound, errorx.KV("msg", req.ID))))
 		return
 	}
 

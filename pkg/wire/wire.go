@@ -48,3 +48,11 @@ func NewVerificationController() (*controller.VerificationController, error) {
 		controller.NewVerificationController,
 	))
 }
+
+// NewPostController 使用 Wire 初始化文章控制器
+func NewPostController() (*controller.PostController, error) {
+	panic(wire.Build(
+		AllProviderSet,
+		controller.NewPostController,
+	))
+}

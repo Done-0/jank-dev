@@ -10,9 +10,9 @@ import (
 // 插件模块错误码: 30000 ~ 39999
 const (
 	ErrPluginNotFound         = 30001 // 插件不存在
-	ErrPluginParamInvalid     = 30008 // 插件参数无效
-	ErrPluginRegisterFailed   = 30009 // 插件注册失败
-	ErrPluginUnregisterFailed = 30010 // 插件注销失败
+	ErrPluginParamInvalid     = 30002 // 插件参数无效
+	ErrPluginRegisterFailed   = 30003 // 插件注册失败
+	ErrPluginUnregisterFailed = 30004 // 插件注销失败
 )
 
 func init() {

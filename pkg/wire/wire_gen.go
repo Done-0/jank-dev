@@ -52,3 +52,11 @@ func NewVerificationController() (*controller.VerificationController, error) {
 	verificationController := controller.NewVerificationController(verificationService)
 	return verificationController, nil
 }
+
+// NewPostController 使用 Wire 初始化文章控制器
+func NewPostController() (*controller.PostController, error) {
+	postMapper := impl2.NewPostMapper()
+	postService := impl.NewPostService(postMapper)
+	postController := controller.NewPostController(postService)
+	return postController, nil
+}

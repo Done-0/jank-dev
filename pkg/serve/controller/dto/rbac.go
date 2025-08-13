@@ -34,7 +34,7 @@ type RevokePermissionRequest struct {
 // CreateRoleRequest 创建角色请求
 type CreateRoleRequest struct {
 	Name        string `json:"name" validate:"required,min=1,max=100"`                 // 角色名称
-	Description string `json:"description" validate:"max=500"`                         // 角色描述（可选）
+	Description string `json:"description" validate:"omitempty,max=500"`               // 角色描述（可选）
 	Role        string `json:"role" validate:"required,min=1,max=100"`                 // 角色标识符
 	Resource    string `json:"resource" validate:"required,min=1,max=255"`             // 资源路径
 	Action      string `json:"action" validate:"required,oneof=* GET POST PUT DELETE"` // 操作方法
