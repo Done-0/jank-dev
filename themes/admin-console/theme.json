@@ -1,0 +1,12 @@
+{
+    "id": "com.jank.themes.admin-console",
+    "name": "管理后台主题",
+    "version": "1.0.0",
+    "author": "Done-0",
+    "description": "现代化管理后台主题，支持用户管理、主题管理、权限管理等功能",
+    "repository": "https://github.com/Done-0/jank-themes",
+    "preview": "/assets/preview.png",
+    "type": "console",
+    "index_file_path": "/dist/index.html",
+    "static_dir_path": "/dist/assets"
+}

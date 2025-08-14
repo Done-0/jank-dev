@@ -7,4 +7,8 @@ const (
 	// 主题状态
 	ThemeStatusActive = "active" // 主题已激活
 	ThemeStatusError  = "error"  // 主题错误
+
+	// 主题类型
+	ThemeTypeFrontend = "frontend" // 前端主题
+	ThemeTypeConsole  = "console"  // 控制台主题
 )

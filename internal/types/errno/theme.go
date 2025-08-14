@@ -15,6 +15,7 @@ const (
 	ErrThemeNotFound         = 30004 // 主题不存在
 	ErrThemeResourceNotFound = 30005 // 主题资源不存在
 	ErrThemeConfigInvalid    = 30006 // 主题配置无效
+	ErrThemeTypePermissionDenied = 30007 // 主题类型权限被拒绝
 )
 
 func init() {
@@ -22,4 +23,5 @@ func init() {
 	code.Register(ErrThemeGetFailed, "get theme failed: {msg}")
 	code.Register(ErrThemeListFailed, "list themes failed: {msg}")
 	code.Register(ErrThemeNotFound, "theme not found: {theme_id}")
+	code.Register(ErrThemeTypePermissionDenied, "theme type permission denied: {msg}")
 }

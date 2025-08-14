@@ -112,8 +112,14 @@ type ThemeConfig struct {
 	// 主题目录和文件
 	ThemeDir        string `mapstructure:"THEME_DIR"`         // 主题目录
 	ThemeConfigFile string `mapstructure:"THEME_CONFIG_FILE"` // 主题配置文件名
-	DefaultTheme    string `mapstructure:"DEFAULT_THEME"`     // 默认主题 ID
-	LastActiveTheme string `mapstructure:"LAST_ACTIVE_THEME"` // 上次激活的主题 ID
+
+	// Frontend 主题配置（用户前端）
+	FrontendDefaultTheme    string `mapstructure:"FRONTEND_DEFAULT_THEME"`     // Frontend 默认主题 ID
+	FrontendLastActiveTheme string `mapstructure:"FRONTEND_LAST_ACTIVE_THEME"` // Frontend 上次激活的主题 ID
+
+	// Console 主题配置（管理后台）
+	ConsoleDefaultTheme    string `mapstructure:"CONSOLE_DEFAULT_THEME"`     // Console 默认主题 ID
+	ConsoleLastActiveTheme string `mapstructure:"CONSOLE_LAST_ACTIVE_THEME"` // Console 上次激活的主题 ID
 
 	// 构建相关
 	BuildScriptDir      string `mapstructure:"BUILD_SCRIPT_DIR"`      // 构建脚本目录

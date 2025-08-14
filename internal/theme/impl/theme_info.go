@@ -15,6 +15,7 @@ type ThemeInfo struct {
 	Preview     string `json:"preview,omitempty"`     // 主题预览图片地址
 
 	// 配置信息
+	Type          string `json:"type,omitempty"`            // 主题类型（frontend/console）
 	IndexFilePath string `json:"index_file_path,omitempty"` // 首页文件相对路径
 	StaticDirPath string `json:"static_dir_path,omitempty"` // 静态资源目录相对路径
 

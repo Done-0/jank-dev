@@ -393,10 +393,6 @@ func (s *RBACServiceImpl) GetRolePermissions(c *app.RequestContext, req *dto.Get
 	}, nil
 }
 
-// ========================================
-// 3. 用户角色管理
-// ========================================
-
 // AssignRole 为用户分配角色
 func (s *RBACServiceImpl) AssignRole(c *app.RequestContext, req *dto.AssignRoleRequest) (*vo.RoleOpResponse, error) {
 	userID, err := strconv.ParseInt(req.UserID, 10, 64)

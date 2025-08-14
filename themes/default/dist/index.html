@@ -163,9 +163,18 @@
                             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">仪表盘</h1>
                             <p class="text-gray-600 dark:text-gray-400 mt-1">系统概览与实时状态监控</p>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span class="text-sm text-green-600 dark:text-green-400">实时更新</span>
+                        <div class="flex items-center space-x-4">
+                            <a href="/console" class="inline-flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                管理后台
+                            </a>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm text-green-600 dark:text-green-400">实时更新</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -343,6 +352,390 @@
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
 
+    <script>
+        // 简单的前端路由系统
+        class SimpleRouter {
+            constructor() {
+                this.routes = {};
+                this.currentRoute = '';
+                this.init();
+            }
+
+            // 注册路由
+            route(path, handler) {
+                this.routes[path] = handler;
+            }
+
+            // 初始化路由
+            init() {
+                // 监听浏览器前进后退
+                window.addEventListener('popstate', () => {
+                    this.handleRoute();
+                });
+
+                // 监听页面加载
+                window.addEventListener('DOMContentLoaded', () => {
+                    this.handleRoute();
+                });
+
+                // 拦截所有链接点击 - 使用事件委托确保动态生成的元素也能工作
+                document.addEventListener('click', (e) => {
+                    // 查找最近的带有data-route属性的祖先元素
+                    const routeElement = e.target.closest('[data-route]');
+                    if (routeElement) {
+                        e.preventDefault();
+                        const path = routeElement.getAttribute('data-route');
+                        this.navigate(path);
+                    }
+                });
+            }
+
+            // 导航到指定路由
+            navigate(path) {
+                window.history.pushState({}, '', path);
+                this.handleRoute();
+            }
+
+            // 处理当前路由
+            handleRoute() {
+                const path = window.location.pathname;
+                this.currentRoute = path;
+
+                // 检查是否是console路由（这里会测试冲突处理）
+                if (path.startsWith('/console')) {
+                    this.handleConsoleRoute(path);
+                    return;
+                }
+
+                // 处理普通路由
+                const handler = this.routes[path] || this.routes['*'];
+                if (handler) {
+                    handler();
+                } else {
+                    this.show404();
+                }
+
+                // 更新导航状态
+                this.updateNavigation();
+            }
+
+            // 处理console路由冲突
+            handleConsoleRoute(path) {
+                console.warn('Frontend theme detected console route:', path);
+                
+                // 显示警告页面
+                const mainContent = document.querySelector('main');
+                if (mainContent) {
+                    mainContent.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center p-8 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                <div class="text-yellow-600 dark:text-yellow-400 text-6xl mb-4">⚠️</div>
+                                <h1 class="text-2xl font-bold text-yellow-800 dark:text-yellow-200 mb-2">路由冲突警告</h1>
+                                <p class="text-yellow-700 dark:text-yellow-300 mb-4">
+                                    Frontend主题不应该处理 <code class="bg-yellow-200 dark:bg-yellow-800 px-2 py-1 rounded">${path}</code> 路由
+                                </p>
+                                <p class="text-sm text-yellow-600 dark:text-yellow-400 mb-4">
+                                    /console/* 路由应该由Console主题处理
+                                </p>
+                                <div class="space-x-4">
+                                    <a href="/" data-route="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                        返回首页
+                                    </a>
+                                    <a href="/console" class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                        访问Console
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 显示404页面
+            show404() {
+                const mainContent = document.querySelector('main');
+                if (mainContent) {
+                    mainContent.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center p-8">
+                                <div class="text-gray-400 text-6xl mb-4">🔍</div>
+                                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">页面未找到</h1>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                    路由 <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">${this.currentRoute}</code> 不存在
+                                </p>
+                                <a href="/" data-route="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    返回首页
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 更新导航状态
+            updateNavigation() {
+                // 更新侧边栏导航状态
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('bg-indigo-50', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-300');
+                    item.classList.add('text-gray-700', 'dark:text-gray-300');
+                });
+
+                const activeItem = document.querySelector(`[data-route="${this.currentRoute}"]`);
+                if (activeItem && activeItem.classList.contains('nav-item')) {
+                    activeItem.classList.remove('text-gray-700', 'dark:text-gray-300');
+                    activeItem.classList.add('bg-indigo-50', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-300');
+                }
+            }
+        }
+
+        // 创建路由实例
+        const router = new SimpleRouter();
+
+        // 注册路由
+        router.route('/', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">欢迎使用 Jank 博客系统</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h2 class="text-xl font-semibold mb-4">快速开始</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">开始使用 Jank 博客系统的各项功能</p>
+                            <a href="/dashboard" data-route="/dashboard" class="text-blue-600 hover:text-blue-800">查看仪表板 →</a>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h2 class="text-xl font-semibold mb-4">主题管理</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">管理和切换不同的主题样式</p>
+                            <a href="/themes" data-route="/themes" class="text-blue-600 hover:text-blue-800">管理主题 →</a>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h2 class="text-xl font-semibold mb-4">插件系统</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">扩展系统功能的插件管理</p>
+                            <a href="/plugins" data-route="/plugins" class="text-blue-600 hover:text-blue-800">管理插件 →</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        router.route('/dashboard', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">仪表板</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold mb-2">文章总数</h3>
+                            <p class="text-3xl font-bold text-blue-600">42</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold mb-2">访问量</h3>
+                            <p class="text-3xl font-bold text-green-600">1,234</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold mb-2">评论数</h3>
+                            <p class="text-3xl font-bold text-purple-600">89</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold mb-2">用户数</h3>
+                            <p class="text-3xl font-bold text-orange-600">156</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        router.route('/themes', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">主题管理</h1>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                        <h2 class="text-xl font-semibold mb-4">当前主题</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">管理系统主题和样式设置</p>
+                        <button onclick="switchTheme()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            切换主题
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        router.route('/plugins', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">插件管理</h1>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                        <h2 class="text-xl font-semibold mb-4">已安装插件</h2>
+                        <p class="text-gray-600 dark:text-gray-400">管理系统插件和扩展功能</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        router.route('/about', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">关于</h1>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                        <h2 class="text-xl font-semibold mb-4">Jank 博客系统</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            这是一个现代化的博客管理系统，支持主题切换、插件扩展等功能。
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            当前路由: <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">${window.location.pathname}</code>
+                        </p>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 测试console路由冲突的路由
+        router.route('/console-test', () => {
+            document.querySelector('main').innerHTML = `
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Console测试页面</h1>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 p-6">
+                        <h2 class="text-xl font-semibold mb-4 text-yellow-800 dark:text-yellow-200">⚠️ 路由测试</h2>
+                        <p class="text-yellow-700 dark:text-yellow-300 mb-4">
+                            这个路由名称包含"console"但不是真正的console路由冲突。
+                        </p>
+                        <p class="text-yellow-700 dark:text-yellow-300 mb-4">
+                            真正的冲突路由是 <code>/console</code> 和 <code>/console/*</code>
+                        </p>
+                        <div class="space-x-4">
+                            <a href="/console" class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                测试真正的冲突路由 /console
+                            </a>
+                            <a href="/console/dashboard" class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                测试冲突路由 /console/dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 404处理
+        router.route('*', () => {
+            router.show404();
+        });
+
+        // 更新侧边栏导航
+        function updateSidebar() {
+            const sidebar = document.querySelector('aside');
+            if (sidebar) {
+                sidebar.innerHTML = `
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                <span class="text-white font-bold text-sm">J</span>
+                            </div>
+                            <div>
+                                <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Jank</h1>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Frontend Theme</p>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="flex-1 p-4 space-y-2">
+                        <a href="/" data-route="/" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>🏠</span>
+                            <span>首页</span>
+                        </a>
+                        <a href="/dashboard" data-route="/dashboard" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>📊</span>
+                            <span>仪表板</span>
+                        </a>
+                        <a href="/themes" data-route="/themes" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>🎨</span>
+                            <span>主题管理</span>
+                        </a>
+                        <a href="/plugins" data-route="/plugins" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>🔌</span>
+                            <span>插件管理</span>
+                        </a>
+                        <a href="/about" data-route="/about" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>ℹ️</span>
+                            <span>关于</span>
+                        </a>
+                        <a href="/console-test" data-route="/console-test" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+                            <span>⚠️</span>
+                            <span>Console测试</span>
+                        </a>
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">危险测试区域</p>
+                            <a href="/console" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-red-600 dark:text-red-400">
+                                <span>🚨</span>
+                                <span>冲突路由测试</span>
+                            </a>
+                        </div>
+                    </nav>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <button onclick="window.location.href='/console'" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            切换到Console
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 确保每次页面加载都重新初始化
+        function initializeApp() {
+            // 强制重新生成侧边栏
+            updateSidebar();
+            
+            // 处理当前路由
+            router.handleRoute();
+            
+            // 确保导航状态正确
+            router.updateNavigation();
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        
+        // 页面显示时也重新初始化（处理浏览器前进后退）
+        window.addEventListener('pageshow', initializeApp);
+
+        // 主题切换功能
+        async function switchTheme() {
+            try {
+                const response = await fetch('/api/theme/list?page_no=1&page_size=100');
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const themes = result.data.list.filter(theme => theme.type === 'frontend');
+                    const currentTheme = themes.find(theme => theme.is_active);
+                    const otherThemes = themes.filter(theme => !theme.is_active);
+                    
+                    if (otherThemes.length > 0) {
+                        const targetTheme = otherThemes[0];
+                        
+                        const switchResponse = await fetch('/api/theme/switch', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                id: targetTheme.id,
+                                theme_type: 'frontend'
+                            })
+                        });
+                        
+                        const switchResult = await switchResponse.json();
+                        if (switchResult.code === 200) {
+                            alert(`主题已切换到: ${targetTheme.name}`);
+                            setTimeout(() => window.location.reload(), 500);
+                        } else {
+                            alert('主题切换失败: ' + switchResult.message);
+                        }
+                    } else {
+                        alert('没有其他可用的frontend主题');
+                    }
+                } else {
+                    alert('获取主题列表失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('主题切换错误:', error);
+                alert('主题切换失败: ' + error.message);
+            }
+        }
+    </script>
     <script src="/assets/js/main.js"></script>
 </body>
 </html>

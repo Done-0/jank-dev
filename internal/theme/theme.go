@@ -11,10 +11,10 @@ import (
 
 // ThemeManager 主题管理器接口
 type ThemeManager interface {
-	// SwitchTheme 切换主题
-	SwitchTheme(id string) error
-	// GetActiveTheme 获取当前激活的主题
-	GetActiveTheme() (*impl.ThemeInfo, error)
+	// SwitchThemeByType 按类型切换主题（frontend/console）
+	SwitchThemeByType(id string, themeType string) error
+	// GetActiveThemeByType 按类型获取当前激活的主题（frontend/console）
+	GetActiveThemeByType(themeType string) (*impl.ThemeInfo, error)
 	// ListThemes 列举所有主题
 	ListThemes() ([]*impl.ThemeInfo, error)
 	// InitializeTheme 初始化主题系统，加载上次激活的主题或默认主题

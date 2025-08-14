@@ -5,8 +5,9 @@ package dto
 
 // SwitchThemeRequest 切换主题请求
 type SwitchThemeRequest struct {
-	ID      string `json:"id" validate:"required"` // 主题ID
-	Rebuild bool   `json:"rebuild,omitempty"`      // 强制重新构建
+	ID        string `json:"id" form:"id" binding:"required"`                                        // 主题 ID
+	ThemeType string `json:"theme_type" form:"theme_type" binding:"required,oneof=frontend console"` // 主题类型：frontend/console
+	Rebuild   bool   `json:"rebuild" form:"rebuild"`                                                 // 是否重载页面
 }
 
 // ListThemesRequest 列举主题请求

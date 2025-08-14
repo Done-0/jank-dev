@@ -5,6 +5,7 @@ class AdminPanel {
     constructor() {
         this.currentSection = 'dashboard';
         this.apiBase = '/api';
+        this.themes = []; // 存储主题列表
         this.init();
     }
 
@@ -214,6 +215,9 @@ class AdminPanel {
         try {
             const response = await this.apiCall('/theme/list?page_no=1&page_size=50');
             const themes = response.data?.list || [];
+            
+            // 存储主题列表到实例变量
+            this.themes = themes;
 
             if (themes.length === 0) {
                 loadingEl.style.display = 'none';
@@ -301,14 +305,21 @@ class AdminPanel {
                 return;
             }
             
+            // 从目标主题配置中获取主题类型
+            const targetTheme = this.themes.find(theme => theme.id === themeId);
+            const themeType = targetTheme?.type || 'frontend';
+            
             this.showToast('正在切换主题...', '请稍候', 'info');
             
-            console.log('Switching to theme:', themeId);
+            console.log('Switching to theme:', themeId, 'type:', themeType);
             
             // 使用AJAX调用，后端返回成功后刷新页面
             const response = await this.apiCall('/theme/switch', {
                 method: 'POST',
-                body: JSON.stringify({ id: themeId })
+                body: JSON.stringify({ 
+                    id: themeId,
+                    theme_type: themeType
+                })
             });
             
             console.log('Theme switch response:', response);

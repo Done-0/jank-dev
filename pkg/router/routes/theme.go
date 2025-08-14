@@ -17,8 +17,12 @@ func RegisterThemeRoutes(h *server.Hertz, apiGroup *route.RouterGroup) {
 	}
 
 	// === 前端路由 ===
-	// 动态首页处理器
+	// Frontend 主题首页处理器
 	h.GET("/", themeController.ServeHomePage)
+	
+	// Console 主题路由处理器
+	h.GET("/console", themeController.ServeHomePage)
+	h.GET("/console/*filepath", themeController.ServeStaticResource)
 
 	// 静态资源处理器 - 处理所有未匹配的路径（跳过API路径）
 	h.NoRoute(themeController.ServeStaticResource)

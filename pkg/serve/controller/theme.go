@@ -5,6 +5,7 @@ package controller
 
 import (
 	"context"
+	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -46,6 +47,14 @@ func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContex
 
 	response, err := tc.themeService.SwitchTheme(c, req)
 	if err != nil {
+		// 检查是否是主题类型权限控制错误
+		if strings.Contains(err.Error(), "can only switch to") ||
+			strings.Contains(err.Error(), "theme type mismatch") ||
+			strings.Contains(err.Error(), "permission denied") {
+			c.JSON(consts.StatusForbidden, vo.Fail(c, err, errorx.New(errno.ErrThemeTypePermissionDenied, errorx.KV("msg", err.Error()))))
+			return
+		}
+
 		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrThemeSwitchFailed, errorx.KV("theme_id", req.ID))))
 		return
 	}
