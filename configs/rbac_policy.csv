@@ -8,17 +8,17 @@
 # ===== 核心权限策略 =====
 
 # 超级管理员 - 系统最高权限
-p, super_admin, /api/*, *
+p, super_admin, /api/v1/*, *
 
 # 管理员 - 用户和系统管理
-p, admin, /api/user/*, *
-p, admin, /api/rbac/*, *
+p, admin, /api/v1/user/*, *
+p, admin, /api/v1/rbac/*, *
 
 # 普通用户 - 基础功能
-p, user, /api/user/profile, GET
-p, user, /api/user/update, POST
-p, user, /api/user/reset-password, POST
-p, user, /api/user/logout, POST
+p, user, /api/v1/user/profile, GET
+p, user, /api/v1/user/update, POST
+p, user, /api/v1/user/reset-password, POST
+p, user, /api/v1/user/logout, POST
 
 # ===== 角色继承关系 =====
 g, super_admin, admin

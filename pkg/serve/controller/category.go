@@ -30,7 +30,7 @@ func NewCategoryController(categoryService service.CategoryService) *CategoryCon
 }
 
 // GetCategory 获取单个分类
-// @Router /api/category/get [get]
+// @Router /api/v1/category/get [get]
 func (cc *CategoryController) GetCategory(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.GetCategoryRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -54,7 +54,7 @@ func (cc *CategoryController) GetCategory(ctx context.Context, c *app.RequestCon
 }
 
 // ListCategories 获取分类列表
-// @Router /api/category/list [get]
+// @Router /api/v1/category/list [get]
 func (cc *CategoryController) ListCategories(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListCategoriesRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -78,7 +78,7 @@ func (cc *CategoryController) ListCategories(ctx context.Context, c *app.Request
 }
 
 // Create 创建分类
-// @Router /api/category/create [post]
+// @Router /api/v1/category/create [post]
 func (cc *CategoryController) Create(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.CreateCategoryRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -102,7 +102,7 @@ func (cc *CategoryController) Create(ctx context.Context, c *app.RequestContext)
 }
 
 // Update 更新分类
-// @Router /api/category/update [post]
+// @Router /api/v1/category/update [post]
 func (cc *CategoryController) Update(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UpdateCategoryRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -126,7 +126,7 @@ func (cc *CategoryController) Update(ctx context.Context, c *app.RequestContext)
 }
 
 // Delete 删除分类
-// @Router /api/category/delete [post]
+// @Router /api/v1/category/delete [post]
 func (cc *CategoryController) Delete(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.DeleteCategoryRequest)
 	if err := c.BindJSON(req); err != nil {

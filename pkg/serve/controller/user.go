@@ -30,7 +30,7 @@ func NewUserController(userService service.UserService) *UserController {
 }
 
 // Register 用户注册
-// @Router /api/user/register [post]
+// @Router /api/v1/user/register [post]
 func (uc *UserController) Register(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RegisterRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -54,7 +54,7 @@ func (uc *UserController) Register(ctx context.Context, c *app.RequestContext) {
 }
 
 // Login 用户登录
-// @Router /api/user/login [post]
+// @Router /api/v1/user/login [post]
 func (uc *UserController) Login(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.LoginRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -78,7 +78,7 @@ func (uc *UserController) Login(ctx context.Context, c *app.RequestContext) {
 }
 
 // Logout 用户登出
-// @Router /api/user/logout [post]
+// @Router /api/v1/user/logout [post]
 func (uc *UserController) Logout(ctx context.Context, c *app.RequestContext) {
 	response, err := uc.userService.Logout(c)
 	if err != nil {
@@ -90,7 +90,7 @@ func (uc *UserController) Logout(ctx context.Context, c *app.RequestContext) {
 }
 
 // RefreshToken 刷新token
-// @Router /api/user/refresh-token [post]
+// @Router /api/v1/user/refresh-token [post]
 func (uc *UserController) RefreshToken(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RefreshTokenRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -114,7 +114,7 @@ func (uc *UserController) RefreshToken(ctx context.Context, c *app.RequestContex
 }
 
 // GetProfile 获取用户资料
-// @Router /api/user/profile [get]
+// @Router /api/v1/user/profile [get]
 func (uc *UserController) GetProfile(ctx context.Context, c *app.RequestContext) {
 	response, err := uc.userService.GetProfile(c)
 	if err != nil {
@@ -126,7 +126,7 @@ func (uc *UserController) GetProfile(ctx context.Context, c *app.RequestContext)
 }
 
 // Update 更新用户信息
-// @Router /api/user/update [post]
+// @Router /api/v1/user/update [post]
 func (uc *UserController) Update(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UpdateRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -150,7 +150,7 @@ func (uc *UserController) Update(ctx context.Context, c *app.RequestContext) {
 }
 
 // ResetPassword 重置密码
-// @Router /api/user/reset-password [post]
+// @Router /api/v1/user/reset-password [post]
 func (uc *UserController) ResetPassword(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ResetPasswordRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -174,7 +174,7 @@ func (uc *UserController) ResetPassword(ctx context.Context, c *app.RequestConte
 }
 
 // ListUsers 列举用户（管理员功能）
-// @Router /api/user/list [get]
+// @Router /api/v1/user/list [get]
 func (uc *UserController) ListUsers(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListUsersRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -198,7 +198,7 @@ func (uc *UserController) ListUsers(ctx context.Context, c *app.RequestContext) 
 }
 
 // UpdateUserRole 管理员更新用户角色
-// @Router /api/user/role [post]
+// @Router /api/v1/user/role [post]
 func (uc *UserController) UpdateUserRole(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UpdateUserRoleRequest)
 	if err := c.BindJSON(req); err != nil {

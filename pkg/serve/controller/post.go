@@ -30,7 +30,7 @@ func NewPostController(postService service.PostService) *PostController {
 }
 
 // GetPost 获取单篇文章
-// @Router /api/post/get [get]
+// @Router /api/v1/post/get [get]
 func (pc *PostController) GetPost(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.GetPostRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -54,7 +54,7 @@ func (pc *PostController) GetPost(ctx context.Context, c *app.RequestContext) {
 }
 
 // ListPublishedPosts 获取文章列表
-// @Router /api/post/list-published [get]
+// @Router /api/v1/post/list-published [get]
 func (pc *PostController) ListPublishedPosts(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListPublishedPostsRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -78,7 +78,7 @@ func (pc *PostController) ListPublishedPosts(ctx context.Context, c *app.Request
 }
 
 // ListPostsByStatus 根据状态获取文章列表
-// @Router /api/post/list-by-status [get]
+// @Router /api/v1/post/list-by-status [get]
 func (pc *PostController) ListPostsByStatus(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListPostsByStatusRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -102,7 +102,7 @@ func (pc *PostController) ListPostsByStatus(ctx context.Context, c *app.RequestC
 }
 
 // Create 创建文章
-// @Router /api/post/create [post]
+// @Router /api/v1/post/create [post]
 func (pc *PostController) Create(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.CreatePostRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -126,7 +126,7 @@ func (pc *PostController) Create(ctx context.Context, c *app.RequestContext) {
 }
 
 // Update 更新文章
-// @Router /api/post/update [post]
+// @Router /api/v1/post/update [post]
 func (pc *PostController) Update(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UpdatePostRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -150,7 +150,7 @@ func (pc *PostController) Update(ctx context.Context, c *app.RequestContext) {
 }
 
 // Delete 删除文章
-// @Router /api/post/delete [post]
+// @Router /api/v1/post/delete [post]
 func (pc *PostController) Delete(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.DeletePostRequest)
 	if err := c.BindJSON(req); err != nil {

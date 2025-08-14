@@ -697,7 +697,7 @@
         // 主题切换功能
         async function switchTheme() {
             try {
-                const response = await fetch('/api/theme/list?page_no=1&page_size=100');
+                const response = await fetch('/api/v1/theme/list?page_no=1&page_size=100');
                 const result = await response.json();
                 
                 if (result.code === 200) {
@@ -708,7 +708,7 @@
                     if (otherThemes.length > 0) {
                         const targetTheme = otherThemes[0];
                         
-                        const switchResponse = await fetch('/api/theme/switch', {
+                        const switchResponse = await fetch('/api/v1/theme/switch', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({

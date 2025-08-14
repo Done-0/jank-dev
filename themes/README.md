@@ -79,7 +79,7 @@ themes/
 
 ```javascript
 // 切换主题
-await fetch('/api/theme/switch', {
+await fetch('/api/v1/theme/switch', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ 
@@ -89,10 +89,10 @@ await fetch('/api/theme/switch', {
 });
 
 // 获取当前主题
-const response = await fetch('/api/theme/get');
+const response = await fetch('/api/v1/theme/get');
 
 // 列举主题
-const themes = await fetch('/api/theme/list?page_no=1&page_size=100');
+const themes = await fetch('/api/v1/theme/list?page_no=1&page_size=100');
 ```
 
 ## 权限控制

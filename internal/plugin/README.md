@@ -137,7 +137,7 @@ func main() {
 
 ## 🌐 HTTP API
 
-### 插件列表 `GET /api/plugin/list`
+### 插件列表 `GET /api/v1/plugin/list`
 返回所有插件（包括已注册和未注册）：
 ```json
 {
@@ -149,7 +149,7 @@ func main() {
 }
 ```
 
-### 执行插件 `POST /api/plugin/execute`
+### 执行插件 `POST /api/v1/plugin/execute`
 ```json
 {
   "id": "dev.jank.plugins.hello-world",

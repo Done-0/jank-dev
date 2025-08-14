@@ -179,7 +179,7 @@ type ThemeInfo struct {
 
 ### 切换主题
 ```bash
-POST /api/theme/switch
+POST /api/v1/theme/switch
 Content-Type: application/json
 
 {
@@ -189,12 +189,12 @@ Content-Type: application/json
 
 ### 获取当前主题
 ```bash
-GET /api/theme/get
+GET /api/v1/theme/get
 ```
 
 ### 列举所有主题
 ```bash
-GET /api/theme/list?page_no=1&page_size=100
+GET /api/v1/theme/list?page_no=1&page_size=100
 ```
 
 ## 🔄 主题切换流程

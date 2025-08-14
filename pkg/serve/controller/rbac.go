@@ -30,7 +30,7 @@ func NewRBACController(rbacService service.RBACService) *RBACController {
 }
 
 // CreatePermission 创建权限
-// @Router /api/rbac/create-permission [post]
+// @Router /api/v1/rbac/create-permission [post]
 func (rc *RBACController) CreatePermission(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.CreatePermissionRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -54,7 +54,7 @@ func (rc *RBACController) CreatePermission(ctx context.Context, c *app.RequestCo
 }
 
 // DeletePermission 删除权限
-// @Router /api/rbac/delete-permission [post]
+// @Router /api/v1/rbac/delete-permission [post]
 func (rc *RBACController) DeletePermission(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.DeletePermissionRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -78,7 +78,7 @@ func (rc *RBACController) DeletePermission(ctx context.Context, c *app.RequestCo
 }
 
 // ListPermissions 获取所有权限
-// @Router /api/rbac/list-permissions [get]
+// @Router /api/v1/rbac/list-permissions [get]
 func (rc *RBACController) ListPermissions(ctx context.Context, c *app.RequestContext) {
 	response, err := rc.rbacService.ListPermissions(c)
 	if err != nil {
@@ -90,7 +90,7 @@ func (rc *RBACController) ListPermissions(ctx context.Context, c *app.RequestCon
 }
 
 // AssignPermission 为角色分配权限
-// @Router /api/rbac/assign-permission [post]
+// @Router /api/v1/rbac/assign-permission [post]
 func (rc *RBACController) AssignPermission(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.AssignPermissionRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -114,7 +114,7 @@ func (rc *RBACController) AssignPermission(ctx context.Context, c *app.RequestCo
 }
 
 // RevokePermission 撤销角色权限
-// @Router /api/rbac/revoke-permission [post]
+// @Router /api/v1/rbac/revoke-permission [post]
 func (rc *RBACController) RevokePermission(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RevokePermissionRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -138,7 +138,7 @@ func (rc *RBACController) RevokePermission(ctx context.Context, c *app.RequestCo
 }
 
 // CreateRole 创建角色
-// @Router /api/rbac/create-role [post]
+// @Router /api/v1/rbac/create-role [post]
 func (rc *RBACController) CreateRole(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.CreateRoleRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -162,7 +162,7 @@ func (rc *RBACController) CreateRole(ctx context.Context, c *app.RequestContext)
 }
 
 // DeleteRole 删除角色
-// @Router /api/rbac/delete-role [post]
+// @Router /api/v1/rbac/delete-role [post]
 func (rc *RBACController) DeleteRole(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.DeleteRoleRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -186,7 +186,7 @@ func (rc *RBACController) DeleteRole(ctx context.Context, c *app.RequestContext)
 }
 
 // ListRoles 获取所有角色
-// @Router /api/rbac/list-roles [get]
+// @Router /api/v1/rbac/list-roles [get]
 func (rc *RBACController) ListRoles(ctx context.Context, c *app.RequestContext) {
 	response, err := rc.rbacService.ListRoles(c)
 	if err != nil {
@@ -198,7 +198,7 @@ func (rc *RBACController) ListRoles(ctx context.Context, c *app.RequestContext) 
 }
 
 // GetRolePermissions 获取角色权限
-// @Router /api/rbac/get-role-permissions [post]
+// @Router /api/v1/rbac/get-role-permissions [post]
 func (rc *RBACController) GetRolePermissions(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.GetRolePermissionsRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -222,7 +222,7 @@ func (rc *RBACController) GetRolePermissions(ctx context.Context, c *app.Request
 }
 
 // AssignRole 为用户分配角色
-// @Router /api/rbac/assign-role [post]
+// @Router /api/v1/rbac/assign-role [post]
 func (rc *RBACController) AssignRole(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.AssignRoleRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -246,7 +246,7 @@ func (rc *RBACController) AssignRole(ctx context.Context, c *app.RequestContext)
 }
 
 // RevokeRole 撤销用户角色
-// @Router /api/rbac/revoke-role [post]
+// @Router /api/v1/rbac/revoke-role [post]
 func (rc *RBACController) RevokeRole(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RevokeRoleRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -270,7 +270,7 @@ func (rc *RBACController) RevokeRole(ctx context.Context, c *app.RequestContext)
 }
 
 // GetUserRoles 获取用户角色
-// @Router /api/rbac/get-user-roles [post]
+// @Router /api/v1/rbac/get-user-roles [post]
 func (rc *RBACController) GetUserRoles(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.GetUserRolesRequest)
 	if err := c.BindQuery(req); err != nil {
@@ -294,7 +294,7 @@ func (rc *RBACController) GetUserRoles(ctx context.Context, c *app.RequestContex
 }
 
 // CheckPermission 权限检查
-// @Router /api/rbac/check-permission [post]
+// @Router /api/v1/rbac/check-permission [post]
 func (rc *RBACController) CheckPermission(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.CheckPermissionRequest)
 	if err := c.BindJSON(req); err != nil {

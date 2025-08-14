@@ -14,7 +14,7 @@ import (
 //
 //	app: Hertz 路由引擎
 func New(app *server.Hertz) {
-	api := app.Group("/api")
+	api := app.Group("/api/v1")
 
 	// 注册用户相关的路由
 	routes.RegisterUserRoutes(api)

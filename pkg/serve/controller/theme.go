@@ -31,7 +31,7 @@ func NewThemeController(themeService service.ThemeService) *ThemeController {
 }
 
 // SwitchTheme 切换主题
-// @Router /api/theme/switch [post]
+// @Router /api/v1/theme/switch [post]
 func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.SwitchThemeRequest)
 	if err := c.BindJSON(req); err != nil {
@@ -67,7 +67,7 @@ func (tc *ThemeController) SwitchTheme(ctx context.Context, c *app.RequestContex
 }
 
 // GetActiveTheme 获取当前激活主题
-// @Router /api/theme/get [get]
+// @Router /api/v1/theme/get [get]
 func (tc *ThemeController) GetActiveTheme(ctx context.Context, c *app.RequestContext) {
 	response, err := tc.themeService.GetActiveTheme(c)
 	if err != nil {
@@ -79,7 +79,7 @@ func (tc *ThemeController) GetActiveTheme(ctx context.Context, c *app.RequestCon
 }
 
 // ListThemes 列举主题
-// @Router /api/theme/list [get]
+// @Router /api/v1/theme/list [get]
 func (tc *ThemeController) ListThemes(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.ListThemesRequest)
 	if err := c.BindQuery(req); err != nil {

@@ -150,8 +150,8 @@ echo "Build completed: $BINARY_PATH"
 
 ## 🔧 API 接口
 
-- `GET /api/plugin/list` - 插件列表
-- `POST /api/plugin/register` - 注册插件
-- `POST /api/plugin/unregister` - 注销插件
-- `POST /api/plugin/execute` - 执行插件方法
-- `GET /api/plugin/get` - 获取插件信息
+- `GET /api/v1/plugin/list` - 插件列表
+- `POST /api/v1/plugin/register` - 注册插件
+- `POST /api/v1/plugin/unregister` - 注销插件
+- `POST /api/v1/plugin/execute` - 执行插件方法
+- `GET /api/v1/plugin/get` - 获取插件信息

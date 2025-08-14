@@ -37,7 +37,7 @@ func NewVerificationController(verificationService service.VerificationService) 
 }
 
 // SendEmailVerificationCode 发送邮箱验证码
-// @Router /api/verification/email [get]
+// @Router /api/v1/verification/email [get]
 func (ctrl *VerificationController) SendEmailVerificationCode(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.SendEmailCodeRequest)
 	if err := c.BindQuery(req); err != nil {
