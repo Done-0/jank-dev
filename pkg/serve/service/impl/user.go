@@ -199,7 +199,7 @@ func (us *UserServiceImpl) RefreshToken(c *app.RequestContext, req *dto.RefreshT
 		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
 
-	token, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

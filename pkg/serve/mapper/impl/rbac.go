@@ -6,7 +6,6 @@ package impl
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 
-	"github.com/Done-0/jank/internal/global"
 	"github.com/Done-0/jank/internal/model/rbac"
 	"github.com/Done-0/jank/internal/utils/db"
 	"github.com/Done-0/jank/pkg/serve/mapper"
@@ -202,5 +201,37 @@ func (m *RBACMapperImpl) ListUsers(c *app.RequestContext) ([]*rbac.Policy, error
 
 // CheckPermission 权限检查
 func (m *RBACMapperImpl) CheckPermission(c *app.RequestContext, user, resource, action string) (bool, error) {
-	return global.Enforcer.Enforce(user, resource, action)
+	var directCount int64
+	err := db.GetDBFromContext(c).Model(&rbac.Policy{}).
+		Where("ptype = ? AND v0 = ? AND (v1 = ? OR v1 = ?) AND (v2 = ? OR v2 = ?) AND deleted = ?",
+			"p", user, resource, "*", action, "*", false).
+		Count(&directCount).Error
+	if err != nil {
+		return false, err
+	}
+	if directCount > 0 {
+		return true, nil
+	}
+
+	var userRoles []*rbac.Policy
+	err = db.GetDBFromContext(c).Where("ptype = ? AND v0 = ? AND deleted = ?", "g", user, false).Find(&userRoles).Error
+	if err != nil {
+		return false, err
+	}
+
+	for _, rolePolicy := range userRoles {
+		var roleCount int64
+		err = db.GetDBFromContext(c).Model(&rbac.Policy{}).
+			Where("ptype = ? AND v0 = ? AND (v1 = ? OR v1 = ?) AND (v2 = ? OR v2 = ?) AND deleted = ?",
+				"p", rolePolicy.V1, resource, "*", action, "*", false).
+			Count(&roleCount).Error
+		if err != nil {
+			return false, err
+		}
+		if roleCount > 0 {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

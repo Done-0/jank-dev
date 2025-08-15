@@ -16,7 +16,7 @@ import (
 
 // 使用 sync.Pool 复用 buffer
 var bufferPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return new(bytes.Buffer)
 	},
 }

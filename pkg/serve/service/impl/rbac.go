@@ -3,6 +3,7 @@ package impl
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
@@ -553,8 +554,25 @@ func (s *RBACServiceImpl) CheckPermission(c *app.RequestContext, req *dto.CheckP
 		return nil, fmt.Errorf("failed to check permission: %w", err)
 	}
 
-	logger.BizLogger(c).Infof("permission check result: userID[%s], resource[%s], action[%s], allowed[%t]", req.UserID, req.Resource, req.Action, allowed)
+	var reason string
+	if allowed {
+		reason = fmt.Sprintf("用户 %s 有权限访问资源 %s 进行 %s 操作", req.UserID, req.Resource, req.Action)
+	} else {
+		userRoles, _ := s.rbacMapper.GetUserRoles(c, req.UserID)
+		if len(userRoles) == 0 {
+			reason = fmt.Sprintf("用户 %s 没有分配任何角色，无法访问资源 %s 进行 %s 操作", req.UserID, req.Resource, req.Action)
+		} else {
+			roleNames := make([]string, len(userRoles))
+			for i, role := range userRoles {
+				roleNames[i] = role.V1
+			}
+			reason = fmt.Sprintf("用户 %s 的角色 [%s] 没有权限访问资源 %s 进行 %s 操作", req.UserID, strings.Join(roleNames, ", "), req.Resource, req.Action)
+		}
+	}
+
+	logger.BizLogger(c).Infof("permission check result: userID[%s], resource[%s], action[%s], allowed[%t], reason[%s]", req.UserID, req.Resource, req.Action, allowed, reason)
 	return &vo.CheckResponse{
 		Allowed: allowed,
+		Reason:  reason,
 	}, nil
 }
