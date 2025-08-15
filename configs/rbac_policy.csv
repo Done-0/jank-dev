@@ -8,11 +8,7 @@
 # ===== 核心权限策略 =====
 
 # 超级管理员 - 系统最高权限
-p, super_admin, /api/v1/*, *
-
-# 管理员 - 用户和系统管理
-p, admin, /api/v1/user/*, *
-p, admin, /api/v1/rbac/*, *
+p, super_admin, *, *
 
 # 普通用户 - 基础功能
 p, user, /api/v1/user/profile, GET
