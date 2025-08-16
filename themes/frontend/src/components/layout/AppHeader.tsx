@@ -1,6 +1,8 @@
-import { Home } from "lucide-react";
+/**
+ * 应用头部组件
+ */
+
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { ROUTE_TITLES } from "@/constants";
 
 interface AppHeaderProps {
@@ -11,13 +13,13 @@ export function AppHeader({ activeTab }: AppHeaderProps) {
   const title = ROUTE_TITLES[activeTab as keyof typeof ROUTE_TITLES] || "控制台";
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Home className="h-4 w-4" />
-          <span>{title}</span>
+    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-14 items-center px-4">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="h-8 w-8 hover:bg-accent/50 transition-colors" />
+          <h1 className="text-base font-medium text-foreground">
+            {title}
+          </h1>
         </div>
       </div>
     </header>

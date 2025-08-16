@@ -1,3 +1,7 @@
+/**
+ * 侧边栏组件
+ */
+
 import { LayoutDashboard, Users, Shield, Palette, Puzzle, FileText, FolderOpen, Settings } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -7,7 +11,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -28,59 +31,75 @@ interface AppSidebarProps {
 export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar();
 
-  // Console 管理菜单配置
-  const mainMenuItems = [
+  // 简洁的分组导航配置
+  const menuGroups = [
     {
-      id: CONSOLE_ROUTES.ROOT,
-      label: "控制台",
-      icon: LayoutDashboard,
-      route: CONSOLE_ROUTES.ROOT,
+      label: "概览",
+      items: [
+        {
+          id: CONSOLE_ROUTES.ROOT,
+          label: "控制台",
+          icon: LayoutDashboard,
+          route: CONSOLE_ROUTES.ROOT,
+        },
+      ],
     },
     {
-      id: CONSOLE_ROUTES.USERS,
-      label: "用户管理",
-      icon: Users,
-      route: CONSOLE_ROUTES.USERS,
+      label: "内容",
+      items: [
+        {
+          id: CONSOLE_ROUTES.POSTS,
+          label: "文章",
+          icon: FileText,
+          route: CONSOLE_ROUTES.POSTS,
+        },
+        {
+          id: CONSOLE_ROUTES.CATEGORIES,
+          label: "分类",
+          icon: FolderOpen,
+          route: CONSOLE_ROUTES.CATEGORIES,
+        },
+      ],
     },
     {
-      id: CONSOLE_ROUTES.RBAC,
-      label: "权限管理",
-      icon: Shield,
-      route: CONSOLE_ROUTES.RBAC,
+      label: "权限",
+      items: [
+        {
+          id: CONSOLE_ROUTES.USERS,
+          label: "用户",
+          icon: Users,
+          route: CONSOLE_ROUTES.USERS,
+        },
+        {
+          id: CONSOLE_ROUTES.RBAC,
+          label: "角色",
+          icon: Shield,
+          route: CONSOLE_ROUTES.RBAC,
+        },
+      ],
     },
     {
-      id: CONSOLE_ROUTES.POSTS,
-      label: "文章管理",
-      icon: FileText,
-      route: CONSOLE_ROUTES.POSTS,
-    },
-    {
-      id: CONSOLE_ROUTES.CATEGORIES,
-      label: "分类管理",
-      icon: FolderOpen,
-      route: CONSOLE_ROUTES.CATEGORIES,
-    },
-  ] as const;
-
-  // 系统设置菜单配置
-  const systemMenuItems = [
-    {
-      id: CONSOLE_ROUTES.THEMES,
-      label: "主题管理",
-      icon: Palette,
-      route: CONSOLE_ROUTES.THEMES,
-    },
-    {
-      id: CONSOLE_ROUTES.PLUGINS,
-      label: "插件管理",
-      icon: Puzzle,
-      route: CONSOLE_ROUTES.PLUGINS,
-    },
-    {
-      id: CONSOLE_ROUTES.SYSTEM,
-      label: "系统设置",
-      icon: Settings,
-      route: CONSOLE_ROUTES.SYSTEM,
+      label: "系统",
+      items: [
+        {
+          id: CONSOLE_ROUTES.THEMES,
+          label: "主题",
+          icon: Palette,
+          route: CONSOLE_ROUTES.THEMES,
+        },
+        {
+          id: CONSOLE_ROUTES.PLUGINS,
+          label: "插件",
+          icon: Puzzle,
+          route: CONSOLE_ROUTES.PLUGINS,
+        },
+        {
+          id: CONSOLE_ROUTES.SYSTEM,
+          label: "设置",
+          icon: Settings,
+          route: CONSOLE_ROUTES.SYSTEM,
+        },
+      ],
     },
   ] as const;
 
@@ -92,26 +111,18 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar
-      collapsible="offcanvas"
-      className="border-r bg-sidebar text-sidebar-foreground"
-    >
-      <SidebarHeader className="bg-sidebar">
+    <Sidebar variant="inset">
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link
-                to={CONSOLE_ROUTES.ROOT}
-                className="flex items-center gap-2"
-              >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <LayoutDashboard className="size-4" />
+            <SidebarMenuButton size="lg" asChild className="hover:bg-accent/50">
+              <Link to="/">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <span className="font-bold text-sm">J</span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Jank Console</span>
-                  <span className="truncate text-xs text-sidebar-foreground/70">
-                    后台管理系统
-                  </span>
+                  <span className="truncate font-semibold">Jank</span>
+                  <span className="truncate text-xs text-muted-foreground">管理控制台</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -119,61 +130,39 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="bg-sidebar">
-        {/* 内容管理 */}
-        <SidebarGroup>
-          <SidebarGroupLabel>内容管理</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.label}
-                      isActive={activeTab === item.id}
-                    >
-                      <Link to={item.route} onClick={handleLinkClick}>
-                        <Icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* 系统设置 */}
-        <SidebarGroup>
-          <SidebarGroupLabel>系统设置</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.label}
-                      isActive={activeTab === item.id}
-                    >
-                      <Link to={item.route} onClick={handleLinkClick}>
-                        <Icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent>
+        {menuGroups.map((group, groupIndex) => (
+          <SidebarGroup key={group.label} className="py-0">
+            {groupIndex > 0 && (
+              <div className="mx-3 my-1 h-px bg-border/30" />
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={item.label}
+                        isActive={activeTab === item.id}
+                        className="h-9 hover:bg-accent/50 data-[active=true]:bg-accent data-[active=true]:text-accent-foreground transition-colors"
+                      >
+                        <Link to={item.route} onClick={handleLinkClick}>
+                          <Icon className="h-4 w-4" />
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
-      <SidebarFooter className="bg-sidebar">
+      <SidebarFooter>
         <SidebarMenu>
           <ConsoleUserMenu user={user} onLogout={onLogout} />
         </SidebarMenu>
