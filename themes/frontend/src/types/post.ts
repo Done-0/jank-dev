@@ -41,6 +41,7 @@ export interface UpdatePostRequest {
 export interface ListPublishedPostsRequest {
   page_no: number; // 页码，从1开始
   page_size: number; // 每页数量
+  category_id?: number; // 分类 ID，为空时不按分类筛选
 }
 
 // ListPostsByStatusRequest 根据状态获取文章列表请求
@@ -48,6 +49,7 @@ export interface ListPostsByStatusRequest {
   page_no: number; // 页码，从1开始
   page_size: number; // 每页数量
   status?: PostStatus; // 文章状态，为空时获取所有文章
+  category_id?: number; // 分类 ID，为空时不按分类筛选
 }
 
 // ===== 响应类型 (Response) =====

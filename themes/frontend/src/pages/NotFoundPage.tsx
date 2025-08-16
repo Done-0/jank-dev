@@ -1,25 +1,45 @@
+import { Home, ArrowLeft } from "lucide-react";
+
 export const NotFoundPage = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 font-sans">
-      <div className="text-center max-w-md">
-        <h1 className="text-8xl font-bold text-red-500 mb-6 leading-none">404</h1>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">页面未找到</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">抱歉，您访问的页面不存在或已被移除</p>
-        <div className="flex gap-4 flex-wrap justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="text-center max-w-lg">
+        {/* 404数字  */}
+        <div className="mb-8">
+          <h1 className="text-9xl font-bold text-muted-foreground/20 mb-4 leading-none select-none">
+            404
+          </h1>
+          <div className="w-16 h-1 bg-primary rounded-full mx-auto mb-6" />
+        </div>
+
+        {/* 错误信息 */}
+        <div className="mb-8 space-y-3">
+          <h2 className="text-2xl font-semibold text-foreground">
+            页面未找到
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            抱歉，您访问的页面不存在或已被移除
+          </p>
+        </div>
+
+        {/* 按钮 */}
+        <div className="flex gap-3 justify-center flex-wrap">
           <button
             onClick={() => (window.location.href = "/")}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors"
           >
+            <Home className="h-4 w-4" />
             返回首页
           </button>
           <button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-transparent text-foreground border border-border rounded-full font-medium hover:bg-accent transition-colors"
           >
+            <ArrowLeft className="h-4 w-4" />
             返回上页
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

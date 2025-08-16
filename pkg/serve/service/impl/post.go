@@ -50,8 +50,8 @@ func (ps *PostServiceImpl) GetPost(c *app.RequestContext, req *dto.GetPostReques
 
 	var categoryIDStr, categoryName string
 	if post.CategoryID != nil {
-		categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
-		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil && category.IsActive {
+			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
 			categoryName = category.Name
 		}
 	}
@@ -73,7 +73,7 @@ func (ps *PostServiceImpl) GetPost(c *app.RequestContext, req *dto.GetPostReques
 
 // ListPublishedPosts 获取已发布文章列表
 func (ps *PostServiceImpl) ListPublishedPosts(c *app.RequestContext, req *dto.ListPublishedPostsRequest) (*vo.ListPostsResponse, error) {
-	posts, total, err := ps.postMapper.ListPublishedPosts(c, req.PageNo, req.PageSize)
+	posts, total, err := ps.postMapper.ListPublishedPosts(c, req.PageNo, req.PageSize, req.CategoryID)
 	if err != nil {
 		logger.BizLogger(c).Errorf("failed to list posts: %v", err)
 		return nil, fmt.Errorf("failed to list posts: %w", err)
@@ -83,8 +83,8 @@ func (ps *PostServiceImpl) ListPublishedPosts(c *app.RequestContext, req *dto.Li
 	for _, post := range posts {
 		var categoryIDStr, categoryName string
 		if post.CategoryID != nil {
-			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
-			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil && category.IsActive {
+				categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
 				categoryName = category.Name
 			}
 		}
@@ -112,7 +112,7 @@ func (ps *PostServiceImpl) ListPublishedPosts(c *app.RequestContext, req *dto.Li
 
 // ListPostsByStatus 根据状态获取文章列表
 func (ps *PostServiceImpl) ListPostsByStatus(c *app.RequestContext, req *dto.ListPostsByStatusRequest) (*vo.ListPostsResponse, error) {
-	posts, total, err := ps.postMapper.ListPostsByStatus(c, req.PageNo, req.PageSize, req.Status)
+	posts, total, err := ps.postMapper.ListPostsByStatus(c, req.PageNo, req.PageSize, req.Status, req.CategoryID)
 	if err != nil {
 		logger.BizLogger(c).Errorf("failed to list posts by status: %v", err)
 		return nil, fmt.Errorf("failed to list posts by status: %w", err)
@@ -122,8 +122,8 @@ func (ps *PostServiceImpl) ListPostsByStatus(c *app.RequestContext, req *dto.Lis
 	for _, post := range posts {
 		var categoryIDStr, categoryName string
 		if post.CategoryID != nil {
-			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
-			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+			if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil && category.IsActive {
+				categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
 				categoryName = category.Name
 			}
 		}
@@ -202,8 +202,8 @@ func (ps *PostServiceImpl) Create(c *app.RequestContext, req *dto.CreatePostRequ
 
 	var categoryIDStr, categoryName string
 	if post.CategoryID != nil {
-		categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
-		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil {
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *post.CategoryID); err == nil && category.IsActive {
+			categoryIDStr = strconv.FormatInt(*post.CategoryID, 10)
 			categoryName = category.Name
 		}
 	}
@@ -282,8 +282,8 @@ func (ps *PostServiceImpl) Update(c *app.RequestContext, req *dto.UpdatePostRequ
 
 	var categoryIDStr, categoryName string
 	if existingPost.CategoryID != nil {
-		categoryIDStr = strconv.FormatInt(*existingPost.CategoryID, 10)
-		if category, err := ps.categoryMapper.GetCategoryByID(c, *existingPost.CategoryID); err == nil {
+		if category, err := ps.categoryMapper.GetCategoryByID(c, *existingPost.CategoryID); err == nil && category.IsActive {
+			categoryIDStr = strconv.FormatInt(*existingPost.CategoryID, 10)
 			categoryName = category.Name
 		}
 	}

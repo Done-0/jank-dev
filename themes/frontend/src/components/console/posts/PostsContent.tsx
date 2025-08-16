@@ -85,11 +85,14 @@ export function PostsContent({
     return statusConfig[status] || { variant: 'outline', label: status };
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-CN', {
-      month: 'short',
-      day: 'numeric'
-    });
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString();
+  };
+
+  const getCategoryColor = (categoryId?: string) => {
+    if (!categoryId) return 'bg-muted-foreground';
+    const colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-orange-500'];
+    return colors[parseInt(categoryId) % colors.length];
   };
 
   // ===== 分页器工具函数 =====
@@ -216,19 +219,19 @@ export function PostsContent({
       </div>
 
       {/* 顶部操作栏 */}
-      <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-background">
+      <div className="px-4 py-4 border-b">
         <div className="flex items-center justify-between gap-4">
-          <div className="relative flex-1 sm:flex-initial sm:w-80">
-            <Search className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+          <div className="relative flex-1 sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="搜索文章..."
-              className="pl-8 sm:pl-9 h-8 sm:h-10 text-sm"
+              className="pl-9 h-10 rounded-full"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
-          <Button onClick={onNewPost} className="h-8 px-3 sm:h-10 sm:px-4 text-sm shrink-0">
-            <Plus className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <Button onClick={onNewPost} className="h-10 px-4 shrink-0 rounded-full">
+            <Plus className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">新建文章</span>
             <span className="sm:hidden">新建</span>
           </Button>
@@ -249,65 +252,58 @@ export function PostsContent({
             <div className="flex-1 overflow-y-scroll scrollbar-hidden">
               <div className="divide-y divide-border">
                 {posts.map((post) => (
-                  <div key={post.id} className="px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex flex-col gap-2 sm:gap-3">
-                      {/* 标题和状态 */}
+                  <div key={post.id} className="px-4 py-4 hover:bg-accent/50 transition-colors">
+                    <div className="flex flex-col gap-3">
                       <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-medium text-sm sm:text-base line-clamp-2 leading-relaxed flex-1 min-w-0">{post.title}</h3>
+                        <h3 className="font-medium text-lg line-clamp-2 flex-1 min-w-0">{post.title}</h3>
                         <Badge 
                           variant={getStatusBadge(post.status as PostStatus).variant}
-                          className="text-xs px-1.5 py-0.5 shrink-0 sm:px-2"
+                          className="shrink-0"
                         >
                           {getStatusBadge(post.status as PostStatus).label}
                         </Badge>
                       </div>
                       
-                      {/* 描述 */}
-                      <div className="h-4 sm:h-5">
-                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-                          {post.description || ''}
+                      <div className="min-h-[1.25rem]">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {post.description || '暂无描述'}
                         </p>
                       </div>
                       
-                      {/* 底部信息和操作 */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground min-w-0">
-                          <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full shrink-0 bg-muted-foreground" />
-                            <span className="truncate text-xs">{getCategoryName(post.category_id)}</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <div className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(post.category_id)}`} />
+                            <span>{getCategoryName(post.category_id)}</span>
                           </div>
-                          <div className="flex items-center gap-1 sm:gap-1.5">
-                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full shrink-0 bg-muted-foreground" />
-                            <span className="shrink-0 text-xs">
-                              {formatDate(post.created_at)}
-                            </span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                            <span>{formatDate(post.created_at)}</span>
                           </div>
                         </div>
                         
-                        <div className="shrink-0">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 sm:h-7 sm:w-7">
-                                <MoreHorizontal className="h-3 w-3" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Eye className="mr-2 h-4 w-4" />
-                                查看文章
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Edit className="mr-2 h-4 w-4" />
-                                编辑文章
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                删除文章
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem className="cursor-pointer">
+                              <Eye className="mr-2 h-4 w-4" />
+                              查看文章
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer">
+                              <Edit className="mr-2 h-4 w-4" />
+                              编辑文章
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              删除文章
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>

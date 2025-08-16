@@ -154,13 +154,10 @@ func (cs *CategoryServiceImpl) Update(c *app.RequestContext, req *dto.UpdateCate
 		return nil, fmt.Errorf("failed to get category: %w", err)
 	}
 
-	// 更新字段
 	if req.Name != "" {
 		existingCategory.Name = req.Name
 	}
-	if req.Description != "" {
-		existingCategory.Description = req.Description
-	}
+	existingCategory.Description = req.Description
 	if req.ParentID != "" {
 		parentID, err := strconv.ParseInt(req.ParentID, 10, 64)
 		if err != nil {
@@ -169,9 +166,7 @@ func (cs *CategoryServiceImpl) Update(c *app.RequestContext, req *dto.UpdateCate
 		}
 		existingCategory.ParentID = parentID
 	}
-	if req.Sort != 0 {
-		existingCategory.Sort = req.Sort
-	}
+	existingCategory.Sort = req.Sort
 	existingCategory.IsActive = req.IsActive
 
 	if err := cs.categoryMapper.UpdateCategory(c, existingCategory); err != nil {

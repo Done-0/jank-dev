@@ -36,13 +36,15 @@ type UpdatePostRequest struct {
 
 // ListPublishedPostsRequest 获取文章列表请求
 type ListPublishedPostsRequest struct {
-	PageNo   int64 `query:"page_no" validate:"required,min=1"`           // 页码
-	PageSize int64 `query:"page_size" validate:"required,min=1,max=100"` // 每页数量
+	PageNo     int64  `query:"page_no" validate:"required,min=1"`           // 页码
+	PageSize   int64  `query:"page_size" validate:"required,min=1,max=100"` // 每页数量
+	CategoryID *int64 `query:"category_id" validate:"omitempty"`            // 分类ID，为空时不按分类筛选
 }
 
 // ListPostsByStatusRequest 根据状态获取文章列表请求
 type ListPostsByStatusRequest struct {
-	PageNo   int64  `query:"page_no" validate:"required,min=1"`                                  // 页码
-	PageSize int64  `query:"page_size" validate:"required,min=1,max=100"`                        // 每页数量
-	Status   string `query:"status" validate:"omitempty,oneof=draft published private archived"` // 文章状态，为空时获取所有文章
+	PageNo     int64  `query:"page_no" validate:"required,min=1"`                                  // 页码
+	PageSize   int64  `query:"page_size" validate:"required,min=1,max=100"`                        // 每页数量
+	Status     string `query:"status" validate:"omitempty,oneof=draft published private archived"` // 文章状态，为空时获取所有文章
+	CategoryID *int64 `query:"category_id" validate:"omitempty"`                                   // 分类ID，为空时不按分类筛选，有值时必须大于0
 }

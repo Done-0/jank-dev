@@ -30,13 +30,15 @@ func (m *PostMapperImpl) GetPostByID(c *app.RequestContext, postID int64) (*post
 	return &p, nil
 }
 
-// ListPublishedPosts 获取已发布文章列表
-func (m *PostMapperImpl) ListPublishedPosts(c *app.RequestContext, pageNo, pageSize int64) ([]*post.Post, int64, error) {
+// ListPublishedPosts 获取已发布文章列表，categoryID 为空时不按分类筛选
+func (m *PostMapperImpl) ListPublishedPosts(c *app.RequestContext, pageNo, pageSize int64, categoryID *int64) ([]*post.Post, int64, error) {
 	var posts []*post.Post
 	var total int64
 
-	// 只查询未删除且已发布的文章
 	query := db.GetDBFromContext(c).Model(&post.Post{}).Where("deleted = ? AND status = ?", false, consts.PostStatusPublished)
+	if categoryID != nil {
+		query = query.Where("category_id = ?", *categoryID)
+	}
 
 	// 统计总数
 	if err := query.Count(&total).Error; err != nil {
@@ -52,15 +54,17 @@ func (m *PostMapperImpl) ListPublishedPosts(c *app.RequestContext, pageNo, pageS
 	return posts, total, nil
 }
 
-// ListPostsByStatus 根据状态获取文章列表，status为空时获取所有文章
-func (m *PostMapperImpl) ListPostsByStatus(c *app.RequestContext, pageNo, pageSize int64, status string) ([]*post.Post, int64, error) {
+// ListPostsByStatus 根据状态获取文章列表，status 为空时获取所有文章，categoryID 为空时不按分类筛选
+func (m *PostMapperImpl) ListPostsByStatus(c *app.RequestContext, pageNo, pageSize int64, status string, categoryID *int64) ([]*post.Post, int64, error) {
 	var posts []*post.Post
 	var total int64
 
-	// 构建查询条件
 	query := db.GetDBFromContext(c).Model(&post.Post{}).Where("deleted = ?", false)
 	if status != "" {
 		query = query.Where("status = ?", status)
+	}
+	if categoryID != nil {
+		query = query.Where("category_id = ?", *categoryID)
 	}
 
 	// 统计总数

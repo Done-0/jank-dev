@@ -18,9 +18,12 @@ export function ConsolePostsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // ===== 数据获取 =====
-  const requestParams = selectedStatus 
-    ? { page_no: 1, page_size: 100, status: selectedStatus }
-    : { page_no: 1, page_size: 100 };
+  const requestParams = {
+    page_no: 1,
+    page_size: 100,
+    ...(selectedStatus && { status: selectedStatus }),
+    ...(selectedCategory && { category_id: parseInt(selectedCategory) }),
+  };
   
   const { data: postsData, isLoading } = usePostsByStatus(requestParams);
   const { data: allPostsData } = usePostsByStatus({ page_no: 1, page_size: 100 });
