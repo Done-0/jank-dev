@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ImageLoader } from '@/components/ui/image-loader';
 
 import { useSwitchTheme, themeKeys } from '@/hooks/use-themes';
 import type { GetThemeResponse } from '@/types';
@@ -70,7 +71,7 @@ export function ThemesContent({ themes, isLoading }: ThemesContentProps) {
     if (theme.preview.startsWith('http')) return theme.preview;
     const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
     const cleanPath = theme.preview.startsWith('/') ? theme.preview.slice(1) : theme.preview;
-    return `${backendBaseUrl}/${cleanPath}`;
+    return `${backendBaseUrl}/${cleanPath}?theme_type=${theme.type}`;
   };
 
   // 状态和类型配置 - 使用 useMemo 优化性能
@@ -116,20 +117,20 @@ export function ThemesContent({ themes, isLoading }: ThemesContentProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b">
-        <div className="relative max-w-md">
+      <div className="px-4 py-4 border-b">
+        <div className="relative flex-1 sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="搜索主题..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 rounded-full"
+            className="pl-9 h-10 rounded-full"
           />
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 scrollbar-hover">
         {filteredThemes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -148,19 +149,14 @@ export function ThemesContent({ themes, isLoading }: ThemesContentProps) {
                   className="group relative bg-card rounded-xl border border-border hover:border-border/80 hover:shadow-md transition-all duration-300 ease-out overflow-hidden"
                 >
                   {/* Preview Image */}
-                  <div className="aspect-video bg-muted overflow-hidden relative">
-                    {previewUrl ? (
-                      <img 
-                        src={previewUrl} 
-                        alt={`${theme.name} 预览`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-muted to-muted/50">
-                        <Palette className="h-12 w-12" />
-                      </div>
-                    )}
+                  <div className="relative">
+                    <ImageLoader
+                      src={previewUrl}
+                      alt={`${theme.name} 预览`}
+                      aspectRatio="video"
+                      fallbackIcon={<Palette className="h-12 w-12" />}
+                      className="group-hover:scale-105 transition-transform duration-300 ease-out"
+                    />
                     {/* Status indicator overlay */}
                     {theme.status === 'active' && (
                       <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm" />
@@ -186,18 +182,20 @@ export function ThemesContent({ themes, isLoading }: ThemesContentProps) {
                     </p>
                     
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                      <Badge 
-                        variant={getTypeBadge(theme.type).variant} 
-                        className="text-xs"
-                      >
-                        {getTypeBadge(theme.type).label}
-                      </Badge>
-                      <span>v{theme.version}</span>
+                      <div className="flex items-center gap-1.5">
+                        <Badge 
+                          variant={getTypeBadge(theme.type).variant} 
+                          className="text-xs"
+                        >
+                          {getTypeBadge(theme.type).label}
+                        </Badge>
+                        <span>v{theme.version}</span>
+                      </div>
                       {theme.author && (
-                        <>
-                          <span>•</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                           <span className="truncate">{theme.author}</span>
-                        </>
+                        </div>
                       )}
                     </div>
                     

@@ -221,7 +221,7 @@ export function PostsContent({
       {/* 顶部操作栏 */}
       <div className="px-4 py-4 border-b">
         <div className="flex items-center justify-between gap-4">
-          <div className="relative flex-1 sm:w-80">
+          <div className="relative flex-1 sm:flex-initial sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="搜索文章..."

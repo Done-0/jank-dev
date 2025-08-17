@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -122,4 +123,38 @@
 }
 .scrollbar-hidden::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+@layer utilities {
+  /* 优雅渐变波纹加载动画 */
+  @keyframes skeleton-wave {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .skeleton-loading {
+    position: relative;
+    background: hsl(var(--muted));
+    overflow: hidden;
+  }
+  
+  .skeleton-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--background) / 0.8),
+      transparent
+    );
+    animation: skeleton-wave 1.5s ease-in-out infinite;
+  }
 }

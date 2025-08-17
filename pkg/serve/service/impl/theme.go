@@ -8,7 +8,6 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 
-	"github.com/Done-0/jank/configs"
 	"github.com/Done-0/jank/internal/theme"
 	"github.com/Done-0/jank/internal/theme/impl"
 	"github.com/Done-0/jank/internal/types/consts"
@@ -231,7 +230,9 @@ func (s *ThemeServiceImpl) ServeStaticResource(c *app.RequestContext, requestPat
 
 	// 确定主题类型
 	themeType := consts.ThemeTypeFrontend
-	if strings.HasPrefix(requestPath, "/console") || strings.Contains(string(c.GetHeader("Referer")), "/console") {
+	if queryType := string(c.Query("theme_type")); queryType == consts.ThemeTypeConsole {
+		themeType = consts.ThemeTypeConsole
+	} else if strings.HasPrefix(requestPath, "/console") {
 		themeType = consts.ThemeTypeConsole
 	}
 
@@ -242,39 +243,43 @@ func (s *ThemeServiceImpl) ServeStaticResource(c *app.RequestContext, requestPat
 		return "", fmt.Errorf("failed to get active %s theme: %w", themeType, err)
 	}
 
-	// 路径安全验证和清理
 	cleanedPath := filepath.Clean(strings.TrimPrefix(requestPath, "/"))
+	if themeType == consts.ThemeTypeConsole && strings.HasPrefix(cleanedPath, "console/") {
+		cleanedPath = strings.TrimPrefix(cleanedPath, "console/")
+	}
+
+	// 安全检查
 	if strings.Contains(cleanedPath, "..") || strings.Contains(cleanedPath, "\\") {
 		logger.BizLogger(c).Errorf("path traversal attempt detected: %s", requestPath)
 		return "", fmt.Errorf("path traversal not allowed")
 	}
 
-	// 构建和验证资源路径
-	resourcePath := filepath.Join(activeTheme.Path, cleanedPath)
-	absolutePath, err := filepath.Abs(resourcePath)
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to resolve resource path: %v", err)
-		return "", fmt.Errorf("invalid resource path")
+	// 构建资源路径
+	var resourcePath string
+	if cleanedPath == "." {
+		resourcePath = filepath.Join(activeTheme.Path, strings.TrimPrefix(activeTheme.IndexFilePath, "/"))
+	} else {
+		buildDir := filepath.Dir(strings.TrimPrefix(activeTheme.IndexFilePath, "/"))
+		resourcePath = filepath.Join(activeTheme.Path, buildDir, cleanedPath)
 	}
 
-	// 安全边界检查
-	appConfig, _ := configs.GetConfig()
-	allowedDir, _ := filepath.Abs(appConfig.ThemeConfig.ThemeDir)
-	if !strings.HasPrefix(absolutePath, allowedDir) {
-		logger.BizLogger(c).Errorf("security violation: %s outside theme directory", absolutePath)
+	// 安全检查：确保文件在主题目录内
+	absolutePath, _ := filepath.Abs(resourcePath)
+	themeAbsPath, _ := filepath.Abs(activeTheme.Path)
+	if !strings.HasPrefix(absolutePath, themeAbsPath) {
+		logger.BizLogger(c).Warnf("path traversal attempt: %s outside theme directory %s", absolutePath, themeAbsPath)
 		return "", fmt.Errorf("access denied")
 	}
 
-	// 文件存在性检查和 SPA 回退
+	// 检查文件是否存在
 	if _, err := os.Stat(absolutePath); os.IsNotExist(err) {
 		if !strings.Contains(cleanedPath, ".") {
-			logger.BizLogger(c).Infof("SPA route fallback: %s -> index.html", requestPath)
+			// SPA 路由回退到主页
 			return filepath.Join(activeTheme.Path, activeTheme.IndexFilePath), nil
 		}
 		logger.BizLogger(c).Warnf("resource not found: %s", cleanedPath)
 		return "", fmt.Errorf("resource not found")
 	}
 
-	logger.BizLogger(c).Infof("serving resource: %s", cleanedPath)
 	return absolutePath, nil
 }

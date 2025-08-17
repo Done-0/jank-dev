@@ -90,14 +90,14 @@ export function PluginsContent({ plugins, isLoading }: PluginsContentProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b">
-        <div className="relative max-w-md">
+      <div className="px-4 py-4 border-b">
+        <div className="relative flex-1 sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="搜索插件..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 rounded-full"
+            className="pl-9 h-10 rounded-full"
           />
         </div>
       </div>
