@@ -223,81 +223,58 @@ func (s *ThemeServiceImpl) ServeHomePage(c *app.RequestContext) (string, error) 
 
 // ServeStaticResource 获取静态资源文件路径逻辑
 func (s *ThemeServiceImpl) ServeStaticResource(c *app.RequestContext, requestPath string) (string, error) {
-	// 跳过API路径
+	// 跳过 API 路径
 	if strings.HasPrefix(requestPath, "/api/") {
 		logger.BizLogger(c).Warnf("API path serving attempted: %s", requestPath)
 		return "", fmt.Errorf("API paths are not served as static resources")
 	}
 
-	// 确定主题类型（考虑Referer头）
-	var themeType string
-	if strings.HasPrefix(requestPath, "/console") {
+	// 确定主题类型
+	themeType := consts.ThemeTypeFrontend
+	if strings.HasPrefix(requestPath, "/console") || strings.Contains(string(c.GetHeader("Referer")), "/console") {
 		themeType = consts.ThemeTypeConsole
-	} else {
-		// 检查 Refere r头，如果来自 console 页面，则使用 console 主题
-		referer := string(c.GetHeader("Referer"))
-		if strings.Contains(referer, "/console") {
-			themeType = consts.ThemeTypeConsole
-		} else {
-			themeType = consts.ThemeTypeFrontend
-		}
 	}
 
+	// 获取激活主题
 	activeTheme, err := theme.GlobalThemeManager.GetActiveThemeByType(themeType)
 	if err != nil {
 		logger.BizLogger(c).Errorf("failed to get active %s theme: %v", themeType, err)
 		return "", fmt.Errorf("failed to get active %s theme: %w", themeType, err)
 	}
 
-	// 路径安全验证
+	// 路径安全验证和清理
 	cleanedPath := filepath.Clean(strings.TrimPrefix(requestPath, "/"))
 	if strings.Contains(cleanedPath, "..") || strings.Contains(cleanedPath, "\\") {
 		logger.BizLogger(c).Errorf("path traversal attempt detected: %s", requestPath)
-		return "", fmt.Errorf("invalid file path: path traversal not allowed")
+		return "", fmt.Errorf("path traversal not allowed")
 	}
 
-	// 构建资源文件的完整路径
-	themeBuildDir := filepath.Dir(activeTheme.IndexFilePath)
-	themeBasePath := filepath.Join(activeTheme.Path, themeBuildDir)
-	resourcePath := filepath.Join(themeBasePath, cleanedPath)
-
-	absoluteResourcePath, err := filepath.Abs(resourcePath)
+	// 构建和验证资源路径
+	resourcePath := filepath.Join(activeTheme.Path, cleanedPath)
+	absolutePath, err := filepath.Abs(resourcePath)
 	if err != nil {
-		logger.BizLogger(c).Errorf("failed to resolve absolute path for resource: %v", err)
-		return "", fmt.Errorf("failed to resolve resource path")
+		logger.BizLogger(c).Errorf("failed to resolve resource path: %v", err)
+		return "", fmt.Errorf("invalid resource path")
 	}
 
 	// 安全边界检查
-	appConfig, err := configs.GetConfig()
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to load application config: %v", err)
-		return "", fmt.Errorf("failed to load configuration")
+	appConfig, _ := configs.GetConfig()
+	allowedDir, _ := filepath.Abs(appConfig.ThemeConfig.ThemeDir)
+	if !strings.HasPrefix(absolutePath, allowedDir) {
+		logger.BizLogger(c).Errorf("security violation: %s outside theme directory", absolutePath)
+		return "", fmt.Errorf("access denied")
 	}
 
-	allowedThemeDir, err := filepath.Abs(appConfig.ThemeConfig.ThemeDir)
-	if err != nil {
-		logger.BizLogger(c).Errorf("failed to resolve theme directory: %v", err)
-		return "", fmt.Errorf("failed to resolve theme directory")
-	}
-
-	if !strings.HasPrefix(absoluteResourcePath, allowedThemeDir) {
-		logger.BizLogger(c).Errorf("security violation: resource %s is outside theme directory", absoluteResourcePath)
-		return "", fmt.Errorf("access denied: resource outside allowed directory")
-	}
-
-	// 检查文件是否存在，处理SPA路由回退
-	if _, err := os.Stat(absoluteResourcePath); os.IsNotExist(err) {
-		// 判断是否为SPA路由（无文件扩展名）
-		isSPARoute := !strings.Contains(cleanedPath, ".")
-		if isSPARoute {
-			logger.BizLogger(c).Infof("SPA route detected: %s, serving index.html for %s theme", requestPath, themeType)
+	// 文件存在性检查和 SPA 回退
+	if _, err := os.Stat(absolutePath); os.IsNotExist(err) {
+		if !strings.Contains(cleanedPath, ".") {
+			logger.BizLogger(c).Infof("SPA route fallback: %s -> index.html", requestPath)
 			return filepath.Join(activeTheme.Path, activeTheme.IndexFilePath), nil
 		}
-
-		// 静态资源不存在
-		logger.BizLogger(c).Warnf("static resource not found: %s", absoluteResourcePath)
-		return "", fmt.Errorf("static resource not found: %s", cleanedPath)
+		logger.BizLogger(c).Warnf("resource not found: %s", cleanedPath)
+		return "", fmt.Errorf("resource not found")
 	}
 
-	return absoluteResourcePath, nil
+	logger.BizLogger(c).Infof("serving resource: %s", cleanedPath)
+	return absolutePath, nil
 }

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Search, MoreHorizontal, Play, Square, Settings, AlertCircle } from 'lucide-react';
 import { useInstallPlugin, useUninstallPlugin } from '@/hooks/use-plugins';
@@ -197,79 +197,91 @@ export function PluginsContent({ plugins, isLoading }: PluginsContentProps) {
 
       {/* Plugin Config Dialog */}
       <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader className="pb-4">
-            <DialogTitle className="text-lg font-semibold mb-2">{selectedPlugin?.name}</DialogTitle>
-            {/* Meta Info */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-mono bg-muted/50 px-2 py-0.5 rounded">
-                v{selectedPlugin?.version}
-              </span>
-              <Badge variant={getTypeBadge(selectedPlugin?.type || '').variant} className="text-xs">
-                {getTypeBadge(selectedPlugin?.type || '').label}
-              </Badge>
-              <Badge variant={getStatusBadge(selectedPlugin?.status || '').variant} className="text-xs">
-                {getStatusBadge(selectedPlugin?.status || '').label}
-              </Badge>
+        <DialogContent className="w-[95vw] max-w-md max-h-[85vh] overflow-hidden rounded-2xl">
+          {/* Header */}
+          <div className="px-4 py-3">
+            <DialogTitle className="text-xl font-bold mb-2">{selectedPlugin?.name}</DialogTitle>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <span>v{selectedPlugin?.version}</span>
+              {selectedPlugin?.author && <span>by {selectedPlugin.author}</span>}
+              {selectedPlugin?.status === 'running' && (
+                <div className="flex items-center gap-1 text-green-600 font-medium">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>运行中</span>
+                </div>
+              )}
             </div>
-          </DialogHeader>
-          
-          <div className="space-y-4">
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto px-4">
             {/* Description */}
             {selectedPlugin?.description && (
-              <div className="bg-muted/30 p-3 rounded-lg -mt-2">
-                <p className="text-sm leading-relaxed text-foreground/80">
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {selectedPlugin.description}
                 </p>
               </div>
             )}
 
-            {/* Details */}
-            <div className="space-y-3">
-              {selectedPlugin?.author && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">作者</span>
-                  <span className="text-sm font-medium">{selectedPlugin.author}</span>
-                </div>
-              )}
-              
+            {/* Info List */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground/70">类型</span>
+                <Badge variant={getTypeBadge(selectedPlugin?.type || '').variant} className="text-xs">
+                  {getTypeBadge(selectedPlugin?.type || '').label}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground/70">状态</span>
+                <Badge variant={getStatusBadge(selectedPlugin?.status || '').variant} className="text-xs">
+                  {getStatusBadge(selectedPlugin?.status || '').label}
+                </Badge>
+              </div>
+
               {selectedPlugin?.repository && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">仓库</span>
+                <div className="flex items-start justify-between gap-4">
+                  <span className="text-sm font-medium text-foreground/70 flex-shrink-0">仓库</span>
                   <a 
-                    href={selectedPlugin.repository}
-                    target="_blank"
+                    href={selectedPlugin.repository} 
+                    target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 underline hover:text-blue-800 font-medium truncate max-w-48"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline text-right break-all"
                   >
-                    {selectedPlugin.repository.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                    {selectedPlugin.repository.replace(/^https?:\/\//, '')}
                   </a>
                 </div>
               )}
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">自动启动</span>
-                <span className="text-sm font-medium">{selectedPlugin?.auto_start ? '启用' : '禁用'}</span>
+                <span className="text-sm font-medium text-foreground/70">自动启动</span>
+                <span className="text-sm text-muted-foreground">
+                  {selectedPlugin?.auto_start ? '启用' : '禁用'}
+                </span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">插件 ID</span>
-                <code className="text-xs bg-muted px-2.5 py-1 rounded font-mono border">
+              <div className="flex items-start justify-between gap-4">
+                <span className="text-sm font-medium text-foreground/70 flex-shrink-0">插件 ID</span>
+                <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-right break-all">
                   {selectedPlugin?.id}
                 </code>
               </div>
             </div>
           </div>
 
-          <DialogFooter className="pt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setConfigDialogOpen(false)}
-              className="w-full"
-            >
-              关闭
-            </Button>
-          </DialogFooter>
+          {/* Footer */}
+          <div className="px-4 py-3">
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setConfigDialogOpen(false)}
+                className="flex-1"
+              >
+                关闭
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

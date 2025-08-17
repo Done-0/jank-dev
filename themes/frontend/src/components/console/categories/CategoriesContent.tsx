@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Search, Plus, Edit, Trash2, Eye, EyeOff, MoreHorizontal, FolderOpen } from 'lucide-react';
@@ -258,46 +258,46 @@ export function CategoriesContent({ categories, isLoading }: CategoriesContentPr
 
       {/* 创建分类弹窗 */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-2xl">
-          <DialogHeader className="text-center">
-            <DialogTitle className="text-xl font-semibold">创建新分类</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-2">为你的内容添加一个新的分类标签</p>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">分类名称</label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="输入分类名称"
-                className="h-10 rounded-xl"
-                autoFocus
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">分类描述</label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="简要描述这个分类的用途（可选）"
-                className="rounded-xl resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <DialogContent className="w-[95vw] max-w-md max-h-[85vh] overflow-hidden rounded-2xl">
+          {/* Header */}
+          <div className="px-4 py-3">
+            <DialogTitle className="text-xl font-bold mb-2">创建新分类</DialogTitle>
+            <p className="text-sm text-muted-foreground">为你的内容添加一个新的分类标签</p>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto px-4">
+            <div className="space-y-4 mb-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">父分类</label>
+                <label className="text-sm font-medium text-foreground/70">分类名称</label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="输入分类名称"
+                  className="h-10"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">分类描述</label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="简要描述这个分类的用途（可选）"
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">父分类</label>
                 <Select value={formData.parent_id} onValueChange={(value) => setFormData(prev => ({ ...prev, parent_id: value }))}>
-                  <SelectTrigger className="h-10 rounded-xl">
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="选择父分类" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="none">
-                      顶级分类
-                    </SelectItem>
+                  <SelectContent>
+                    <SelectItem value="none">顶级分类</SelectItem>
                     {categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -308,76 +308,83 @@ export function CategoriesContent({ categories, isLoading }: CategoriesContentPr
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">排序权重</label>
+                <label className="text-sm font-medium text-foreground/70">排序权重</label>
                 <Input
                   type="number"
                   value={formData.sort}
                   onChange={(e) => setFormData(prev => ({ ...prev, sort: parseInt(e.target.value) || 0 }))}
                   placeholder="0"
-                  className="h-10 rounded-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-10"
                   min="0"
                 />
               </div>
             </div>
           </div>
-          
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)} className="rounded-xl">
-              取消
-            </Button>
-            <Button 
-              onClick={handleCreateSubmit}
-              disabled={!formData.name.trim() || createCategoryMutation.isPending}
-              className="rounded-xl"
-            >
-              {createCategoryMutation.isPending ? "创建中..." : "创建分类"}
-            </Button>
-          </DialogFooter>
+
+          {/* Footer */}
+          <div className="px-4 py-3">
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setCreateDialogOpen(false)}
+                className="flex-1"
+              >
+                取消
+              </Button>
+              <Button 
+                onClick={handleCreateSubmit}
+                disabled={!formData.name.trim() || createCategoryMutation.isPending}
+                className="flex-1"
+              >
+                {createCategoryMutation.isPending ? "创建中..." : "创建分类"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* 编辑分类弹窗 */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-2xl">
-          <DialogHeader className="text-center">
-            <DialogTitle className="text-xl font-semibold">编辑分类</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-2">修改 &ldquo;{editingCategory?.name}&rdquo; 的信息</p>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">分类名称</label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="输入分类名称"
-                className="h-10 rounded-xl"
-                autoFocus
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">分类描述</label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="简要描述这个分类的用途（可选）"
-                className="rounded-xl resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <DialogContent className="w-[95vw] max-w-md max-h-[85vh] overflow-hidden rounded-2xl">
+          {/* Header */}
+          <div className="px-4 py-3">
+            <DialogTitle className="text-xl font-bold mb-2">编辑分类</DialogTitle>
+            <p className="text-sm text-muted-foreground">修改 &ldquo;{editingCategory?.name}&rdquo; 的信息</p>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto px-4">
+            <div className="space-y-4 mb-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">父分类</label>
+                <label className="text-sm font-medium text-foreground/70">分类名称</label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="输入分类名称"
+                  className="h-10"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">分类描述</label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="简要描述这个分类的用途（可选）"
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">父分类</label>
                 <Select value={formData.parent_id} onValueChange={(value) => setFormData(prev => ({ ...prev, parent_id: value }))}>
-                  <SelectTrigger className="h-10 rounded-xl">
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="选择父分类" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="none">
-                      顶级分类
-                    </SelectItem>
+                  <SelectContent>
+                    <SelectItem value="none">顶级分类</SelectItem>
                     {categories.filter(cat => cat.id !== editingCategory?.id).map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -388,39 +395,42 @@ export function CategoriesContent({ categories, isLoading }: CategoriesContentPr
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">排序权重</label>
+                <label className="text-sm font-medium text-foreground/70">排序权重</label>
                 <Input
                   type="number"
                   value={formData.sort}
                   onChange={(e) => setFormData(prev => ({ ...prev, sort: parseInt(e.target.value) || 0 }))}
                   placeholder="0"
-                  className="h-10 rounded-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-10"
                   min="0"
                 />
               </div>
             </div>
           </div>
-          
-          <DialogFooter className="gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setEditDialogOpen(false);
-                setEditingCategory(null);
-                setFormData({ name: '', description: '', parent_id: 'none', sort: 0 });
-              }}
-              className="rounded-xl"
-            >
-              取消
-            </Button>
-            <Button 
-              onClick={handleEditSubmit}
-              disabled={!formData.name.trim() || updateCategoryMutation.isPending}
-              className="rounded-xl"
-            >
-              {updateCategoryMutation.isPending ? "更新中..." : "保存更改"}
-            </Button>
-          </DialogFooter>
+
+          {/* Footer */}
+          <div className="px-4 py-3">
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setEditDialogOpen(false);
+                  setEditingCategory(null);
+                  setFormData({ name: '', description: '', parent_id: 'none', sort: 0 });
+                }}
+                className="flex-1"
+              >
+                取消
+              </Button>
+              <Button 
+                onClick={handleEditSubmit}
+                disabled={!formData.name.trim() || updateCategoryMutation.isPending}
+                className="flex-1"
+              >
+                {updateCategoryMutation.isPending ? "保存中..." : "保存更改"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
