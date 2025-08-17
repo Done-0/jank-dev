@@ -41,13 +41,13 @@ func NewPluginController(pluginService service.PluginService) *PluginController 
 func (pc *PluginController) RegisterPlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.RegisterPluginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -65,13 +65,13 @@ func (pc *PluginController) RegisterPlugin(ctx context.Context, c *app.RequestCo
 func (pc *PluginController) UnregisterPlugin(ctx context.Context, c *app.RequestContext) {
 	req := new(dto.UnregisterPluginRequest)
 	if err := c.BindJSON(req); err != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, err, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "bind JSON failed"), errorx.KV("msg", "bind JSON failed"))))
 		return
 	}
 
 	errors := validator.Validate(req)
 	if errors != nil {
-		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrPluginParamInvalid, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
+		c.JSON(consts.StatusBadRequest, vo.Fail(c, errors, errorx.New(errno.ErrInvalidParams, errorx.KV("msg", "validation failed"), errorx.KV("msg", "validation failed"))))
 		return
 	}
 
@@ -101,7 +101,7 @@ func (pc *PluginController) ExecutePlugin(ctx context.Context, c *app.RequestCon
 
 	response, err := pc.pluginService.ExecutePlugin(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "execute plugin failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrExecutePluginFailed, errorx.KV("msg", "execute plugin failed"))))
 		return
 	}
 
@@ -149,7 +149,7 @@ func (pc *PluginController) ListPlugins(ctx context.Context, c *app.RequestConte
 
 	response, err := pc.pluginService.ListPlugins(c, req)
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrInternalServer, errorx.KV("msg", "list plugins failed"))))
+		c.JSON(consts.StatusInternalServerError, vo.Fail(c, err, errorx.New(errno.ErrListPluginsFailed, errorx.KV("msg", "list plugins failed"))))
 		return
 	}
 

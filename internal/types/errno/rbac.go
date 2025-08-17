@@ -7,7 +7,7 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// RBAC模块错误码: 40000 ~ 49999
+// RBAC模块错误码: 50000 ~ 59999
 const (
 	ErrUserRoleNotFound = 50001 // 用户角色不存在
 )

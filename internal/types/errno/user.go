@@ -7,15 +7,15 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// 用户模块错误码: 50000 ~ 59999
+// 用户模块错误码: 60000 ~ 69999
 const (
-	ErrUserRegisterFailed      = 20001 // 注册失败
-	ErrUserLoginFailed         = 20002 // 登录失败
-	ErrUserLogoutFailed        = 20003 // 登出失败
-	ErrUserGetProfileFailed    = 20004 // 获取用户资料失败
-	ErrUserResetPasswordFailed = 20005 // 重置密码失败
-	ErrUserListFailed          = 20006 // 获取用户列表失败
-	ErrUserRefreshTokenFailed  = 20007 // 刷新 token 失败
+	ErrUserRegisterFailed      = 60001 // 注册失败
+	ErrUserLoginFailed         = 60002 // 登录失败
+	ErrUserLogoutFailed        = 60003 // 登出失败
+	ErrUserGetProfileFailed    = 60004 // 获取用户资料失败
+	ErrUserResetPasswordFailed = 60005 // 重置密码失败
+	ErrUserListFailed          = 60006 // 获取用户列表失败
+	ErrUserRefreshTokenFailed  = 60007 // 刷新 token 失败
 )
 
 func init() {

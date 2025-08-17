@@ -10,14 +10,16 @@ import (
 // 插件模块错误码: 20000 ~ 29999
 const (
 	ErrPluginNotFound         = 20001 // 插件不存在
-	ErrPluginParamInvalid     = 20002 // 插件参数无效
-	ErrPluginRegisterFailed   = 20003 // 插件注册失败
-	ErrPluginUnregisterFailed = 20004 // 插件注销失败
+	ErrPluginRegisterFailed   = 20002 // 插件注册失败
+	ErrPluginUnregisterFailed = 20003 // 插件注销失败
+	ErrExecutePluginFailed    = 20004 // 执行插件失败
+	ErrListPluginsFailed      = 20005 // 列举插件失败
 )
 
 func init() {
 	code.Register(ErrPluginNotFound, "plugin not found: {plugin_id}")
-	code.Register(ErrPluginParamInvalid, "invalid plugin parameter: {msg}")
 	code.Register(ErrPluginRegisterFailed, "failed to register plugin: {plugin_id}")
 	code.Register(ErrPluginUnregisterFailed, "failed to unregister plugin: {plugin_id}")
+	code.Register(ErrExecutePluginFailed, "failed to execute plugin: {msg}")
+	code.Register(ErrListPluginsFailed, "failed to list plugins: {msg}")
 }

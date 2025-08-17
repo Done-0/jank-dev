@@ -7,13 +7,13 @@ import (
 	"github.com/Done-0/jank/internal/utils/errorx/code"
 )
 
-// 分类模块错误码: 60000 ~ 69999
+// 分类模块错误码: 70000 ~ 79999
 const (
-	ErrCategoryCreateFailed = 60001 // 创建分类失败
-	ErrCategoryGetFailed    = 60002 // 获取分类失败
-	ErrCategoryUpdateFailed = 60003 // 更新分类失败
-	ErrCategoryDeleteFailed = 60004 // 删除分类失败
-	ErrCategoryListFailed   = 60005 // 获取分类列表失败
+	ErrCategoryCreateFailed = 70001 // 创建分类失败
+	ErrCategoryGetFailed    = 70002 // 获取分类失败
+	ErrCategoryUpdateFailed = 70003 // 更新分类失败
+	ErrCategoryDeleteFailed = 70004 // 删除分类失败
+	ErrCategoryListFailed   = 70005 // 获取分类列表失败
 )
 
 func init() {
