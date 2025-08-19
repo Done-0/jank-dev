@@ -135,9 +135,12 @@ class RbacService {
 
   // 获取用户角色
   async getUserRoles(request: GetUserRolesRequest): Promise<UserRolesResponse> {
+    const backendParams = {
+      user_id: request.user_id
+    };
     const response = await apiClient.get<ApiResponse<UserRolesResponse>>(
       RBAC_ENDPOINTS.GET_USER_ROLES,
-      { params: request }
+      { params: backendParams }
     );
     return response.data.data!;
   }

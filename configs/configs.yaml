@@ -80,7 +80,7 @@ THEME:
   
   # Frontend 主题配置（用户前端）
   FRONTEND_DEFAULT_THEME: "com.jank.themes.default" # Frontend 默认主题 ID
-  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.default" # Frontend 上次激活的主题 ID
+  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.moon" # Frontend 上次激活的主题 ID
   
   # Console 主题配置（管理后台）
   CONSOLE_DEFAULT_THEME: "com.jank.themes.admin-console" # Console 默认主题 ID

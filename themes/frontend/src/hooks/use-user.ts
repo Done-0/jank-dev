@@ -17,7 +17,7 @@ import type {
   UpdateUserRoleResponse,
 } from '@/types';
 
-// Query Keys - 使用项目 constants
+// Query Keys
 export const userKeys = {
   all: [QUERY_KEYS.CURRENT_USER] as const,
   profile: () => [...userKeys.all, 'profile'] as const,

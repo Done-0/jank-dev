@@ -7,7 +7,7 @@ import * as React from "react";
 import { useHasPermission } from "@/hooks/use-rbac";
 
 // ===== 类型定义 =====
-type RbacAction = "*" | "GET" | "POST" | "PUT" | "DELETE" | "access";
+import type { RbacAction } from "@/constants/rbac";
 
 // ===== 接口定义 =====
 interface PermissionGuardProps {

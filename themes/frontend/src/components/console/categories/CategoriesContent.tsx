@@ -152,23 +152,19 @@ export function CategoriesContent({ categories, isLoading }: CategoriesContentPr
       {/* 分类列表区域 */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         {filteredCategories.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
+          <div className="flex-1 overflow-auto p-4">
+            <div className="text-center py-12 border-2 border-dashed border-muted-foreground/30 rounded-lg">
               {searchQuery ? (
                 <>
-                  <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">未找到匹配的分类</h3>
-                  <p className="text-muted-foreground mb-4">尝试使用其他关键词搜索</p>
+                  <p className="text-muted-foreground">尝试使用其他关键词搜索</p>
                 </>
               ) : (
                 <>
-                  <FolderOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">暂无分类</h3>
-                  <p className="text-muted-foreground mb-4">创建第一个分类来开始管理内容</p>
-                  <Button onClick={handleNewCategory} className="rounded-full">
-                    <Plus className="w-4 h-4 mr-2" />
-                    新建分类
-                  </Button>
+                  <p className="text-muted-foreground">创建第一个分类来开始管理内容</p>
                 </>
               )}
             </div>

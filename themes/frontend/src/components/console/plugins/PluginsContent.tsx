@@ -105,11 +105,16 @@ export function PluginsContent({ plugins, isLoading }: PluginsContentProps) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hidden">
         {filteredPlugins.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {searchQuery ? '未找到匹配的插件' : '暂无插件'}
-            </p>
+          <div className="p-4">
+            <div className="text-center py-12 border-2 border-dashed border-muted-foreground/30 rounded-lg">
+              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">
+                {searchQuery ? '未找到匹配的插件' : '暂无插件'}
+              </h3>
+              <p className="text-muted-foreground">
+                {searchQuery ? '尝试使用其他关键词搜索' : '还没有安装任何插件'}
+              </p>
+            </div>
           </div>
         ) : (
           <div className="divide-y">

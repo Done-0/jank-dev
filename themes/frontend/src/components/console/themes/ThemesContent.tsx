@@ -132,11 +132,16 @@ export function ThemesContent({ themes, isLoading }: ThemesContentProps) {
       {/* Content */}
       <div className="flex-1 scrollbar-hover">
         {filteredThemes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {searchQuery ? '未找到匹配的主题' : '暂无主题'}
-            </p>
+          <div className="p-4">
+            <div className="text-center py-12 border-2 border-dashed border-muted-foreground/30 rounded-lg">
+              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">
+                {searchQuery ? '未找到匹配的主题' : '暂无主题'}
+              </h3>
+              <p className="text-muted-foreground">
+                {searchQuery ? '尝试使用其他关键词搜索' : '还没有安装任何主题'}
+              </p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">

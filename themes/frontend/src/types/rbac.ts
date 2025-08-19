@@ -45,6 +45,12 @@ export interface CreateRoleRequest {
   action: RbacAction; // 操作方法
 }
 
+// CreateRoleOnlyRequest 仅创建角色请求（不包含权限）
+export interface CreateRoleOnlyRequest {
+  name: string; // 角色名称
+  description?: string; // 角色描述（可选）
+}
+
 // DeleteRoleRequest 删除角色请求
 export interface DeleteRoleRequest {
   role: string; // 角色名称
@@ -57,7 +63,7 @@ export interface GetRolePermissionsRequest {
 
 // AssignRoleRequest 为用户分配角色请求
 export interface AssignRoleRequest {
-  user_id: string; // 用户 ID
+  user_id: string; // 用户 ID (前端使用下划线格式)
   role: string; // 角色名称
 }
 

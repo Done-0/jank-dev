@@ -348,18 +348,18 @@ export function PostsContent({
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center px-4 lg:px-5 py-8">
-            <div className="text-center py-8 sm:py-12 max-w-md mx-auto">
-              <FileText className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mb-3 sm:mb-4" />
-              <h3 className="text-base sm:text-lg font-medium text-muted-foreground mb-2">暂无文章</h3>
-              <p className="text-sm text-muted-foreground mb-3 sm:mb-4 leading-relaxed">
+          <div className="flex-1 overflow-auto p-4">
+            <div className="text-center py-12 border-2 border-dashed border-muted-foreground/30 rounded-lg">
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">暂无文章</h3>
+              <p className="text-muted-foreground mb-4">
                 {selectedStatus === null ? '暂无任何文章内容' :
-                  selectedCategory ? `在“${getCategoryName(selectedCategory)}”分类下暂无${selectedStatus === 'published' ? '已发布' : selectedStatus === 'draft' ? '草稿' : '已归档'}文章` :
-                  searchQuery ? `未找到包含“${searchQuery}”的文章` :
+                  selectedCategory ? `在"${getCategoryName(selectedCategory)}"分类下暂无${selectedStatus === 'published' ? '已发布' : selectedStatus === 'draft' ? '草稿' : '已归档'}文章` :
+                  searchQuery ? `未找到包含"${searchQuery}"的文章` :
                   `暂无${selectedStatus === 'published' ? '已发布' : selectedStatus === 'draft' ? '草稿' : '已归档'}文章`}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground/80">
-                <span className="hidden sm:inline">点击上方“新建文章”按钮开始创作</span>
+              <p className="text-sm text-muted-foreground">
+                <span className="hidden sm:inline">点击上方&ldquo;新建文章&rdquo;按钮开始创作</span>
                 <span className="sm:hidden">点击上方按钮开始创作</span>
               </p>
             </div>

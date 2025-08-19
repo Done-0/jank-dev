@@ -1,5 +1,11 @@
 /**
  * 用户认证相关类型
+ * 
+ * 支持主流最佳实践：
+ * - 多角色支持
+ * - 角色层级和权限继承
+ * - 细粒度角色操作（添加/移除/批量更新）
+ * - 基于角色的权限计算和检查
  */
 
 // ===== 请求类型 (Request) =====
@@ -48,6 +54,24 @@ export interface ListUsersRequest {
 export interface UpdateUserRoleRequest {
   id: string; // 目标用户 ID
   role: string; // 新角色
+}
+
+// AddUserRoleRequest 为用户添加角色请求
+export interface AddUserRoleRequest {
+  id: string; // 目标用户 ID
+  role: string; // 要添加的角色
+}
+
+// RemoveUserRoleRequest 移除用户角色请求
+export interface RemoveUserRoleRequest {
+  id: string; // 目标用户 ID
+  role: string; // 要移除的角色
+}
+
+// BatchUpdateUserRolesRequest 批量更新用户角色请求
+export interface BatchUpdateUserRolesRequest {
+  id: string; // 目标用户 ID
+  roles: string[]; // 新的角色列表（完全替换）
 }
 
 // ===== 响应类型 (Response) =====
@@ -118,6 +142,17 @@ export interface UpdateUserRoleResponse {
   message: string; // 操作结果消息
 }
 
+// UserRoleOperationResponse 用户角色操作响应（通用）
+export interface UserRoleOperationResponse {
+  id: string; // 用户 ID
+  email: string; // 用户邮箱
+  nickname: string; // 用户昵称
+  roles: string[]; // 更新后的角色列表
+  operation: 'add' | 'remove' | 'update' | 'batch_update'; // 操作类型
+  affected_role?: string; // 受影响的角色（单个操作时）
+  message: string; // 操作结果消息
+}
+
 // ListUsersResponse 用户列表响应
 export interface ListUsersResponse {
   total: number; // 总数量
@@ -133,4 +168,30 @@ export interface UserState {
   user: GetProfileResponse | null; // 当前用户信息
   isAuthenticated: boolean; // 是否已认证
   loading: boolean; // 加载状态
+}
+
+// ===== 角色权限相关类型 =====
+
+// RoleHierarchy 角色层级定义
+export interface RoleHierarchy {
+  role: string; // 角色名称
+  level: number; // 角色级别（数字越大权限越高）
+  inherits?: string[]; // 继承的角色列表
+  permissions: string[]; // 直接权限列表
+  description: string; // 角色描述
+}
+
+// UserPermissions 用户权限信息
+export interface UserPermissions {
+  roles: string[]; // 用户角色列表
+  permissions: string[]; // 用户所有权限（基于角色计算）
+  computed_at: string; // 权限计算时间
+}
+
+// PermissionCheck 权限检查结果
+export interface PermissionCheck {
+  permission: string; // 被检查的权限
+  granted: boolean; // 是否授予
+  source_roles: string[]; // 授予该权限的角色列表
+  reason?: string; // 拒绝原因（如果被拒绝）
 }
