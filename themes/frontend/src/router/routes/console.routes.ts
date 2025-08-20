@@ -8,7 +8,6 @@ import { ConsoleThemesPage } from "@/pages/console/ConsoleThemesPage";
 import { ConsolePluginsPage } from "@/pages/console/ConsolePluginsPage";
 import { ConsolePostsPage } from "@/pages/console/ConsolePostsPage";
 import { ConsoleCategoriesPage } from "@/pages/console/ConsoleCategoriesPage";
-import { ConsoleSystemPage } from "@/pages/console/ConsoleSystemPage";
 
 export const createConsoleRoutes = (rootRoute: any) => {
   return [
@@ -57,13 +56,6 @@ export const createConsoleRoutes = (rootRoute: any) => {
       requireConsoleAccess: true,
       resource: '/api/categories/*',
       action: RBAC_ACTION.GET,
-    }),
-
-    // 系统设置页面 - 需要系统管理权限
-    createRbacGuardedRoute(rootRoute, CONSOLE_ROUTES.SYSTEM, ConsoleSystemPage, {
-      requireConsoleAccess: true,
-      resource: '/api/system/*',
-      action: RBAC_ACTION.GET,
-    }),
+    })
   ];
 };

@@ -15,7 +15,7 @@ APP:
     EMAIL_SMTP: "swmzwqvipogsbegd" # SMTP 授权码
   # JWT 认证相关
   JWT:
-    SECRET: "jank-blog-jwt-secret-key" # JWT 签名密钥
+    SECRET: "jank-jwt-secret-key" # JWT 签名密钥
     EXPIRE_TIME: 2 # Token 有效期（小时）
     REFRESH_EXPIRE: 48 # 刷新Token有效期（小时）
   # 用户角色相关
@@ -80,7 +80,7 @@ THEME:
   
   # Frontend 主题配置（用户前端）
   FRONTEND_DEFAULT_THEME: "com.jank.themes.default" # Frontend 默认主题 ID
-  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.moon" # Frontend 上次激活的主题 ID
+  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.default" # Frontend 上次激活的主题 ID
   
   # Console 主题配置（管理后台）
   CONSOLE_DEFAULT_THEME: "com.jank.themes.admin-console" # Console 默认主题 ID

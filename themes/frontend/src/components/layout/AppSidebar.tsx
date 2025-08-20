@@ -2,7 +2,7 @@
  * 侧边栏组件
  */
 
-import { LayoutDashboard, Users, Shield, Palette, Puzzle, FileText, FolderOpen, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Shield, Palette, Puzzle, FileText, FolderOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import {
@@ -92,13 +92,7 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
           label: "插件",
           icon: Puzzle,
           route: CONSOLE_ROUTES.PLUGINS,
-        },
-        {
-          id: CONSOLE_ROUTES.SYSTEM,
-          label: "设置",
-          icon: Settings,
-          route: CONSOLE_ROUTES.SYSTEM,
-        },
+        }
       ],
     },
   ] as const;

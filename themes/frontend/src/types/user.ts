@@ -56,6 +56,19 @@ export interface UpdateUserRoleRequest {
   role: string; // 新角色
 }
 
+// AdminUpdateUserRequest 管理员更新用户信息请求
+export interface AdminUpdateUserRequest {
+  id: string; // 目标用户 ID
+  nickname?: string; // 昵称
+  avatar?: string; // 头像
+  email?: string; // 邮箱
+}
+
+// DeleteUserRequest 删除用户请求
+export interface DeleteUserRequest {
+  id: string; // 目标用户 ID
+}
+
 // AddUserRoleRequest 为用户添加角色请求
 export interface AddUserRoleRequest {
   id: string; // 目标用户 ID

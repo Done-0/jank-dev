@@ -131,6 +131,7 @@ class UserService {
     );
     return response.data.data!;
   }
+
 }
 
 export const userService = new UserService();

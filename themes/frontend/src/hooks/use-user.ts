@@ -82,8 +82,14 @@ export function useUpdateUserRole(
   return useMutation({
     mutationFn: (data: UpdateUserRoleRequest) => userService.updateUserRole(data),
     onSuccess: () => {
+      // 失效用户列表缓存
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      // 失效所有用户相关查询
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      // 失效RBAC相关缓存，因为角色变更会影响权限
+      queryClient.invalidateQueries({ queryKey: ['rbac'] });
     },
     ...options,
   });
 }
+
