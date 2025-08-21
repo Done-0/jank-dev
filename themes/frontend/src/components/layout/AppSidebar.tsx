@@ -2,7 +2,15 @@
  * 侧边栏组件
  */
 
-import { LayoutDashboard, Users, Shield, Palette, Puzzle, FileText, FolderOpen } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Shield,
+  Palette,
+  Puzzle,
+  FileText,
+  FolderOpen,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import {
@@ -92,7 +100,7 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
           label: "插件",
           icon: Puzzle,
           route: CONSOLE_ROUTES.PLUGINS,
-        }
+        },
       ],
     },
   ] as const;
@@ -116,7 +124,9 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Jank</span>
-                  <span className="truncate text-xs text-muted-foreground">管理控制台</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    管理控制台
+                  </span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -127,9 +137,7 @@ export function AppSidebar({ activeTab, user, onLogout }: AppSidebarProps) {
       <SidebarContent>
         {menuGroups.map((group, groupIndex) => (
           <SidebarGroup key={group.label} className="py-0">
-            {groupIndex > 0 && (
-              <div className="mx-3 my-1 h-px bg-border/30" />
-            )}
+            {groupIndex > 0 && <div className="mx-3 my-1 h-px bg-border/30" />}
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
                 {group.items.map((item) => {

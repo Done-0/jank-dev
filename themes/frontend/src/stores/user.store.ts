@@ -34,7 +34,7 @@ export const useUserStore = create<UserStoreState>()(
       // 设置用户信息
       setUser: (user: GetProfileResponse | null) => {
         set({ user });
-        
+
         if (user) {
           localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(user));
         } else {
@@ -63,10 +63,10 @@ export const useUserStore = create<UserStoreState>()(
       // 清理用户信息
       clearUser: () => {
         set({ user: null, loading: false });
-        
+
         // 清理 localStorage 中的用户信息
         localStorage.removeItem(STORAGE_KEYS.USER_INFO);
-        
+
         // 清理 Zustand 持久化存储
         localStorage.removeItem(STORAGE_KEYS.USER_STORE);
       },

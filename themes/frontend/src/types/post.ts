@@ -2,7 +2,7 @@
  * 文章相关类型定义
  */
 
-import type { PostStatus } from '@/constants/post';
+import type { PostStatus } from "@/constants/post";
 
 // ===== 请求类型 (Request) =====
 

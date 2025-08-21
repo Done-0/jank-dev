@@ -3,15 +3,10 @@
  */
 
 import { useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, FileText, Palette, Plug } from 'lucide-react';
+import { Users, FileText, Palette, Plug } from "lucide-react";
 
 import type { UserItem } from "@/types/user";
 
@@ -28,45 +23,51 @@ export default function DashboardContent({
   allPosts,
   allThemes,
   allPlugins,
-  isLoading
+  isLoading,
 }: DashboardContentProps) {
   // ===== 统计数据计算 =====
   const stats = useMemo(() => {
     const totalUsers = allUsers.length;
-    
+
     // 动态统计角色分布，不使用硬编码
     const roleDistribution: Record<string, number> = {};
-    allUsers.forEach(user => {
-      user.roles.forEach(role => {
+    allUsers.forEach((user) => {
+      user.roles.forEach((role) => {
         roleDistribution[role] = (roleDistribution[role] || 0) + 1;
       });
     });
-    
+
     // 获取最常见的角色作为显示
     const topRoles = Object.entries(roleDistribution)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 2);
-    
+
     const [primaryRole, secondaryRole] = topRoles;
 
     const totalPosts = allPosts.length;
-    const publishedPosts = allPosts.filter(post => post.status === 'published').length;
-    const draftPosts = allPosts.filter(post => post.status === 'draft').length;
-    const archivedPosts = allPosts.filter(post => post.status === 'archived').length;
-
-
+    const publishedPosts = allPosts.filter(
+      (post) => post.status === "published"
+    ).length;
+    const draftPosts = allPosts.filter(
+      (post) => post.status === "draft"
+    ).length;
+    const archivedPosts = allPosts.filter(
+      (post) => post.status === "archived"
+    ).length;
 
     const totalThemes = allThemes.length;
-    const activeThemes = allThemes.filter(theme => theme.is_active).length;
+    const activeThemes = allThemes.filter((theme) => theme.is_active).length;
 
     const totalPlugins = allPlugins.length;
-    const activePlugins = allPlugins.filter(plugin => plugin.is_active).length;
+    const activePlugins = allPlugins.filter(
+      (plugin) => plugin.is_active
+    ).length;
 
     return {
       totalUsers,
-      primaryRoleName: primaryRole?.[0] || '暂无角色',
+      primaryRoleName: primaryRole?.[0] || "暂无角色",
       primaryRoleCount: primaryRole?.[1] || 0,
-      secondaryRoleName: secondaryRole?.[0] || '暂无角色',
+      secondaryRoleName: secondaryRole?.[0] || "暂无角色",
       secondaryRoleCount: secondaryRole?.[1] || 0,
       totalPosts,
       publishedPosts,
@@ -88,7 +89,7 @@ export default function DashboardContent({
           <p className="text-muted-foreground">系统数据概览</p>
         </div>
         <Separator />
-        
+
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
@@ -103,7 +104,7 @@ export default function DashboardContent({
             </Card>
           ))}
         </div>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
           {Array.from({ length: 2 }).map((_, i) => (
             <Card key={i}>
@@ -141,7 +142,8 @@ export default function DashboardContent({
             <div className="text-2xl font-bold">{stats.totalUsers}</div>
             <p className="text-xs text-muted-foreground">
               {stats.primaryRoleCount} {stats.primaryRoleName}
-              {stats.secondaryRoleCount > 0 && ` · ${stats.secondaryRoleCount} ${stats.secondaryRoleName}`}
+              {stats.secondaryRoleCount > 0 &&
+                ` · ${stats.secondaryRoleCount} ${stats.secondaryRoleName}`}
             </p>
           </CardContent>
         </Card>
@@ -200,12 +202,16 @@ export default function DashboardContent({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">{stats.primaryRoleName}</span>
-                <span className="text-sm font-medium">{stats.primaryRoleCount}</span>
+                <span className="text-sm font-medium">
+                  {stats.primaryRoleCount}
+                </span>
               </div>
               {stats.secondaryRoleCount > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm">{stats.secondaryRoleName}</span>
-                  <span className="text-sm font-medium">{stats.secondaryRoleCount}</span>
+                  <span className="text-sm font-medium">
+                    {stats.secondaryRoleCount}
+                  </span>
                 </div>
               )}
             </div>
@@ -221,7 +227,9 @@ export default function DashboardContent({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">已发布</span>
-                <span className="text-sm font-medium">{stats.publishedPosts}</span>
+                <span className="text-sm font-medium">
+                  {stats.publishedPosts}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">草稿</span>
@@ -229,7 +237,9 @@ export default function DashboardContent({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">已归档</span>
-                <span className="text-sm font-medium">{stats.archivedPosts}</span>
+                <span className="text-sm font-medium">
+                  {stats.archivedPosts}
+                </span>
               </div>
             </div>
           </CardContent>

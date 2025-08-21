@@ -36,16 +36,16 @@ class UserService {
     );
     const loginData = response.data.data!;
     useAuthStore.getState().login(loginData);
-    
+
     try {
       const userProfile = await this.getProfile();
       useUserStore.getState().setUser(userProfile);
     } catch (error) {
-      console.error('Failed to fetch user profile after login:', error);
+      console.error("Failed to fetch user profile after login:", error);
       useAuthStore.getState().logout();
       throw error;
     }
-    
+
     return loginData;
   }
 
@@ -60,19 +60,23 @@ class UserService {
 
   // 用户登出
   async logout(): Promise<void> {
-      await apiClient.post(USER_ENDPOINTS.LOGOUT);
-      useAuthStore.getState().clearAuth();
-      useUserStore.getState().clearUser();
-    }
+    await apiClient.post(USER_ENDPOINTS.LOGOUT);
+    useAuthStore.getState().clearAuth();
+    useUserStore.getState().clearUser();
+  }
 
   // 刷新 Token
-  async refreshToken(request: RefreshTokenRequest): Promise<RefreshTokenResponse> {
+  async refreshToken(
+    request: RefreshTokenRequest
+  ): Promise<RefreshTokenResponse> {
     const response = await apiClient.post<ApiResponse<RefreshTokenResponse>>(
       USER_ENDPOINTS.REFRESH_TOKEN,
       request
     );
     const tokens = response.data.data!;
-    useAuthStore.getState().refreshTokens(tokens.access_token, tokens.refresh_token);
+    useAuthStore
+      .getState()
+      .refreshTokens(tokens.access_token, tokens.refresh_token);
     return tokens;
   }
 
@@ -93,18 +97,20 @@ class UserService {
       request
     );
     const updatedUser = response.data.data!;
-    
+
     // 更新 User Store 中的用户信息
     useUserStore.getState().updateUser({
       nickname: updatedUser.nickname,
       avatar: updatedUser.avatar,
     });
-    
+
     return updatedUser;
   }
 
   // 重置密码
-  async resetPassword(request: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  async resetPassword(
+    request: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> {
     const response = await apiClient.post<ApiResponse<ResetPasswordResponse>>(
       USER_ENDPOINTS.RESET_PASSWORD,
       request
@@ -124,14 +130,15 @@ class UserService {
   }
 
   // 更新用户角色
-  async updateUserRole(request: UpdateUserRoleRequest): Promise<UpdateUserRoleResponse> {
+  async updateUserRole(
+    request: UpdateUserRoleRequest
+  ): Promise<UpdateUserRoleResponse> {
     const response = await apiClient.post<ApiResponse<UpdateUserRoleResponse>>(
       USER_ENDPOINTS.UPDATE_USER_ROLE,
       request
     );
     return response.data.data!;
   }
-
 }
 
 export const userService = new UserService();

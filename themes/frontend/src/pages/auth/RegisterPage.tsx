@@ -15,7 +15,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Input
+  Input,
 } from "@/components/ui";
 import { AUTH_ROUTES } from "@/constants";
 import { userService, verificationService } from "@/services";
@@ -35,7 +35,12 @@ export function RegisterPage() {
   // ===== Hooks =====
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(0);
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
@@ -143,8 +148,6 @@ export function RegisterPage() {
                 </p>
               )}
             </div>
-
-
 
             <div className="space-y-2">
               <label

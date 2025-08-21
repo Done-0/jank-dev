@@ -4,8 +4,8 @@
 
 // ===== 用户角色标签 =====
 export const USER_ROLE_LABELS = {
-  "super_admin": "超级管理员",
-  "user": "普通用户",
+  super_admin: "超级管理员",
+  user: "普通用户",
 } as const;
 
 // ===== 用户查询键 =====

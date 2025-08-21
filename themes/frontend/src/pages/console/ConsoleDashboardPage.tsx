@@ -2,7 +2,7 @@
  * 控制台仪表盘页面
  */
 
-import DashboardContent from '@/components/console/dashboard/DashboardContent';
+import DashboardContent from "@/components/console/dashboard/DashboardContent";
 import { useUsers } from "@/hooks/use-user";
 import { usePostsByStatus } from "@/hooks/use-posts";
 import { useThemes } from "@/hooks/use-themes";
@@ -14,17 +14,17 @@ export function ConsoleDashboardPage() {
     page_no: 1,
     page_size: 100,
   });
-  
+
   const { data: postsData, isLoading: postsLoading } = usePostsByStatus({
     page_no: 1,
     page_size: 100,
   });
-  
+
   const { data: themesData, isLoading: themesLoading } = useThemes({
     page_no: 1,
     page_size: 100,
   });
-  
+
   const { data: pluginsData, isLoading: pluginsLoading } = usePlugins({
     page_no: 1,
     page_size: 100,
@@ -37,7 +37,8 @@ export function ConsoleDashboardPage() {
   const plugins = pluginsData?.list || [];
 
   // ===== 加载状态 =====
-  const isLoading = usersLoading || postsLoading || themesLoading || pluginsLoading;
+  const isLoading =
+    usersLoading || postsLoading || themesLoading || pluginsLoading;
 
   return (
     <DashboardContent

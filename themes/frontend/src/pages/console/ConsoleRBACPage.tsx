@@ -11,17 +11,19 @@ import { useRoles, usePermissions } from "@/hooks/use-rbac";
 
 export function ConsoleRBACPage() {
   // ===== 状态管理 =====
-  const [selectedSection, setSelectedSection] = useState<'roles' | 'permissions' | 'role-permissions' | 'user-roles'>('roles');
+  const [selectedSection, setSelectedSection] = useState<
+    "roles" | "permissions" | "role-permissions" | "user-roles"
+  >("roles");
   const [searchQuery, setSearchQuery] = useState("");
 
   // ===== 数据获取 =====
   const { data: rolesData } = useRoles();
   const { data: permissionsData } = usePermissions();
-  
+
   // ===== 计算数据 =====
   const roles = rolesData?.list || [];
   const permissions = permissionsData?.list || [];
-  
+
   const stats = {
     totalRoles: roles.length,
     totalPermissions: permissions.length,
@@ -29,7 +31,9 @@ export function ConsoleRBACPage() {
   };
 
   // ===== 事件处理 =====
-  const handleSectionChange = (section: 'roles' | 'permissions' | 'role-permissions' | 'user-roles') => setSelectedSection(section);
+  const handleSectionChange = (
+    section: "roles" | "permissions" | "role-permissions" | "user-roles"
+  ) => setSelectedSection(section);
   const handleSearchChange = (query: string) => setSearchQuery(query);
 
   // ===== 渲染 =====

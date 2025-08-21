@@ -22,16 +22,14 @@ export function ConsoleLayout({ children }: ConsoleLayoutProps) {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full">
-        <AppSidebar 
-          activeTab={location.pathname} 
-          user={user} 
-          onLogout={handleLogout} 
+        <AppSidebar
+          activeTab={location.pathname}
+          user={user}
+          onLogout={handleLogout}
         />
         <div className="flex flex-1 flex-col overflow-hidden">
           <AppHeader activeTab={location.pathname} />
-          <main className="flex-1 overflow-auto p-6">
-            {children}
-          </main>
+          <main className="flex-1 overflow-auto p-6">{children}</main>
         </div>
       </div>
     </SidebarProvider>

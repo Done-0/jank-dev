@@ -3,15 +3,20 @@
  */
 
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 import { PostsSidebar } from "@/components/console/posts/PostsSidebar";
 import { PostsContent } from "@/components/console/posts/PostsContent";
 
 import { usePostsByStatus } from "@/hooks/use-posts";
 import { useAllCategories } from "@/hooks/use-categories";
+import { CONSOLE_ROUTES } from "@/constants/routes";
 import type { PostStatus } from "@/constants/post";
 
 export function ConsolePostsPage() {
+  // ===== 路由导航 =====
+  const navigate = useNavigate();
+
   // ===== 状态管理 =====
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<PostStatus | null>(null);
@@ -43,7 +48,10 @@ export function ConsolePostsPage() {
   const handleStatusChange = (status: PostStatus | null) => setSelectedStatus(status);
   const handleCategoryChange = (category: string | null) => setSelectedCategory(category);
   const handleSearchChange = (query: string) => setSearchQuery(query);
-  const handleNewPost = () => console.log('新建文章'); // TODO: 实现新建文章逻辑
+  const handleNewPost = () => navigate({ to: CONSOLE_ROUTES.POST_EDITOR });
+  const handleEditPost = (postId: string) => navigate({ 
+    to: `${CONSOLE_ROUTES.POST_EDITOR}?id=${postId}`
+  });
 
   // ===== 渲染 =====
   return (
@@ -69,6 +77,7 @@ export function ConsolePostsPage() {
           isLoading={isLoading}
           onSearchChange={handleSearchChange}
           onNewPost={handleNewPost}
+          onEditPost={handleEditPost}
           onStatusChange={handleStatusChange}
           onCategoryChange={handleCategoryChange}
         />

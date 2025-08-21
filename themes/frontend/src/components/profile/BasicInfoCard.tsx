@@ -90,7 +90,7 @@ export function BasicInfoCard({ user }: BasicInfoCardProps) {
         <div className="flex items-center gap-4">
           {/* 头像 - 悬浮显示编辑提示 */}
           <div className="relative group">
-            <Avatar 
+            <Avatar
               className="h-16 w-16 cursor-pointer transition-all duration-200 group-hover:ring-2 group-hover:ring-primary/20"
               onClick={openAvatarDialog}
             >
@@ -122,7 +122,9 @@ export function BasicInfoCard({ user }: BasicInfoCardProps) {
             </div>
             <p className="text-sm text-muted-foreground">{user.email}</p>
             <Badge variant="secondary" className="text-xs mt-2">
-              {USER_ROLE_LABELS[user.roles[0] as keyof typeof USER_ROLE_LABELS] || user.roles[0]}
+              {USER_ROLE_LABELS[
+                user.roles[0] as keyof typeof USER_ROLE_LABELS
+              ] || user.roles[0]}
             </Badge>
           </div>
         </div>
@@ -132,9 +134,7 @@ export function BasicInfoCard({ user }: BasicInfoCardProps) {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>修改头像</DialogTitle>
-              <DialogDescription>
-                请输入新的头像链接地址
-              </DialogDescription>
+              <DialogDescription>请输入新的头像链接地址</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpdateAvatar} className="space-y-4">
               <div className="space-y-2">
@@ -169,13 +169,14 @@ export function BasicInfoCard({ user }: BasicInfoCardProps) {
         </Dialog>
 
         {/* 昵称编辑对话框 */}
-        <Dialog open={isNicknameDialogOpen} onOpenChange={setIsNicknameDialogOpen}>
+        <Dialog
+          open={isNicknameDialogOpen}
+          onOpenChange={setIsNicknameDialogOpen}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>修改昵称</DialogTitle>
-              <DialogDescription>
-                请输入新的昵称
-              </DialogDescription>
+              <DialogDescription>请输入新的昵称</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpdateNickname} className="space-y-4">
               <div className="space-y-2">

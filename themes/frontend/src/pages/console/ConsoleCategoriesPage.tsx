@@ -19,10 +19,5 @@ export function ConsoleCategoriesPage() {
     );
   }
 
-  return (
-    <CategoriesContent
-      categories={categories}
-      isLoading={isLoading}
-    />
-  );
+  return <CategoriesContent categories={categories} isLoading={isLoading} />;
 }

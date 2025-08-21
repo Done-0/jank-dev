@@ -2,7 +2,7 @@
  * 文章服务
  */
 
-import { POST_ENDPOINTS } from '@/api';
+import { POST_ENDPOINTS } from "@/api";
 import { apiClient } from "@/lib/api-client";
 import type {
   ApiResponse,
@@ -17,7 +17,7 @@ import type {
   ListPublishedPostsRequest,
   ListPostsByStatusRequest,
   ListPostsResponse,
-} from '@/types';
+} from "@/types";
 
 class PostService {
   // ===== 文章管理 =====
@@ -59,7 +59,9 @@ class PostService {
   }
 
   // 获取已发布文章列表
-  async listPublishedPosts(request: ListPublishedPostsRequest): Promise<ListPostsResponse> {
+  async listPublishedPosts(
+    request: ListPublishedPostsRequest
+  ): Promise<ListPostsResponse> {
     const response = await apiClient.get<ApiResponse<ListPostsResponse>>(
       POST_ENDPOINTS.LIST_PUBLISHED_POSTS,
       { params: request }
@@ -68,7 +70,9 @@ class PostService {
   }
 
   // 根据状态获取文章列表
-  async listPostsByStatus(request: ListPostsByStatusRequest): Promise<ListPostsResponse> {
+  async listPostsByStatus(
+    request: ListPostsByStatusRequest
+  ): Promise<ListPostsResponse> {
     const response = await apiClient.get<ApiResponse<ListPostsResponse>>(
       POST_ENDPOINTS.LIST_POSTS_BY_STATUS,
       { params: request }

@@ -2,18 +2,18 @@
  * 用户管理页面
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 
 import { UsersSidebar } from "@/components/console/users/UsersSidebar";
 import { UsersContent } from "@/components/console/users/UsersContent";
 
-import { useUsers } from '@/hooks/use-user';
-import type { UserItem } from '@/types/user';
+import { useUsers } from "@/hooks/use-user";
+import type { UserItem } from "@/types/user";
 
 export function ConsoleUsersPage() {
   // ===== 状态管理 =====
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // ===== 数据获取 =====
   const { data: usersData, isLoading } = useUsers({
@@ -29,8 +29,12 @@ export function ConsoleUsersPage() {
   const stats = useMemo(() => {
     return {
       total: allUsers.length,
-      superAdmins: allUsers.filter((u: UserItem) => u.roles.includes('super_admin')).length,
-      regularUsers: allUsers.filter((u: UserItem) => u.roles.includes('user') || u.roles.length === 0).length
+      superAdmins: allUsers.filter((u: UserItem) =>
+        u.roles.includes("super_admin")
+      ).length,
+      regularUsers: allUsers.filter(
+        (u: UserItem) => u.roles.includes("user") || u.roles.length === 0
+      ).length,
     };
   }, [allUsers]);
 

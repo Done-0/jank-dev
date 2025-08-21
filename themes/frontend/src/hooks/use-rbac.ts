@@ -10,18 +10,18 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useUserStore } from "@/stores/user.store";
 import { rbacService } from "@/services/rbac.service";
 import { RBAC_QUERY_KEYS, RBAC_ACTION, type RbacAction } from "@/constants";
-import type { 
-  CreateRoleRequest, 
-  DeleteRoleRequest, 
-  CreatePermissionRequest, 
-  DeletePermissionRequest, 
+import type {
+  CreateRoleRequest,
+  DeleteRoleRequest,
+  CreatePermissionRequest,
+  DeletePermissionRequest,
   AssignPermissionRequest,
-  AssignRoleRequest, 
-  RevokeRoleRequest, 
-  CheckPermissionRequest, 
+  AssignRoleRequest,
+  RevokeRoleRequest,
+  CheckPermissionRequest,
   GetUserRolesRequest,
-  GetRolePermissionsRequest 
-} from '@/types/rbac';
+  GetRolePermissionsRequest,
+} from "@/types/rbac";
 
 // ===== 类型定义 =====
 
@@ -33,10 +33,11 @@ export interface PermissionItem {
 
 // RBAC Query Keys - 统一查询键管理
 export const rbacKeys = {
-  all: ['rbac'] as const,
-  roles: () => [...rbacKeys.all, 'roles'] as const,
-  permissions: () => [...rbacKeys.all, 'permissions'] as const,
-  userRoles: (userId: string) => [...rbacKeys.all, 'user-roles', userId] as const,
+  all: ["rbac"] as const,
+  roles: () => [...rbacKeys.all, "roles"] as const,
+  permissions: () => [...rbacKeys.all, "permissions"] as const,
+  userRoles: (userId: string) =>
+    [...rbacKeys.all, "user-roles", userId] as const,
 };
 
 // ===== 权限检查 Hooks =====
@@ -74,7 +75,8 @@ export const useBatchPermissions = (permissionItems: PermissionItem[]) => {
         // 构建权限映射对象
         const perms = permissionItems.reduce(
           (acc, { action, resource }, index) => {
-            acc[`${action}:${resource}`] = permissionResults[index]?.allowed || false;
+            acc[`${action}:${resource}`] =
+              permissionResults[index]?.allowed || false;
             return acc;
           },
           {} as Record<string, boolean>
@@ -97,9 +99,13 @@ export const useBatchPermissions = (permissionItems: PermissionItem[]) => {
 
 // 单个权限检查
 export const usePermission = (resource: string, action: RbacAction) => {
-  const permissionItems = useMemo(() => [{ resource, action }], [resource, action]);
-  const { permissions, isLoading, error } = useBatchPermissions(permissionItems);
-  
+  const permissionItems = useMemo(
+    () => [{ resource, action }],
+    [resource, action]
+  );
+  const { permissions, isLoading, error } =
+    useBatchPermissions(permissionItems);
+
   const hasPermission = permissions[`${action}:${resource}`] || false;
 
   return { hasPermission, isLoading, error };
@@ -115,11 +121,14 @@ export const useCheckPermission = (resource: string, action: RbacAction) => {
   const { user } = useUserStore();
   const { isAuthenticated } = useAuthStore();
 
-  const request: CheckPermissionRequest = useMemo(() => ({
-    user_id: user?.id?.toString() || "",
-    resource,
-    action,
-  }), [user?.id, resource, action]);
+  const request: CheckPermissionRequest = useMemo(
+    () => ({
+      user_id: user?.id?.toString() || "",
+      resource,
+      action,
+    }),
+    [user?.id, resource, action]
+  );
 
   return useQuery({
     queryKey: [RBAC_QUERY_KEYS.CHECK_PERMISSION, request],
@@ -136,9 +145,12 @@ export const useUserRoles = () => {
   const { isAuthenticated } = useAuthStore();
 
   // 构建用户角色查询请求参数
-  const request: GetUserRolesRequest = useMemo(() => ({
-    user_id: user?.id?.toString() || "",
-  }), [user?.id]);
+  const request: GetUserRolesRequest = useMemo(
+    () => ({
+      user_id: user?.id?.toString() || "",
+    }),
+    [user?.id]
+  );
 
   return useQuery({
     queryKey: [RBAC_QUERY_KEYS.USER_ROLES, user?.id],
@@ -153,12 +165,15 @@ export const useUserRoles = () => {
 export const useCanAccessConsole = () => {
   const { user } = useUserStore();
   const { isAuthenticated } = useAuthStore();
-  
-  const { data: consolePermission, isLoading } = useCheckPermission("console", RBAC_ACTION.GET);
+
+  const { data: consolePermission, isLoading } = useCheckPermission(
+    "console",
+    RBAC_ACTION.GET
+  );
 
   const canAccess = useMemo(() => {
     if (!isAuthenticated || !user) return false;
-    
+
     return consolePermission?.allowed || false;
   }, [isAuthenticated, user, consolePermission?.allowed]);
 
@@ -191,9 +206,12 @@ export const usePermissions = () => {
 
 // 获取角色权限
 export const useRolePermissions = (role: string, options?: any) => {
-  const request: GetRolePermissionsRequest = useMemo(() => ({
-    role,
-  }), [role]);
+  const request: GetRolePermissionsRequest = useMemo(
+    () => ({
+      role,
+    }),
+    [role]
+  );
 
   return useQuery({
     queryKey: [RBAC_QUERY_KEYS.GET_ROLE_PERMISSIONS, role],
@@ -209,16 +227,17 @@ export const useRolePermissions = (role: string, options?: any) => {
 // 创建角色
 export const useCreateRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: CreateRoleRequest) => rbacService.createRole(request),
     onSuccess: () => {
-      toast.success('角色创建成功');
+      toast.success("角色创建成功");
       queryClient.invalidateQueries({ queryKey: rbacKeys.roles() });
     },
     onError: (error: any) => {
-      console.error('Create role error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '角色创建失败';
+      console.error("Create role error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "角色创建失败";
       toast.error(errorMessage);
     },
   });
@@ -227,16 +246,17 @@ export const useCreateRole = () => {
 // 删除角色
 export const useDeleteRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: DeleteRoleRequest) => rbacService.deleteRole(request),
     onSuccess: () => {
-      toast.success('角色删除成功');
+      toast.success("角色删除成功");
       queryClient.invalidateQueries({ queryKey: rbacKeys.roles() });
     },
     onError: (error: any) => {
-      console.error('Delete role error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '角色删除失败';
+      console.error("Delete role error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "角色删除失败";
       toast.error(errorMessage);
     },
   });
@@ -247,16 +267,18 @@ export const useDeleteRole = () => {
 // 创建权限
 export const useCreatePermission = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (request: CreatePermissionRequest) => rbacService.createPermission(request),
+    mutationFn: (request: CreatePermissionRequest) =>
+      rbacService.createPermission(request),
     onSuccess: () => {
-      toast.success('权限创建成功');
+      toast.success("权限创建成功");
       queryClient.invalidateQueries({ queryKey: rbacKeys.permissions() });
     },
     onError: (error: any) => {
-      console.error('Create permission error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '权限创建失败';
+      console.error("Create permission error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "权限创建失败";
       toast.error(errorMessage);
     },
   });
@@ -265,16 +287,18 @@ export const useCreatePermission = () => {
 // 删除权限
 export const useDeletePermission = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (request: DeletePermissionRequest) => rbacService.deletePermission(request),
+    mutationFn: (request: DeletePermissionRequest) =>
+      rbacService.deletePermission(request),
     onSuccess: () => {
-      toast.success('权限删除成功');
+      toast.success("权限删除成功");
       queryClient.invalidateQueries({ queryKey: rbacKeys.permissions() });
     },
     onError: (error: any) => {
-      console.error('Delete permission error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '权限删除失败';
+      console.error("Delete permission error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "权限删除失败";
       toast.error(errorMessage);
     },
   });
@@ -285,16 +309,18 @@ export const useDeletePermission = () => {
 // 分配权限
 export const useAssignPermission = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (request: AssignPermissionRequest) => rbacService.assignPermission(request),
+    mutationFn: (request: AssignPermissionRequest) =>
+      rbacService.assignPermission(request),
     onSuccess: () => {
-      toast.success('权限分配成功');
+      toast.success("权限分配成功");
       queryClient.invalidateQueries({ queryKey: rbacKeys.permissions() });
     },
     onError: (error: any) => {
-      console.error('Assign permission error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '权限分配失败';
+      console.error("Assign permission error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "权限分配失败";
       toast.error(errorMessage);
     },
   });
@@ -305,18 +331,19 @@ export const useAssignPermission = () => {
 // 分配角色
 export const useAssignRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: AssignRoleRequest) => rbacService.assignRole(request),
     onSuccess: (_, variables) => {
-      toast.success('角色分配成功');
-      queryClient.invalidateQueries({ 
-        queryKey: rbacKeys.userRoles(variables.user_id) 
+      toast.success("角色分配成功");
+      queryClient.invalidateQueries({
+        queryKey: rbacKeys.userRoles(variables.user_id),
       });
     },
     onError: (error: any) => {
-      console.error('Assign role error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '角色分配失败';
+      console.error("Assign role error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "角色分配失败";
       toast.error(errorMessage);
     },
   });
@@ -325,18 +352,19 @@ export const useAssignRole = () => {
 // 撤销角色
 export const useRevokeRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: RevokeRoleRequest) => rbacService.revokeRole(request),
     onSuccess: (_, variables) => {
-      toast.success('角色撤销成功');
-      queryClient.invalidateQueries({ 
-        queryKey: rbacKeys.userRoles(variables.user_id) 
+      toast.success("角色撤销成功");
+      queryClient.invalidateQueries({
+        queryKey: rbacKeys.userRoles(variables.user_id),
       });
     },
     onError: (error: any) => {
-      console.error('Revoke role error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || '角色撤销失败';
+      console.error("Revoke role error:", error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "角色撤销失败";
       toast.error(errorMessage);
     },
   });

@@ -20,5 +20,7 @@ export const VERIFICATION_QUERY_KEYS = {
 } as const;
 
 // ===== 类型定义 =====
-export type VerificationType = typeof VERIFICATION_TYPE[keyof typeof VERIFICATION_TYPE];
-export type VerificationPurpose = typeof VERIFICATION_PURPOSE[keyof typeof VERIFICATION_PURPOSE];
+export type VerificationType =
+  (typeof VERIFICATION_TYPE)[keyof typeof VERIFICATION_TYPE];
+export type VerificationPurpose =
+  (typeof VERIFICATION_PURPOSE)[keyof typeof VERIFICATION_PURPOSE];

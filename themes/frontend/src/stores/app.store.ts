@@ -13,10 +13,10 @@ export interface AppState {
 
   // 用户偏好设置
   language: "zh" | "en";
-  
+
   // 通知和提示
   notifications: AppNotification[];
-  
+
   // 应用配置
   appConfig: AppConfig | null;
 
@@ -24,7 +24,9 @@ export interface AppState {
   setCurrentSessionId: (sessionId: string) => void;
   setIsInitialized: (initialized: boolean) => void;
   setLanguage: (language: "zh" | "en") => void;
-  addNotification: (notification: Omit<AppNotification, "id" | "timestamp">) => void;
+  addNotification: (
+    notification: Omit<AppNotification, "id" | "timestamp">
+  ) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
   setAppConfig: (config: AppConfig) => void;
@@ -81,7 +83,7 @@ export const useAppStore = create<AppState>()(
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           timestamp: Date.now(),
         };
-        
+
         const { notifications } = get();
         set({ notifications: [...notifications, newNotification] });
 
@@ -90,7 +92,9 @@ export const useAppStore = create<AppState>()(
           setTimeout(() => {
             const { notifications: currentNotifications } = get();
             set({
-              notifications: currentNotifications.filter(n => n.id !== newNotification.id)
+              notifications: currentNotifications.filter(
+                (n) => n.id !== newNotification.id
+              ),
             });
           }, 5000);
         }
@@ -98,7 +102,7 @@ export const useAppStore = create<AppState>()(
 
       removeNotification: (id: string) => {
         const { notifications } = get();
-        set({ notifications: notifications.filter(n => n.id !== id) });
+        set({ notifications: notifications.filter((n) => n.id !== id) });
       },
 
       clearNotifications: () => {

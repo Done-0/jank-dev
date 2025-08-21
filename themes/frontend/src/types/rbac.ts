@@ -2,7 +2,7 @@
  * RBAC 权限管理相关类型定义
  */
 
-import type { RbacAction } from '../constants/rbac';
+import type { RbacAction } from "../constants/rbac";
 
 // ===== 请求类型 (Request) =====
 

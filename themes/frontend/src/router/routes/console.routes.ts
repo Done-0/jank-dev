@@ -7,6 +7,7 @@ import { ConsoleRBACPage } from "@/pages/console/ConsoleRBACPage";
 import { ConsoleThemesPage } from "@/pages/console/ConsoleThemesPage";
 import { ConsolePluginsPage } from "@/pages/console/ConsolePluginsPage";
 import { ConsolePostsPage } from "@/pages/console/ConsolePostsPage";
+import { PostEditorPage } from "@/pages/console/PostEditorPage";
 import { ConsoleCategoriesPage } from "@/pages/console/ConsoleCategoriesPage";
 
 export const createConsoleRoutes = (rootRoute: any) => {
@@ -49,6 +50,13 @@ export const createConsoleRoutes = (rootRoute: any) => {
       requireConsoleAccess: true,
       resource: '/api/posts/*',
       action: RBAC_ACTION.GET,
+    }),
+
+    // 文章编辑器页面 - 需要文章管理权限
+    createRbacGuardedRoute(rootRoute, CONSOLE_ROUTES.POST_EDITOR, PostEditorPage, {
+      requireConsoleAccess: true,
+      resource: '/api/posts/*',
+      action: RBAC_ACTION.POST,
     }),
 
     // 分类管理页面 - 需要分类管理权限

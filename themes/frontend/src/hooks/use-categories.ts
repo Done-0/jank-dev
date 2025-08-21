@@ -2,15 +2,15 @@
  * 分类相关的 React Query hooks
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { categoryService } from '@/services';
-import { CATEGORY_QUERY_KEYS } from '@/constants';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { categoryService } from "@/services";
+import { CATEGORY_QUERY_KEYS } from "@/constants";
 import type {
   ListCategoriesRequest,
   CreateCategoryRequest,
   UpdateCategoryRequest,
   DeleteCategoryRequest,
-} from '@/types/category';
+} from "@/types/category";
 
 // ===== 查询 hooks =====
 
@@ -31,7 +31,8 @@ export function useCategories(params: ListCategoriesRequest) {
 export function useAllCategories() {
   return useQuery({
     queryKey: [CATEGORY_QUERY_KEYS.ALL],
-    queryFn: () => categoryService.listCategories({ page_no: 1, page_size: 100 }), // 修正为后端最大限制100
+    queryFn: () =>
+      categoryService.listCategories({ page_no: 1, page_size: 100 }), // 修正为后端最大限制100
     staleTime: 10 * 60 * 1000, // 10分钟缓存
     select: (data) => data.list || [], // 只返回分类列表
   });
@@ -46,7 +47,8 @@ export function useCreateCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: CreateCategoryRequest) => categoryService.createCategory(request),
+    mutationFn: (request: CreateCategoryRequest) =>
+      categoryService.createCategory(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.LIST] });
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.ALL] });
@@ -61,7 +63,8 @@ export function useUpdateCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: UpdateCategoryRequest) => categoryService.updateCategory(request),
+    mutationFn: (request: UpdateCategoryRequest) =>
+      categoryService.updateCategory(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.LIST] });
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.ALL] });
@@ -76,7 +79,8 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: DeleteCategoryRequest) => categoryService.deleteCategory(request),
+    mutationFn: (request: DeleteCategoryRequest) =>
+      categoryService.deleteCategory(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.LIST] });
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEYS.ALL] });

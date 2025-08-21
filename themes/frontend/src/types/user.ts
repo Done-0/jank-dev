@@ -1,11 +1,5 @@
 /**
  * 用户认证相关类型
- * 
- * 支持主流最佳实践：
- * - 多角色支持
- * - 角色层级和权限继承
- * - 细粒度角色操作（添加/移除/批量更新）
- * - 基于角色的权限计算和检查
  */
 
 // ===== 请求类型 (Request) =====
@@ -161,7 +155,7 @@ export interface UserRoleOperationResponse {
   email: string; // 用户邮箱
   nickname: string; // 用户昵称
   roles: string[]; // 更新后的角色列表
-  operation: 'add' | 'remove' | 'update' | 'batch_update'; // 操作类型
+  operation: "add" | "remove" | "update" | "batch_update"; // 操作类型
   affected_role?: string; // 受影响的角色（单个操作时）
   message: string; // 操作结果消息
 }

@@ -2,7 +2,7 @@
  * 分类服务
  */
 
-import { CATEGORY_ENDPOINTS } from '@/api';
+import { CATEGORY_ENDPOINTS } from "@/api";
 import { apiClient } from "@/lib/api-client";
 import type {
   ApiResponse,
@@ -16,13 +16,15 @@ import type {
   UpdateCategoryResponse,
   ListCategoriesRequest,
   ListCategoriesResponse,
-} from '@/types';
+} from "@/types";
 
 class CategoryService {
   // ===== 分类管理 =====
 
   // 创建分类
-  async createCategory(request: CreateCategoryRequest): Promise<CreateCategoryResponse> {
+  async createCategory(
+    request: CreateCategoryRequest
+  ): Promise<CreateCategoryResponse> {
     const response = await apiClient.post<ApiResponse<CreateCategoryResponse>>(
       CATEGORY_ENDPOINTS.CREATE_CATEGORY,
       request
@@ -40,7 +42,9 @@ class CategoryService {
   }
 
   // 更新分类
-  async updateCategory(request: UpdateCategoryRequest): Promise<UpdateCategoryResponse> {
+  async updateCategory(
+    request: UpdateCategoryRequest
+  ): Promise<UpdateCategoryResponse> {
     const response = await apiClient.post<ApiResponse<UpdateCategoryResponse>>(
       CATEGORY_ENDPOINTS.UPDATE_CATEGORY,
       request
@@ -49,7 +53,9 @@ class CategoryService {
   }
 
   // 删除分类
-  async deleteCategory(request: DeleteCategoryRequest): Promise<DeleteCategoryResponse> {
+  async deleteCategory(
+    request: DeleteCategoryRequest
+  ): Promise<DeleteCategoryResponse> {
     const response = await apiClient.post<ApiResponse<DeleteCategoryResponse>>(
       CATEGORY_ENDPOINTS.DELETE_CATEGORY,
       request
@@ -58,7 +64,9 @@ class CategoryService {
   }
 
   // 获取分类列表
-  async listCategories(request: ListCategoriesRequest): Promise<ListCategoriesResponse> {
+  async listCategories(
+    request: ListCategoriesRequest
+  ): Promise<ListCategoriesResponse> {
     const response = await apiClient.get<ApiResponse<ListCategoriesResponse>>(
       CATEGORY_ENDPOINTS.LIST_CATEGORIES,
       { params: request }

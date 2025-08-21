@@ -76,7 +76,11 @@ export class ApiClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
-              this.failedQueue.push({ resolve, reject, config: originalRequest });
+              this.failedQueue.push({
+                resolve,
+                reject,
+                config: originalRequest,
+              });
             });
           }
 
@@ -92,11 +96,17 @@ export class ApiClient {
 
           try {
             // 调用后端刷新token接口
-            const refreshResponse = await this.instance.post(USER_ENDPOINTS.REFRESH_TOKEN, {
-              refresh_token: refreshToken
-            });
-            const { access_token, refresh_token: newRefreshToken } = refreshResponse.data.data;
-            useAuthStore.getState().refreshTokens(access_token, newRefreshToken);
+            const refreshResponse = await this.instance.post(
+              USER_ENDPOINTS.REFRESH_TOKEN,
+              {
+                refresh_token: refreshToken,
+              }
+            );
+            const { access_token, refresh_token: newRefreshToken } =
+              refreshResponse.data.data;
+            useAuthStore
+              .getState()
+              .refreshTokens(access_token, newRefreshToken);
             originalRequest.headers.Authorization = `Bearer ${access_token}`;
             this.processQueue(null, access_token);
             return this.instance(originalRequest);

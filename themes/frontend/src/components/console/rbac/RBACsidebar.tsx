@@ -7,9 +7,11 @@ interface RBACStats {
 }
 
 interface RBACSidebarProps {
-  selectedSection: 'roles' | 'permissions' | 'role-permissions' | 'user-roles';
+  selectedSection: "roles" | "permissions" | "role-permissions" | "user-roles";
   stats: RBACStats;
-  onSectionChange: (section: 'roles' | 'permissions' | 'role-permissions' | 'user-roles') => void;
+  onSectionChange: (
+    section: "roles" | "permissions" | "role-permissions" | "user-roles"
+  ) => void;
   className?: string;
 }
 
@@ -19,10 +21,30 @@ export function RBACSidebar({
   onSectionChange,
 }: RBACSidebarProps) {
   const sectionItems = [
-    { section: 'roles' as const, icon: Shield, label: '角色管理', count: stats.totalRoles },
-    { section: 'permissions' as const, icon: Key, label: '权限管理', count: stats.totalPermissions },
-    { section: 'role-permissions' as const, icon: Settings, label: '角色权限', count: stats.totalRoles },
-    { section: 'user-roles' as const, icon: UserCheck, label: '用户角色', count: stats.totalUserRoles },
+    {
+      section: "roles" as const,
+      icon: Shield,
+      label: "角色管理",
+      count: stats.totalRoles,
+    },
+    {
+      section: "permissions" as const,
+      icon: Key,
+      label: "权限管理",
+      count: stats.totalPermissions,
+    },
+    {
+      section: "role-permissions" as const,
+      icon: Settings,
+      label: "角色权限",
+      count: stats.totalRoles,
+    },
+    {
+      section: "user-roles" as const,
+      icon: UserCheck,
+      label: "用户角色",
+      count: stats.totalUserRoles,
+    },
   ];
 
   return (
@@ -36,8 +58,8 @@ export function RBACSidebar({
                 onClick={() => onSectionChange(section)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-full text-left transition-colors ${
                   selectedSection === section
-                    ? 'bg-accent text-accent-foreground font-medium'
-                    : 'hover:bg-accent/50 text-foreground'
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "hover:bg-accent/50 text-foreground"
                 }`}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />

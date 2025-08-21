@@ -8,17 +8,17 @@ export const THEME_TYPE = {
   CONSOLE: "console",
 } as const;
 
-export type ThemeType = typeof THEME_TYPE[keyof typeof THEME_TYPE];
+export type ThemeType = (typeof THEME_TYPE)[keyof typeof THEME_TYPE];
 
 // ===== 主题状态 =====
 export const THEME_STATUS = {
   READY: "ready",
-  ACTIVE: "active", 
+  ACTIVE: "active",
   INACTIVE: "inactive",
   ERROR: "error",
 } as const;
 
-export type ThemeStatus = typeof THEME_STATUS[keyof typeof THEME_STATUS];
+export type ThemeStatus = (typeof THEME_STATUS)[keyof typeof THEME_STATUS];
 
 // ===== 主题查询键 =====
 export const THEME_QUERY_KEYS = {

@@ -14,7 +14,9 @@ class VerificationService {
   // ===== 验证码管理 =====
 
   // 发送邮箱验证码
-  async sendEmailCode(request: SendEmailCodeRequest): Promise<SendEmailCodeResponse> {
+  async sendEmailCode(
+    request: SendEmailCodeRequest
+  ): Promise<SendEmailCodeResponse> {
     const response = await apiClient.get<ApiResponse<SendEmailCodeResponse>>(
       VERIFICATION_ENDPOINTS.SEND_EMAIL_CODE,
       { params: request }

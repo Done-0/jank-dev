@@ -176,7 +176,10 @@ export function SecurityCard() {
                 请输入原密码、邮箱验证码和新密码来修改您的登录密码
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit(handleResetPassword)} className="space-y-6">
+            <form
+              onSubmit={handleSubmit(handleResetPassword)}
+              className="space-y-6"
+            >
               <div className="space-y-2">
                 <Label htmlFor="old_password">原密码</Label>
                 <div className="relative">
@@ -284,9 +287,7 @@ export function SecurityCard() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
-                    }
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />

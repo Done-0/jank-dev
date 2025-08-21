@@ -22,7 +22,9 @@ class PluginService {
   // ===== 插件管理 =====
 
   // 注册插件
-  async registerPlugin(request: RegisterPluginRequest): Promise<RegisterPluginResponse> {
+  async registerPlugin(
+    request: RegisterPluginRequest
+  ): Promise<RegisterPluginResponse> {
     const response = await apiClient.post<ApiResponse<RegisterPluginResponse>>(
       PLUGIN_ENDPOINTS.REGISTER_PLUGIN,
       request
@@ -31,16 +33,19 @@ class PluginService {
   }
 
   // 注销插件
-  async unregisterPlugin(request: UnregisterPluginRequest): Promise<UnregisterPluginResponse> {
-    const response = await apiClient.post<ApiResponse<UnregisterPluginResponse>>(
-      PLUGIN_ENDPOINTS.UNREGISTER_PLUGIN,
-      request
-    );
+  async unregisterPlugin(
+    request: UnregisterPluginRequest
+  ): Promise<UnregisterPluginResponse> {
+    const response = await apiClient.post<
+      ApiResponse<UnregisterPluginResponse>
+    >(PLUGIN_ENDPOINTS.UNREGISTER_PLUGIN, request);
     return response.data.data!;
   }
 
   // 执行插件
-  async executePlugin(request: ExecutePluginRequest): Promise<ExecutePluginResponse> {
+  async executePlugin(
+    request: ExecutePluginRequest
+  ): Promise<ExecutePluginResponse> {
     const response = await apiClient.post<ApiResponse<ExecutePluginResponse>>(
       PLUGIN_ENDPOINTS.EXECUTE_PLUGIN,
       request

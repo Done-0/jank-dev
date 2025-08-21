@@ -2,12 +2,16 @@
  * 主题管理页面
  */
 
-import { ThemesContent } from '@/components/console/themes/ThemesContent';
-import { useThemes } from '@/hooks/use-themes';
+import { ThemesContent } from "@/components/console/themes/ThemesContent";
+import { useThemes } from "@/hooks/use-themes";
 
 export function ConsoleThemesPage() {
   // ===== 数据获取 =====
-  const { data: themesData, isLoading, error } = useThemes({
+  const {
+    data: themesData,
+    isLoading,
+    error,
+  } = useThemes({
     page_no: 1,
     page_size: 100,
   });
@@ -24,9 +28,6 @@ export function ConsoleThemesPage() {
   }
 
   return (
-    <ThemesContent
-      themes={themesData?.list || []}
-      isLoading={isLoading}
-    />
+    <ThemesContent themes={themesData?.list || []} isLoading={isLoading} />
   );
 }

@@ -33,7 +33,11 @@ type FormData = z.infer<typeof schema>;
 export function LoginPage() {
   // ===== Hooks =====
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 

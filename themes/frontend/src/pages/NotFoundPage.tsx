@@ -14,9 +14,7 @@ export const NotFoundPage = () => {
 
         {/* 错误信息 */}
         <div className="mb-8 space-y-3">
-          <h2 className="text-2xl font-semibold text-foreground">
-            页面未找到
-          </h2>
+          <h2 className="text-2xl font-semibold text-foreground">页面未找到</h2>
           <p className="text-muted-foreground leading-relaxed">
             抱歉，您访问的页面不存在或已被移除
           </p>

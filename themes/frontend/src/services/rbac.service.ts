@@ -2,7 +2,7 @@
  * RBAC 权限管理服务
  */
 
-import { RBAC_ENDPOINTS } from '@/api';
+import { RBAC_ENDPOINTS } from "@/api";
 import { apiClient } from "@/lib/api-client";
 import type {
   ApiResponse,
@@ -27,13 +27,15 @@ import type {
   UserRolesResponse,
   CheckPermissionRequest,
   CheckResponse,
-} from '@/types';
+} from "@/types";
 
 class RbacService {
   // ===== 权限管理 =====
 
   // 创建权限策略
-  async createPermission(request: CreatePermissionRequest): Promise<PolicyOpResponse> {
+  async createPermission(
+    request: CreatePermissionRequest
+  ): Promise<PolicyOpResponse> {
     const response = await apiClient.post<ApiResponse<PolicyOpResponse>>(
       RBAC_ENDPOINTS.CREATE_PERMISSION,
       request
@@ -42,7 +44,9 @@ class RbacService {
   }
 
   // 删除权限策略
-  async deletePermission(request: DeletePermissionRequest): Promise<PolicyOpResponse> {
+  async deletePermission(
+    request: DeletePermissionRequest
+  ): Promise<PolicyOpResponse> {
     const response = await apiClient.post<ApiResponse<PolicyOpResponse>>(
       RBAC_ENDPOINTS.DELETE_PERMISSION,
       request
@@ -51,7 +55,9 @@ class RbacService {
   }
 
   // 为角色分配权限
-  async assignPermission(request: AssignPermissionRequest): Promise<PermissionOpResponse> {
+  async assignPermission(
+    request: AssignPermissionRequest
+  ): Promise<PermissionOpResponse> {
     const response = await apiClient.post<ApiResponse<PermissionOpResponse>>(
       RBAC_ENDPOINTS.ASSIGN_PERMISSION,
       request
@@ -60,7 +66,9 @@ class RbacService {
   }
 
   // 撤销角色权限
-  async revokePermission(request: RevokePermissionRequest): Promise<PermissionOpResponse> {
+  async revokePermission(
+    request: RevokePermissionRequest
+  ): Promise<PermissionOpResponse> {
     const response = await apiClient.post<ApiResponse<PermissionOpResponse>>(
       RBAC_ENDPOINTS.REVOKE_PERMISSION,
       request
@@ -105,7 +113,9 @@ class RbacService {
   }
 
   // 获取角色权限
-  async getRolePermissions(request: GetRolePermissionsRequest): Promise<RolePermissionsResponse> {
+  async getRolePermissions(
+    request: GetRolePermissionsRequest
+  ): Promise<RolePermissionsResponse> {
     const response = await apiClient.get<ApiResponse<RolePermissionsResponse>>(
       RBAC_ENDPOINTS.GET_ROLE_PERMISSIONS,
       { params: request }
@@ -136,7 +146,7 @@ class RbacService {
   // 获取用户角色
   async getUserRoles(request: GetUserRolesRequest): Promise<UserRolesResponse> {
     const backendParams = {
-      user_id: request.user_id
+      user_id: request.user_id,
     };
     const response = await apiClient.get<ApiResponse<UserRolesResponse>>(
       RBAC_ENDPOINTS.GET_USER_ROLES,
@@ -148,7 +158,9 @@ class RbacService {
   // ===== 权限检查 =====
 
   // 权限检查
-  async checkPermission(request: CheckPermissionRequest): Promise<CheckResponse> {
+  async checkPermission(
+    request: CheckPermissionRequest
+  ): Promise<CheckResponse> {
     const response = await apiClient.post<ApiResponse<CheckResponse>>(
       RBAC_ENDPOINTS.CHECK_PERMISSION,
       request

@@ -2,7 +2,7 @@
  * 主题相关类型定义
  */
 
-import type { ThemeType } from '@/constants/theme';
+import type { ThemeType } from "@/constants/theme";
 
 // ===== 请求类型 (Request) =====
 

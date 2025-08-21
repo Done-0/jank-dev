@@ -7,7 +7,11 @@ import { usePlugins } from "@/hooks/use-plugins";
 
 export function ConsolePluginsPage() {
   // ===== 数据获取 =====
-  const { data: pluginsData, isLoading, error } = usePlugins({
+  const {
+    data: pluginsData,
+    isLoading,
+    error,
+  } = usePlugins({
     page_no: 1,
     page_size: 100,
   });
@@ -24,9 +28,6 @@ export function ConsolePluginsPage() {
   }
 
   return (
-    <PluginsContent
-      plugins={pluginsData?.list || []}
-      isLoading={isLoading}
-    />
+    <PluginsContent plugins={pluginsData?.list || []} isLoading={isLoading} />
   );
 }

@@ -13,10 +13,11 @@ import type {
 
 // ===== Query Keys =====
 export const pluginKeys = {
-  all: ['plugins'] as const,
-  lists: () => [...pluginKeys.all, 'list'] as const,
-  list: (params: ListPluginsRequest) => [...pluginKeys.lists(), params] as const,
-  details: () => [...pluginKeys.all, 'detail'] as const,
+  all: ["plugins"] as const,
+  lists: () => [...pluginKeys.all, "list"] as const,
+  list: (params: ListPluginsRequest) =>
+    [...pluginKeys.lists(), params] as const,
+  details: () => [...pluginKeys.all, "detail"] as const,
   detail: (id: string) => [...pluginKeys.details(), id] as const,
 };
 
@@ -36,18 +37,22 @@ export function usePlugins(params: ListPluginsRequest) {
  * 获取可安装插件列表
  * 显示状态为 'available' 或 'source_only' 的插件（未安装的插件）
  */
-export function useAvailablePlugins(params: Omit<ListPluginsRequest, 'status'>) {
+export function useAvailablePlugins(
+  params: Omit<ListPluginsRequest, "status">
+) {
   return useQuery({
-    queryKey: [...pluginKeys.lists(), 'available', params],
+    queryKey: [...pluginKeys.lists(), "available", params],
     queryFn: async () => {
       // 获取所有插件
       const allPlugins = await pluginService.listPlugins(params);
-      
+
       // 过滤出未安装的插件（可以安装的插件）
-      const availablePlugins = allPlugins.list?.filter(
-        plugin => plugin.status === 'available' || plugin.status === 'source_only'
-      ) || [];
-      
+      const availablePlugins =
+        allPlugins.list?.filter(
+          (plugin) =>
+            plugin.status === "available" || plugin.status === "source_only"
+        ) || [];
+
       return {
         ...allPlugins,
         list: availablePlugins,
@@ -76,9 +81,10 @@ export function usePlugin(id: string) {
  */
 export function useInstallPlugin() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: RegisterPluginRequest) => pluginService.registerPlugin(data),
+    mutationFn: (data: RegisterPluginRequest) =>
+      pluginService.registerPlugin(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: pluginKeys.lists() });
     },
@@ -91,9 +97,10 @@ export function useInstallPlugin() {
  */
 export function useUninstallPlugin() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: UnregisterPluginRequest) => pluginService.unregisterPlugin(data),
+    mutationFn: (data: UnregisterPluginRequest) =>
+      pluginService.unregisterPlugin(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: pluginKeys.lists() });
     },
@@ -105,6 +112,7 @@ export function useUninstallPlugin() {
  */
 export function useExecutePlugin() {
   return useMutation({
-    mutationFn: (data: ExecutePluginRequest) => pluginService.executePlugin(data),
+    mutationFn: (data: ExecutePluginRequest) =>
+      pluginService.executePlugin(data),
   });
 }
