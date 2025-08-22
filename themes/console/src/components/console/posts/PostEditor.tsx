@@ -51,6 +51,7 @@ export function PostEditor({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState<PostStatus>(POST_STATUS.DRAFT);
   const [isDirty, setIsDirty] = useState(false);
@@ -78,7 +79,7 @@ export function PostEditor({
           title: title.trim(),
           markdown: markdown.trim(),
           description: description.trim(),
-          image: postData?.image || "",
+          image: image.trim(),
           category_id: categoryId,
           status,
         } as UpdatePostRequest)
@@ -86,7 +87,7 @@ export function PostEditor({
           title: title.trim(),
           markdown: markdown.trim(),
           description: description.trim(),
-          image: "",
+          image: image.trim(),
           category_id: categoryId,
           status,
         } as CreatePostRequest);
@@ -100,9 +101,9 @@ export function PostEditor({
     title,
     content,
     description,
+    image,
     categoryId,
     status,
-    postData?.image,
     onSave,
   ]);
 
@@ -115,6 +116,7 @@ export function PostEditor({
       setContent(newContent);
       initialContentRef.current = newContent;
       setDescription(postData.description || "");
+      setImage(postData.image || "");
       setCategoryId(postData.category_id || "");
       setStatus(postData.status || POST_STATUS.DRAFT);
       setIsDirty(false);
@@ -289,9 +291,24 @@ export function PostEditor({
               <label className="text-sm font-medium">描述</label>
               <Textarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setIsDirty(true);
+                }}
                 placeholder="输入文章描述"
                 rows={3}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">封面图片</label>
+              <Input
+                value={image}
+                onChange={(e) => {
+                  setImage(e.target.value);
+                  setIsDirty(true);
+                }}
+                placeholder="输入图片 URL"
+                type="url"
               />
             </div>
             <div>

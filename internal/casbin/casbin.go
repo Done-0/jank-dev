@@ -51,6 +51,13 @@ func New(config *configs.Config) {
 								V1:    policy[1],
 								V2:    policy[2],
 							}
+							// 如果有额外字段（name 和 description），也要保存
+							if len(policy) >= 4 {
+								policyRecord.V3 = policy[3]
+							}
+							if len(policy) >= 5 {
+								policyRecord.V4 = policy[4]
+							}
 							policyRecords = append(policyRecords, policyRecord)
 						}
 					}

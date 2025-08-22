@@ -324,7 +324,7 @@ export function PostsContent({
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0 rounded-full"
-                              onClick={(e) => {
+                              onClick={(e: React.MouseEvent) => {
                                 e.stopPropagation(); // 防止触发父级点击事件
                               }}
                             >
@@ -334,7 +334,7 @@ export function PostsContent({
                           <DropdownMenuContent align="end" className="w-40">
                             <DropdownMenuItem
                               className="cursor-pointer"
-                              onClick={(e) => {
+                              onClick={(e: React.MouseEvent) => {
                                 e.stopPropagation();
                                 onEditPost(post.id);
                               }}

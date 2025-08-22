@@ -79,13 +79,13 @@ THEME:
   THEME_CONFIG_FILE: "theme.json" # 主题配置文件
   
   # Frontend 主题配置（用户前端）
-  FRONTEND_DEFAULT_THEME: "com.jank.themes.default" # Frontend 默认主题 ID
-  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.default" # Frontend 上次激活的主题 ID
+  FRONTEND_DEFAULT_THEME: "com.jank.themes.frontend" # Frontend 默认主题 ID
+  FRONTEND_LAST_ACTIVE_THEME: "com.jank.themes.frontend" # Frontend 上次激活的主题 ID
   
   # Console 主题配置（管理后台）
-  CONSOLE_DEFAULT_THEME: "com.jank.themes.admin-console" # Console 默认主题 ID
-  CONSOLE_LAST_ACTIVE_THEME: "com.jank.themes.admin-console" # Console 上次激活的主题 ID
-  
+  CONSOLE_DEFAULT_THEME: "com.jank.themes.console" # Console 默认主题 ID
+  CONSOLE_LAST_ACTIVE_THEME: "com.jank.themes.console" # Console 上次激活的主题 ID
+
   # 构建相关
   BUILD_SCRIPT_DIR: "scripts" # 构建脚本目录
   BUILD_SCRIPT_FILE: "build.sh" # 构建脚本文件名
