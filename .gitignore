@@ -41,8 +41,8 @@ bin/
 
 # Exclude dist directories (build artifacts)
 dist/
-# But keep default theme dist (static files)
-!themes/default/dist/
+# But keep frontend theme dist (static files)
+!themes/frontend/dist/
 
 # Logs
 logs/

@@ -3,8 +3,10 @@ package routes
 import (
 	"log"
 
-	"github.com/Done-0/jank/pkg/wire"
 	"github.com/cloudwego/hertz/pkg/route"
+
+	"github.com/Done-0/jank/internal/middleware/jwt"
+	"github.com/Done-0/jank/pkg/wire"
 )
 
 // RegisterPluginRoutes 注册插件路由
@@ -15,7 +17,7 @@ func RegisterPluginRoutes(r *route.RouterGroup) {
 	}
 
 	// 插件路由组
-	pluginGroup := r.Group("/plugin")
+	pluginGroup := r.Group("/plugin", jwt.New())
 	{
 		// POST 方法
 		pluginGroup.POST("/register", pluginController.RegisterPlugin)     // 注册插件

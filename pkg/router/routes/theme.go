@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/route"
 
+	"github.com/Done-0/jank/internal/middleware/jwt"
 	"github.com/Done-0/jank/pkg/wire"
 )
 
@@ -19,7 +20,7 @@ func RegisterThemeRoutes(h *server.Hertz, apiGroup *route.RouterGroup) {
 	// === 前端路由 ===
 	// Frontend 主题首页处理器
 	h.GET("/", themeController.ServeHomePage)
-	
+
 	// Console 主题路由处理器
 	h.GET("/console", themeController.ServeHomePage)
 	h.GET("/console/*filepath", themeController.ServeStaticResource)
@@ -27,9 +28,8 @@ func RegisterThemeRoutes(h *server.Hertz, apiGroup *route.RouterGroup) {
 	// 静态资源处理器 - 处理所有未匹配的路径（跳过API路径）
 	h.NoRoute(themeController.ServeStaticResource)
 
-	// === API 路由 ===
 	// 主题路由组
-	themeGroup := apiGroup.Group("/theme")
+	themeGroup := apiGroup.Group("/theme", jwt.New())
 	{
 		// POST 方法
 		themeGroup.POST("/switch", themeController.SwitchTheme) // 切换主题

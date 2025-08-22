@@ -12,6 +12,7 @@ type User struct {
 	Password string `gorm:"type:varchar(255);not null" json:"password"`       // 加密密码
 	Nickname string `gorm:"type:varchar(64);unique;not null" json:"nickname"` // 昵称
 	Avatar   string `gorm:"type:varchar(255);default:null" json:"avatar"`     // 用户头像
+	Role     string `gorm:"type:varchar(32);default:'user'" json:"role"`      // 用户角色
 }
 
 // TableName 指定表名

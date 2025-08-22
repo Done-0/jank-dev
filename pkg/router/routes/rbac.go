@@ -6,8 +6,10 @@ package routes
 import (
 	"log"
 
-	"github.com/Done-0/jank/pkg/wire"
 	"github.com/cloudwego/hertz/pkg/route"
+
+	"github.com/Done-0/jank/internal/middleware/jwt"
+	"github.com/Done-0/jank/pkg/wire"
 )
 
 // RegisterRBACRoutes 注册RBAC相关路由
@@ -18,7 +20,7 @@ func RegisterRBACRoutes(r *route.RouterGroup) {
 	}
 
 	// RBAC 路由组
-	rbacGroup := r.Group("/rbac")
+	rbacGroup := r.Group("/rbac", jwt.New())
 	{
 		// 权限管理
 		rbacGroup.POST("/create-permission", rbacController.CreatePermission) // 创建权限

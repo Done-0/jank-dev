@@ -65,6 +65,8 @@ func New(config *configs.Config) {
 	if err = autoMigrate(); err != nil {
 		global.SysLog.Fatalf("Failed to auto migrate database: %v", err)
 	}
+
+	InitAdminUser(config)
 }
 
 // Close 关闭数据库连接
